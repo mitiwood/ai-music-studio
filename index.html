@@ -1564,6 +1564,52 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 /* 뷰 하단 여백 — 미니플레이어 떠있을 때 */
 body.mp-on .view{padding-bottom:100px;}
 
+
+/* ── 생성 중 알림 팝업 ── */
+#gen-lock-popup{
+  position:fixed;inset:0;z-index:9100;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;opacity:0;transition:opacity .22s;
+}
+#gen-lock-popup.on{pointer-events:auto;opacity:1;}
+.glp-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);}
+.glp-modal{
+  position:relative;z-index:1;
+  background:var(--card2);border:1px solid rgba(168,85,247,.25);
+  border-radius:20px;padding:28px 22px 22px;
+  width:min(88vw,320px);text-align:center;
+  box-shadow:0 8px 40px rgba(0,0,0,.6),0 0 0 1px rgba(124,58,237,.15);
+  transform:scale(.92);transition:transform .22s;
+}
+#gen-lock-popup.on .glp-modal{transform:scale(1);}
+.glp-wave{display:flex;align-items:flex-end;justify-content:center;gap:4px;height:32px;margin-bottom:14px;}
+.glp-bar{
+  width:4px;border-radius:2px;
+  background:linear-gradient(to top,var(--acc),var(--acc3));
+  animation:glpWave 1s ease-in-out infinite;
+}
+.glp-bar:nth-child(1){height:12px;animation-delay:0s;}
+.glp-bar:nth-child(2){height:22px;animation-delay:.12s;}
+.glp-bar:nth-child(3){height:30px;animation-delay:.24s;}
+.glp-bar:nth-child(4){height:22px;animation-delay:.36s;}
+.glp-bar:nth-child(5){height:12px;animation-delay:.48s;}
+@keyframes glpWave{
+  0%,100%{transform:scaleY(1);}
+  50%{transform:scaleY(.35);}
+}
+.glp-title{font-size:15px;font-weight:800;color:var(--t1);margin-bottom:8px;line-height:1.4;}
+.glp-desc{font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:18px;}
+.glp-ok-btn{
+  width:100%;padding:13px;border-radius:12px;
+  background:linear-gradient(135deg,var(--acc),var(--acc2));
+  border:none;color:#fff;font-size:14px;font-weight:800;
+  cursor:pointer;font-family:inherit;transition:all .15s;
+}
+.glp-ok-btn:hover{filter:brightness(1.1);}
+/* 완료 팝업용 (초록 강조) */
+.glp-modal.done .glp-wave .glp-bar{background:linear-gradient(to top,var(--green),#6ee7b7);}
+.glp-modal.done .glp-ok-btn{background:linear-gradient(135deg,var(--green),#059669);}
+
 </style>
 </head>
 <body>
@@ -2361,6 +2407,23 @@ body.mp-on .view{padding-bottom:100px;}
 </div>
 
 
+<!-- ── 생성 중 락 팝업 ── -->
+<div id="gen-lock-popup">
+  <div class="glp-backdrop"></div>
+  <div class="glp-modal" id="glp-modal">
+    <div class="glp-wave">
+      <div class="glp-bar"></div>
+      <div class="glp-bar"></div>
+      <div class="glp-bar"></div>
+      <div class="glp-bar"></div>
+      <div class="glp-bar"></div>
+    </div>
+    <div class="glp-title" id="glp-title">Kenny's AI가 음악을 작곡하고 있어요 🎵</div>
+    <div class="glp-desc" id="glp-desc">현재 다른 곡을 작곡 중이에요.<br>작곡이 끝나고 다시 시도해주세요.</div>
+    <button class="glp-ok-btn" id="glp-ok-btn">확인</button>
+  </div>
+</div>
+
 <!-- ── 오디오 전환 확인 팝업 ── -->
 <div id="audio-switch-popup">
   <div class="asp-backdrop" id="asp-backdrop"></div>
@@ -2979,11 +3042,12 @@ Return ONLY the prompt text, no explanation. Make it vivid, cinematic, 100-200 w
 $('mv-gen-btn')?.addEventListener('click',generateMV);
 
 async function generateMV(){
+  if(_genLocked){showGenLockedPopup();return;}
   const apiKey=kieApiKey;
   if(!apiKey){toast('API 키 로딩 중... 잠시 후 다시 시도해주세요','err');return;}
   const prompt=($('mv-prompt')?.value||'').trim();
   if(!prompt){toast('영상 프롬프트를 입력해주세요','err');return;}
-
+  genLock();
   const btn=$('mv-gen-btn'),spinner=$('mv-gen-spinner'),txt=$('mv-gen-txt');
   btn.disabled=true;if(spinner)spinner.classList.add('on');if(txt)txt.textContent='생성 중...';
 
@@ -3115,6 +3179,7 @@ async function generateMV(){
     btn.disabled=false;
     if(spinner)spinner.classList.remove('on');
     if(txt)txt.textContent='🎬 뮤직비디오 생성하기';
+    genUnlock();
   }
 }
 
@@ -3391,8 +3456,10 @@ $('gen-btn').addEventListener('click',generate);
 $('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.ctrlKey)generate();});
 
 async function generate(overrideParams){
+  if(_genLocked){showGenLockedPopup();return;}
   const apiKey=kieApiKey;
   if(!apiKey){toast('API 키 로딩 중... 잠시 후 다시 시도해주세요','err');return;}
+  genLock();
   /* 모드별 입력값 수집 */
   const isSimple=currentMode==='simple';
   const isYT=currentMode==='youtube';
@@ -3512,6 +3579,7 @@ async function generate(overrideParams){
     if(activeSpinner){activeSpinner.style.display='none';}
     if(activeTxt){activeTxt.textContent=isSimple?'⚡ 음악 생성하기':isYT?'▶ YouTube로 생성':' ✦ 음악 생성하기';}
     $('gen-btn').disabled=false;$('gen-spinner').style.display='none';$('gen-txt').textContent='✦ 음악 생성하기';
+    genUnlock();
   }
 }
 
@@ -4539,6 +4607,52 @@ function renderHistory(){updateHistBadge();}
 
 /* ── HISTORY SAVE ── */
 function saveHistory(){localStorage.setItem('kms_history',JSON.stringify(historyData));}
+
+/* ════════════════════════════════════
+   전역 생성 락 (동시 생성 방지)
+════════════════════════════════════ */
+let _genLocked = false;  /* true = 생성 중 */
+
+function genLock(){ _genLocked = true; }
+function genUnlock(){
+  _genLocked = false;
+  /* 완료 팝업 표시 */
+  const modal = $('glp-modal');
+  const title = $('glp-title');
+  const desc  = $('glp-desc');
+  if(modal && title && desc){
+    modal.classList.add('done');
+    title.textContent = '✅ 작곡이 완료됐어요!';
+    desc.textContent  = '이제 새로운 음악을 작곡할 수 있어요.';
+    $('gen-lock-popup').classList.add('on');
+    /* 3초 후 자동 닫기 */
+    setTimeout(closeGenLockPopup, 3000);
+  }
+}
+function showGenLockedPopup(){
+  const modal = $('glp-modal');
+  const title = $('glp-title');
+  const desc  = $('glp-desc');
+  if(!modal) return;
+  modal.classList.remove('done');
+  title.textContent = "Kenny's AI가 음악을 작곡하고 있어요 🎵";
+  desc.textContent  = '현재 다른 곡을 작곡 중이에요.\n작곡이 끝나고 다시 시도해주세요.';
+  desc.innerHTML    = '현재 다른 곡을 작곡 중이에요.<br>작곡이 끝나고 다시 시도해주세요.';
+  $('gen-lock-popup').classList.add('on');
+}
+function closeGenLockPopup(){
+  $('gen-lock-popup').classList.remove('on');
+  const modal = $('glp-modal');
+  if(modal) modal.classList.remove('done');
+}
+
+$('glp-ok-btn').addEventListener('click', closeGenLockPopup);
+document.querySelector('#gen-lock-popup .glp-backdrop').addEventListener('click', ()=>{
+  /* 생성 중엔 배경 클릭으로 못 닫음 */
+  if(!_genLocked) closeGenLockPopup();
+});
+
+
 /* 최근생성 탭으로 이동 헬퍼 */
 function gotoHistoryTab(){
   const btn=document.querySelector('#bottom-nav [data-view="history-view"]');
