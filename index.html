@@ -520,33 +520,81 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
 .sub-genre-btn.on{background:rgba(208,64,232,.12);border-color:var(--acc);color:var(--acc);}
 
 /* ── 커뮤니티 뷰 ── */
-.comm-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-top:4px;}
+.comm-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-top:4px;}
 .comm-title{font-size:20px;font-weight:800;letter-spacing:-.5px;}
-.comm-filter-row{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+.comm-filter-row{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
 .comm-filter-row::-webkit-scrollbar{display:none;}
 .comm-ftag{padding:6px 14px;border-radius:20px;background:var(--s2);border:1.5px solid var(--bdr);font-size:11px;font-weight:700;color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .12s;}
 .comm-ftag:hover{border-color:var(--acc);color:var(--acc);}
 .comm-ftag.on{background:rgba(208,64,232,.12);border-color:var(--acc);color:var(--acc);}
-.comm-list{display:flex;flex-direction:column;gap:0;}
-.comm-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bdr2);cursor:pointer;transition:background .12s;}
-.comm-item:hover{background:rgba(255,255,255,.02);margin:0 -8px;padding:12px 8px;border-radius:8px;}
-.comm-item:last-child{border-bottom:none;}
-.comm-thumb{width:52px;height:52px;border-radius:10px;object-fit:cover;background:var(--s3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;position:relative;overflow:hidden;}
+/* 히어로 */
+.comm-hero{width:100%;border-radius:20px;overflow:hidden;margin-bottom:20px;position:relative;background:var(--s2);}
+.comm-hero-placeholder{width:100%;aspect-ratio:16/7;display:flex;align-items:center;justify-content:center;font-size:72px;background:linear-gradient(135deg,#1a0a2e,#0d1a35,#0a1a20);}
+.comm-hero img{width:100%;aspect-ratio:16/7;object-fit:cover;display:block;}
+.comm-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 20%,rgba(6,6,14,.95));display:flex;flex-direction:column;justify-content:flex-end;padding:18px 20px;}
+.comm-hero-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(208,64,232,.2);border:1px solid rgba(208,64,232,.5);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:800;color:var(--acc);font-family:'JetBrains Mono',monospace;margin-bottom:8px;width:fit-content;}
+.comm-hero-title{font-size:22px;font-weight:800;letter-spacing:-.5px;margin-bottom:3px;color:#fff;}
+.comm-hero-meta{font-size:11px;color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;margin-bottom:12px;}
+.comm-hero-controls{display:flex;align-items:center;gap:10px;}
+.comm-hero-play{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(208,64,232,.45);transition:transform .12s;flex-shrink:0;}
+.comm-hero-play:hover{transform:scale(1.08);}.comm-hero-play:active{transform:scale(.94);}
+.comm-hero-prog{flex:1;height:3px;background:rgba(255,255,255,.15);border-radius:10px;cursor:pointer;position:relative;}
+.comm-hero-prog-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--acc2),var(--acc));width:0%;transition:width .1s linear;pointer-events:none;}
+.comm-hero-time{font-size:10px;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,.4);white-space:nowrap;}
+.comm-hero-actions{display:flex;align-items:center;gap:8px;margin-top:10px;}
+.comm-hero-act{display:flex;align-items:center;gap:4px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:11px;font-weight:700;color:rgba(255,255,255,.55);cursor:pointer;transition:all .12s;font-family:'Syne',sans-serif;}
+.comm-hero-act:hover{background:rgba(255,255,255,.14);color:#fff;}
+.comm-hero-act.liked{background:rgba(255,64,129,.15);border-color:rgba(255,64,129,.4);color:#FF4081;}
+.comm-hero-act.disliked{background:rgba(68,153,255,.12);border-color:rgba(68,153,255,.35);color:var(--blue);}
+/* 섹션 */
+.comm-section-label{font-size:10px;font-weight:800;color:var(--t3);letter-spacing:2px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin:0 0 10px;}
+/* 리스트 */
+.comm-list{display:flex;flex-direction:column;gap:2px;}
+.comm-item{border-radius:12px;transition:background .12s;position:relative;}
+.comm-item-row{display:flex;align-items:center;gap:10px;padding:9px 10px;cursor:pointer;}
+.comm-item:hover{background:rgba(255,255,255,.04);}
+.comm-item.playing{background:rgba(208,64,232,.07);outline:1px solid rgba(208,64,232,.2);}
+.comm-rank{font-size:11px;font-weight:800;color:var(--t3);font-family:'JetBrains Mono',monospace;width:16px;text-align:center;flex-shrink:0;}
+.comm-rank.top{color:var(--acc);}
+.comm-thumb{width:46px;height:46px;border-radius:9px;background:var(--s3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;position:relative;overflow:hidden;}
 .comm-thumb img{width:100%;height:100%;object-fit:cover;}
-.comm-thumb-dur{position:absolute;bottom:3px;right:3px;background:rgba(0,0,0,.7);font-size:8px;font-weight:700;color:#fff;padding:1px 4px;border-radius:4px;font-family:'JetBrains Mono',monospace;}
+.comm-thumb-dur{position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,.75);font-size:7px;font-weight:700;color:#fff;padding:1px 3px;border-radius:3px;font-family:'JetBrains Mono',monospace;}
 .comm-info{flex:1;min-width:0;}
-.comm-track-title{font-size:14px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;display:flex;align-items:center;gap:6px;}
-.comm-new-badge{background:rgba(208,64,232,.15);border:1px solid rgba(208,64,232,.4);color:var(--acc);font-size:8px;font-weight:800;padding:1px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace;flex-shrink:0;}
-.comm-meta{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:8px;}
-.comm-stat{display:flex;align-items:center;gap:3px;}
-.comm-play-btn{width:32px;height:32px;border-radius:50%;background:rgba(208,64,232,.12);border:1px solid rgba(208,64,232,.3);color:var(--acc);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s;}
-.comm-play-btn:hover{background:rgba(208,64,232,.2);border-color:var(--acc);}
-.comm-hero{width:100%;border-radius:16px;overflow:hidden;margin-bottom:16px;position:relative;aspect-ratio:16/7;background:var(--s2);}
-.comm-hero img{width:100%;height:100%;object-fit:cover;}
-.comm-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(6,6,14,.85));display:flex;flex-direction:column;justify-content:flex-end;padding:20px;}
-.comm-hero-title{font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px;}
-.comm-hero-meta{font-size:11px;color:rgba(255,255,255,.6);font-family:'JetBrains Mono',monospace;}
-.comm-section-label{font-size:11px;font-weight:800;color:var(--t3);letter-spacing:2px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin:16px 0 10px;}
+.comm-track-title{font-size:13px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;display:flex;align-items:center;gap:5px;}
+.comm-new-badge{background:rgba(208,64,232,.15);border:1px solid rgba(208,64,232,.4);color:var(--acc);font-size:8px;font-weight:800;padding:1px 4px;border-radius:4px;font-family:'JetBrains Mono',monospace;flex-shrink:0;}
+.comm-pinned-badge{background:rgba(255,208,0,.1);border:1px solid rgba(255,208,0,.4);color:var(--ylw);font-size:8px;font-weight:800;padding:1px 4px;border-radius:4px;font-family:'JetBrains Mono',monospace;flex-shrink:0;}
+.comm-meta{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:7px;}
+.comm-stat{display:flex;align-items:center;gap:2px;}
+.comm-stat.liked-stat{color:#FF4081;}
+.comm-item-btns{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.comm-play-btn{width:30px;height:30px;border-radius:50%;background:rgba(208,64,232,.1);border:1px solid rgba(208,64,232,.25);color:var(--acc);font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;}
+.comm-play-btn:hover,.comm-play-btn.playing{background:rgba(208,64,232,.22);border-color:var(--acc);}
+.comm-like-btn{width:26px;height:26px;border-radius:50%;background:none;border:1px solid var(--bdr);color:var(--t3);font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;}
+.comm-like-btn:hover{border-color:#FF4081;color:#FF4081;}
+.comm-like-btn.liked{background:rgba(255,64,129,.1);border-color:#FF4081;color:#FF4081;}
+/* 상세 패널 */
+.comm-detail{background:rgba(208,64,232,.04);border-top:1px solid rgba(208,64,232,.12);margin:0;overflow:hidden;animation:fadeIn .2s ease;}
+.comm-detail-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.06);}
+.comm-dtab{flex:1;padding:9px 8px;font-size:11px;font-weight:700;color:var(--t3);cursor:pointer;text-align:center;font-family:'Syne',sans-serif;transition:all .15s;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.comm-dtab:hover{color:var(--t2);}
+.comm-dtab.on{color:var(--acc);border-bottom-color:var(--acc);}
+.comm-dpanel{display:none;padding:12px 14px;}.comm-dpanel.on{display:block;}
+.comm-desc-text{font-size:13px;color:var(--t2);line-height:1.7;white-space:pre-wrap;}
+.comm-lyrics-box{max-height:200px;overflow-y:auto;scrollbar-width:thin;}
+.comm-lyrics-box::-webkit-scrollbar{width:3px;}
+.comm-lyrics-box::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px;}
+.comm-lyric-line{font-size:13px;font-weight:600;color:rgba(255,255,255,.32);padding:5px 6px;cursor:pointer;transition:all .2s;border-radius:5px;line-height:1.5;}
+.comm-lyric-line:hover{color:rgba(255,255,255,.7);background:rgba(255,255,255,.04);}
+.comm-lyric-line.active{color:#fff;font-size:14px;font-weight:800;border-left:2px solid var(--acc);padding-left:8px;}
+.comm-lyric-line.done{color:rgba(255,255,255,.5);}
+.comm-lyric-sec{font-size:9px;font-weight:800;color:var(--acc);letter-spacing:3px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;padding:8px 6px 3px;opacity:.7;}
+.comm-edit-row{margin-bottom:10px;}
+.comm-edit-label{font-size:10px;font-weight:700;color:var(--t2);letter-spacing:1px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:5px;}
+.comm-edit-input{width:100%;background:var(--s2);border:1.5px solid var(--bdr);border-radius:var(--rsm);padding:8px 12px;font-size:13px;font-family:'Syne',sans-serif;color:var(--t1);outline:none;transition:border-color .2s;}
+.comm-edit-input:focus{border-color:var(--acc);}
+.comm-edit-textarea{width:100%;min-height:80px;resize:vertical;background:var(--s2);border:1.5px solid var(--bdr);border-radius:var(--rsm);padding:9px 12px;font-size:13px;font-family:'Syne',sans-serif;color:var(--t1);outline:none;line-height:1.6;transition:border-color .2s;}
+.comm-edit-textarea:focus{border-color:var(--acc);}
+.comm-edit-save{padding:8px 18px;border-radius:20px;background:linear-gradient(135deg,var(--acc2),var(--acc));border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;}
 
 /* ── 설정 뷰 ── */
 .settings-view{}
@@ -933,7 +981,6 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
     <div class="comm-header">
       <div class="comm-title">커뮤니티</div>
     </div>
-    <!-- 필터 -->
     <div class="comm-filter-row">
       <button class="comm-ftag on" data-cf="all">🔥 전체</button>
       <button class="comm-ftag" data-cf="kpop">🎵 K-Pop</button>
@@ -942,18 +989,10 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
       <button class="comm-ftag" data-cf="electronic">⚡ Electronic</button>
       <button class="comm-ftag" data-cf="ost">🎬 OST</button>
     </div>
-    <!-- 히어로 -->
-    <div class="comm-hero">
-      <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a0a2e,#0d1a35,#0a1a20);display:flex;align-items:center;justify-content:center;font-size:64px;">🎵</div>
-      <div class="comm-hero-overlay">
-        <div class="comm-hero-title">그때 그자리</div>
-        <div class="comm-hero-meta">Kenny LEE · K-Pop Ballad · 4:14</div>
-      </div>
-    </div>
-    <div class="comm-section-label">최신 작곡</div>
-    <div class="comm-list" id="comm-list">
-      <!-- JS로 렌더링 -->
-    </div>
+    <!-- 히어로 (좋아요 1위 / 최신곡) — JS로 렌더 -->
+    <div id="comm-hero-wrap"></div>
+    <div class="comm-section-label" id="comm-section-lbl">전체 트랙</div>
+    <div class="comm-list" id="comm-list"></div>
   </div>
 
   <!-- SETTINGS VIEW -->
@@ -2909,46 +2948,337 @@ function closeKaraokePlayer(){
 $('kp-close-btn').addEventListener('click',closeKaraokePlayer);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('karaoke-player').classList.contains('on'))closeKaraokePlayer();});
 
-/* ── 커뮤니티 렌더 ── */
-const MOCK_TRACKS=[
-  {title:'그때 그자리',tags:'K-Pop Ballad',dur:'4:14',plays:2,likes:3,img:'',isNew:true},
-  {title:'Candy-Coded Heartbeat',tags:'J-Pop Bounce',dur:'3:11',plays:0,likes:1,img:'',isNew:false},
-  {title:'새벽 세 시의 고백',tags:'Lo-Fi Hip-Hop',dur:'2:48',plays:5,likes:8,img:'',isNew:true},
-  {title:'도시의 불빛',tags:'Synthwave',dur:'3:33',plays:1,likes:2,img:'',isNew:false},
-  {title:'오늘도 맑음',tags:'Acoustic Folk',dur:'2:55',plays:3,likes:4,img:'',isNew:false},
-  {title:'Electric Dreams',tags:'EDM House',dur:'3:47',plays:7,likes:12,img:'',isNew:true},
-];
+/* ── 커뮤니티 전역 상태 ── */
+let commAudio=null,commVizTimer=null,commPlayingIdx=-1,commHeroPlaying=false;
+let commHeroAudio=null,commHeroVizTimer=null;
+
+/* historyData를 커뮤니티 트랙 형태로 변환 */
+function getCommTracks(){
+  return historyData.map((h,i)=>({
+    _hIdx:i, title:h.title||'무제',
+    tags:(h.tags||'').split(',')[0]?.trim()||'',
+    img:h.image_url||'', dur:'—',
+    audioUrl:h.audio_url||'', videoUrl:h.video_url||'',
+    lyrics:h.lyrics||'', description:h.description||'',
+    likes:h._commLikes||0, liked:h._commLiked||false,
+    disliked:h._commDisliked||false,
+    isNew:(Date.now()-(h.created||0))<3600000*24,
+    plays:h._commPlays||0,
+  }));
+}
 
 function renderCommunity(){
+  const heroWrap=$('comm-hero-wrap');
   const list=$('comm-list');
   if(!list)return;
-  /* historyData가 있으면 히스토리 먼저 표시 */
-  const combined=[...historyData.slice(0,3).map(h=>({
-    title:h.title||'무제',tags:(h.tags||'').split(',')[0]||'',
-    dur:h.audio_url?'—':'—',plays:0,likes:0,img:h.image_url||'',isNew:true,
-    audioUrl:h.audio_url,videoUrl:h.video_url,fromHistory:true
-  })),...MOCK_TRACKS].slice(0,8);
 
-  list.innerHTML=combined.map((t,i)=>`
-    <div class="comm-item" onclick="${t.audioUrl?`playFromHistory('${esc(t.audioUrl||'')}','${esc(t.videoUrl||'')}','${esc(t.title)}')`:'toast(\'커뮤니티 기능 준비 중...\',\'\',1500)'}">
-      <div class="comm-thumb">
-        ${t.img?`<img src="${esc(t.img)}" alt="">`:`<span style="font-size:24px;">${['🎵','🎸','🎤','🎷','🎻','🎹','🥁','🎼'][i%8]}</span>`}
-        <span class="comm-thumb-dur">${t.dur}</span>
-      </div>
-      <div class="comm-info">
-        <div class="comm-track-title">
-          ${esc(t.title)}
-          ${t.isNew?'<span class="comm-new-badge">NEW</span>':''}
+  let tracks=getCommTracks();
+  if(!tracks.length){
+    heroWrap.innerHTML='';
+    list.innerHTML=`<div style="text-align:center;padding:48px 20px;color:var(--t3);">
+      <div style="font-size:40px;margin-bottom:12px;">🎵</div>
+      <div style="font-size:14px;font-weight:700;color:var(--t2);margin-bottom:6px;">아직 생성된 음악이 없어요</div>
+      <div style="font-size:12px;">음악 만들기에서 첫 곡을 만들어보세요!</div>
+    </div>`;
+    return;
+  }
+
+  /* 좋아요 많은 순 정렬 — 상위 1개는 히어로, 나머지는 리스트 */
+  const sorted=[...tracks].sort((a,b)=>b.likes-a.likes);
+  const hero=sorted[0];
+  const rest=sorted.slice(1);
+
+  /* ── 히어로 렌더 ── */
+  heroWrap.innerHTML=`
+  <div class="comm-hero" id="comm-hero">
+    ${hero.img
+      ?`<img src="${esc(hero.img)}" alt="" style="width:100%;aspect-ratio:16/7;object-fit:cover;display:block;">`
+      :`<div class="comm-hero-placeholder">🎵</div>`}
+    <div class="comm-hero-overlay">
+      <div class="comm-hero-badge">🏆 좋아요 ${hero.likes > 0 ? hero.likes + '개' : '최신'}</div>
+      <div class="comm-hero-title">${esc(hero.title)}</div>
+      <div class="comm-hero-meta">${esc(hero.tags)}${hero.dur!=='—'?' · '+hero.dur:''}</div>
+      <div class="comm-hero-controls">
+        <button class="comm-hero-play" id="comm-hero-play-btn">▶</button>
+        <div class="comm-hero-prog" id="comm-hero-prog">
+          <div class="comm-hero-prog-fill" id="comm-hero-prog-fill"></div>
         </div>
-        <div class="comm-meta">
-          <span>${esc(t.tags)}</span>
-          <span class="comm-stat">▶ ${t.plays}</span>
-          <span class="comm-stat">❤ ${t.likes}</span>
+        <span class="comm-hero-time" id="comm-hero-time">0:00</span>
+      </div>
+      <div class="comm-hero-actions">
+        <button class="comm-hero-act${hero.liked?' liked':''}" id="comm-hero-like" onclick="commHeroLike()">
+          ${hero.liked?'❤️':'🤍'} 좋아요 <span id="comm-hero-like-cnt">${hero.likes}</span>
+        </button>
+        <button class="comm-hero-act${hero.disliked?' disliked':''}" id="comm-hero-dislike" onclick="commHeroDislike()">
+          👎 싫어요
+        </button>
+        <button class="comm-hero-act" onclick="commOpenDetail(0,true)">
+          📝 가사 · 정보
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="comm-detail" id="comm-detail-hero" style="display:none;border-radius:0 0 14px 14px;margin-bottom:16px;">
+    ${buildDetailPanel('hero',hero)}
+  </div>`;
+
+  /* 히어로 오디오 연결 */
+  setupHeroAudio(hero);
+
+  /* ── 리스트 렌더 ── */
+  $('comm-section-lbl').textContent=rest.length?'다른 트랙':'트랙 없음';
+  list.innerHTML=rest.map((t,i)=>`
+    <div class="comm-item" id="comm-item-${i}">
+      <div class="comm-item-row" onclick="commToggleDetail(${i})">
+        <span class="comm-rank${i<3?' top':''}">${i+1}</span>
+        <div class="comm-thumb">
+          ${t.img?`<img src="${esc(t.img)}" alt="">`:`<span>${['🎵','🎸','🎤','🎷','🎻','🎹','🥁','🎼'][(i+1)%8]}</span>`}
+        </div>
+        <div class="comm-info">
+          <div class="comm-track-title">
+            ${esc(t.title)}
+            ${t.isNew?'<span class="comm-new-badge">NEW</span>':''}
+            ${t.likes>=3?'<span class="comm-pinned-badge">🔥 인기</span>':''}
+          </div>
+          <div class="comm-meta">
+            <span>${esc(t.tags)}</span>
+            <span class="comm-stat${t.liked?' liked-stat':''}">❤ <span id="comm-likes-${i}">${t.likes}</span></span>
+          </div>
+        </div>
+        <div class="comm-item-btns">
+          <button class="comm-like-btn${t.liked?' liked':''}" id="comm-like-${i}" onclick="event.stopPropagation();commLike(${i})" title="좋아요">🤍</button>
+          <button class="comm-play-btn" id="comm-play-${i}" onclick="event.stopPropagation();commPlay(${i})" title="재생">▶</button>
         </div>
       </div>
-      <button class="comm-play-btn" onclick="event.stopPropagation();${t.audioUrl?`playFromHistory('${esc(t.audioUrl||'')}','${esc(t.videoUrl||'')}','${esc(t.title)}')`:'toast(\'준비 중...\',\'\',1500)'}">▶</button>
+      <!-- 상세 패널 -->
+      <div class="comm-detail" id="comm-detail-${i}" style="display:none;">
+        ${buildDetailPanel(i,t)}
+      </div>
     </div>
   `).join('');
+
+  /* 리스트 좋아요 버튼 초기화 */
+  rest.forEach((t,i)=>{
+    const lb=document.getElementById(`comm-like-${i}`);
+    if(lb)lb.textContent=t.liked?'❤️':'🤍';
+  });
+}
+
+/* 상세 패널 HTML 빌더 */
+function buildDetailPanel(id,t){
+  const lyricsHtml=buildCommLyrics(id,t.lyrics);
+  const descHtml=t.description||t.tags||'음악 설명이 없습니다.';
+  return`
+  <div class="comm-detail-tabs">
+    <div class="comm-dtab on" onclick="commDTab(this,'dp-${id}-lyrics')">🎤 가사</div>
+    <div class="comm-dtab" onclick="commDTab(this,'dp-${id}-desc')">📖 설명</div>
+    <div class="comm-dtab" onclick="commDTab(this,'dp-${id}-edit')">✏️ 수정</div>
+  </div>
+  <div class="comm-dpanel on" id="dp-${id}-lyrics">
+    <div class="comm-lyrics-box" id="clbox-${id}">${lyricsHtml}</div>
+  </div>
+  <div class="comm-dpanel" id="dp-${id}-desc">
+    <div class="comm-desc-text">${esc(descHtml)}</div>
+  </div>
+  <div class="comm-dpanel" id="dp-${id}-edit">
+    <div class="comm-edit-row">
+      <div class="comm-edit-label">곡 제목</div>
+      <input class="comm-edit-input" id="cedit-title-${id}" value="${esc(t.title)}" placeholder="곡 제목">
+    </div>
+    <div class="comm-edit-row">
+      <div class="comm-edit-label">음악 설명</div>
+      <textarea class="comm-edit-textarea" id="cedit-desc-${id}" placeholder="음악 설명을 입력하세요...">${esc(t.description||'')}</textarea>
+    </div>
+    <div class="comm-edit-row">
+      <div class="comm-edit-label">가사</div>
+      <textarea class="comm-edit-textarea" id="cedit-lyrics-${id}" rows="5" placeholder="가사를 입력하세요...">${esc(t.lyrics||'')}</textarea>
+    </div>
+    <button class="comm-edit-save" onclick="commSaveEdit('${id}',${t._hIdx})">저장</button>
+  </div>`;
+}
+
+function buildCommLyrics(id,plain){
+  if(!plain||plain.trim().length<3)return'<div style="color:var(--t3);font-size:12px;padding:8px 0;">가사 없음 — 수정 탭에서 입력하세요</div>';
+  const isStyle=!plain.includes('\n')&&plain.length<120&&!/\[.+\]/.test(plain);
+  if(isStyle)return'<div style="color:var(--t3);font-size:12px;padding:8px 0;">가사 없음 — 수정 탭에서 입력하세요</div>';
+  let html='',li=0;
+  plain.split('\n').forEach(line=>{
+    const t=line.trim();
+    if(!t){html+='<div style="height:4px;"></div>';return;}
+    if(/^\[.+\]$/.test(t)){html+=`<div class="comm-lyric-sec">${esc(t.replace(/[\[\]]/g,''))}</div>`;return;}
+    html+=`<div class="comm-lyric-line" data-cli="${li}" data-cpid="${id}" onclick="commSeekLine(this)">${esc(t)}</div>`;
+    li++;
+  });
+  return html;
+}
+
+/* 히어로 오디오 */
+function setupHeroAudio(hero){
+  if(commHeroAudio){commHeroAudio.pause();commHeroAudio=null;}
+  if(!hero.audioUrl)return;
+  const audio=new Audio(hero.audioUrl);
+  commHeroAudio=audio;
+  const playBtn=$('comm-hero-play-btn');
+  const fill=$('comm-hero-prog-fill');
+  const timeEl=$('comm-hero-time');
+  if(!playBtn)return;
+  audio.addEventListener('timeupdate',()=>{
+    if(!audio.duration)return;
+    const pct=(audio.currentTime/audio.duration)*100;
+    if(fill)fill.style.width=pct+'%';
+    if(timeEl)timeEl.textContent=formatTime(audio.currentTime);
+    /* 히어로 가사 싱크 */
+    commSyncLyrics('hero',audio.currentTime,audio.duration);
+  });
+  audio.addEventListener('ended',()=>{if(playBtn)playBtn.textContent='▶';commHeroPlaying=false;});
+  playBtn.onclick=()=>{
+    /* 다른 재생 중지 */
+    if(commAudio){commAudio.pause();commPlayingIdx=-1;document.querySelectorAll('.comm-play-btn').forEach(b=>b.textContent='▶');}
+    if(audio.paused){audio.play();playBtn.textContent='⏸';commHeroPlaying=true;}
+    else{audio.pause();playBtn.textContent='▶';commHeroPlaying=false;}
+  };
+  const prog=$('comm-hero-prog');
+  if(prog)prog.onclick=e=>{
+    if(!audio.duration)return;
+    const r=prog.getBoundingClientRect();
+    audio.currentTime=audio.duration*Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
+  };
+}
+
+/* 리스트 재생 */
+function commPlay(i){
+  const tracks=getCommTracks().slice(1); /* hero 제외 */
+  const t=tracks[i];if(!t?.audioUrl)return;
+  /* 히어로 정지 */
+  if(commHeroAudio&&!commHeroAudio.paused){commHeroAudio.pause();const pb=$('comm-hero-play-btn');if(pb)pb.textContent='▶';commHeroPlaying=false;}
+  /* 이미 재생 중이면 토글 */
+  if(commPlayingIdx===i&&commAudio){
+    if(commAudio.paused){commAudio.play();document.getElementById(`comm-play-${i}`).textContent='⏸';}
+    else{commAudio.pause();document.getElementById(`comm-play-${i}`).textContent='▶';}
+    return;
+  }
+  /* 이전 정지 */
+  if(commAudio){commAudio.pause();}
+  if(commPlayingIdx>=0){const old=document.getElementById(`comm-play-${commPlayingIdx}`);if(old)old.textContent='▶';document.getElementById(`comm-item-${commPlayingIdx}`)?.classList.remove('playing');}
+  /* 새 재생 */
+  const audio=new Audio(t.audioUrl);commAudio=audio;commPlayingIdx=i;
+  audio.addEventListener('timeupdate',()=>{
+    if(!audio.duration)return;
+    commSyncLyrics(i,audio.currentTime,audio.duration);
+    /* 재생수 업데이트 */
+    const h=historyData[t._hIdx];if(h&&!audio._counted&&audio.currentTime>5){audio._counted=true;h._commPlays=(h._commPlays||0)+1;saveHistory();}
+  });
+  audio.addEventListener('ended',()=>{document.getElementById(`comm-play-${i}`)?.textContent='▶';commPlayingIdx=-1;document.getElementById(`comm-item-${i}`)?.classList.remove('playing');});
+  audio.play();
+  document.getElementById(`comm-play-${i}`).textContent='⏸';
+  document.getElementById(`comm-item-${i}`)?.classList.add('playing');
+}
+
+/* 가사 싱크 */
+function commSyncLyrics(pid,cur,dur){
+  const box=document.getElementById(`clbox-${pid}`);if(!box)return;
+  const lines=box.querySelectorAll('.comm-lyric-line');if(!lines.length)return;
+  const n=lines.length;
+  let activeIdx=-1;
+  lines.forEach((el,i)=>{
+    const s=(dur/n)*i,e=(dur/n)*(i+1);
+    const isActive=cur>=s&&cur<e;
+    el.classList.toggle('active',isActive);
+    el.classList.toggle('done',cur>=e);
+    if(isActive)activeIdx=i;
+  });
+  if(activeIdx>=0){const el=lines[activeIdx];const br=box.getBoundingClientRect(),er=el.getBoundingClientRect();box.scrollBy({top:er.top-br.top-(box.clientHeight/2)+(el.clientHeight/2),behavior:'smooth'});}
+}
+
+/* 가사 라인 클릭 이동 */
+function commSeekLine(el){
+  const pid=el.dataset.cpid;
+  const li=parseInt(el.dataset.cli);
+  const audio=pid==='hero'?commHeroAudio:commAudio;
+  if(!audio?.duration)return;
+  const n=el.parentElement.querySelectorAll('.comm-lyric-line').length;
+  audio.currentTime=(audio.duration/n)*li;
+  if(audio.paused){
+    audio.play();
+    if(pid==='hero'){const pb=$('comm-hero-play-btn');if(pb)pb.textContent='⏸';}
+    else{const pb=document.getElementById(`comm-play-${commPlayingIdx}`);if(pb)pb.textContent='⏸';}
+  }
+}
+
+/* 히어로 좋아요 */
+function commHeroLike(){
+  const tracks=getCommTracks();if(!tracks.length)return;
+  const sorted=[...tracks].sort((a,b)=>b.likes-a.likes);
+  const hero=sorted[0];const h=historyData[hero._hIdx];if(!h)return;
+  h._commLiked=!h._commLiked;if(h._commLiked)h._commDisliked=false;
+  h._commLikes=(h._commLikes||0)+(h._commLiked?1:-1);if(h._commLikes<0)h._commLikes=0;
+  saveHistory();
+  const btn=$('comm-hero-like');const cnt=$('comm-hero-like-cnt');
+  if(btn){btn.classList.toggle('liked',h._commLiked);btn.innerHTML=`${h._commLiked?'❤️':'🤍'} 좋아요 <span id="comm-hero-like-cnt">${h._commLikes}</span>`;}
+  toast(h._commLiked?'❤️ 좋아요!':'좋아요 취소','',1200);
+}
+function commHeroDislike(){
+  const tracks=getCommTracks();if(!tracks.length)return;
+  const sorted=[...tracks].sort((a,b)=>b.likes-a.likes);
+  const hero=sorted[0];const h=historyData[hero._hIdx];if(!h)return;
+  h._commDisliked=!h._commDisliked;if(h._commDisliked)h._commLiked=false;
+  saveHistory();
+  const btn=$('comm-hero-dislike');if(btn)btn.classList.toggle('disliked',h._commDisliked);
+  toast(h._commDisliked?'👎 싫어요':'싫어요 취소','',1200);
+}
+
+/* 리스트 좋아요 */
+function commLike(i){
+  const tracks=getCommTracks().slice(1);
+  const t=tracks[i];if(!t)return;
+  const h=historyData[t._hIdx];if(!h)return;
+  h._commLiked=!h._commLiked;if(h._commLiked)h._commDisliked=false;
+  h._commLikes=(h._commLikes||0)+(h._commLiked?1:-1);if(h._commLikes<0)h._commLikes=0;
+  saveHistory();
+  const btn=document.getElementById(`comm-like-${i}`);
+  const cnt=document.getElementById(`comm-likes-${i}`);
+  if(btn){btn.classList.toggle('liked',h._commLiked);btn.textContent=h._commLiked?'❤️':'🤍';}
+  if(cnt)cnt.textContent=h._commLikes;
+  toast(h._commLiked?'❤️ 좋아요!':'좋아요 취소','',1200);
+  /* 좋아요가 많아지면 히어로 교체 — 재렌더 */
+  if(h._commLiked&&h._commLikes>=(getCommTracks()[0]?.likes||0))setTimeout(renderCommunity,800);
+}
+
+/* 상세 패널 토글 */
+function commToggleDetail(i){
+  const panel=document.getElementById(`comm-detail-${i}`);if(!panel)return;
+  const isOpen=panel.style.display!=='none';
+  /* 모두 닫기 */
+  document.querySelectorAll('[id^="comm-detail-"]').forEach(p=>{p.style.display='none';});
+  if(!isOpen)panel.style.display='block';
+}
+function commOpenDetail(i,isHero){
+  const panel=document.getElementById(isHero?'comm-detail-hero':`comm-detail-${i}`);if(!panel)return;
+  const isOpen=panel.style.display!=='none';
+  document.querySelectorAll('[id^="comm-detail-"]').forEach(p=>{p.style.display='none';});
+  if(!isOpen)panel.style.display='block';
+}
+
+/* 상세 탭 전환 */
+function commDTab(btn,panelId){
+  const detail=btn.closest('.comm-detail');
+  detail.querySelectorAll('.comm-dtab').forEach(t=>t.classList.remove('on'));
+  detail.querySelectorAll('.comm-dpanel').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  const p=document.getElementById(panelId);if(p)p.classList.add('on');
+}
+
+/* 수정 저장 */
+function commSaveEdit(pid,hIdx){
+  const h=historyData[hIdx];if(!h)return;
+  const titleEl=document.getElementById(`cedit-title-${pid}`);
+  const descEl=document.getElementById(`cedit-desc-${pid}`);
+  const lyricsEl=document.getElementById(`cedit-lyrics-${pid}`);
+  if(titleEl)h.title=titleEl.value.trim()||h.title;
+  if(descEl)h.description=descEl.value.trim();
+  if(lyricsEl)h.lyrics=lyricsEl.value.trim();
+  saveHistory();renderCommunity();
+  toast('✅ 저장됐어요!','ok',1500);
 }
 
 /* ── 설정 렌더 ── */
