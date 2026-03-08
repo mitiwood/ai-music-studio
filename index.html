@@ -1311,6 +1311,45 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 .mv-progress-txt{font-size:11px;color:var(--t3);margin-top:4px;}
 .mv-empty-hint{font-size:11px;color:var(--t3);text-align:center;padding:20px 0;}
 
+
+/* ── 오디오 전환 팝업 ── */
+#audio-switch-popup{
+  position:fixed;inset:0;z-index:9000;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;opacity:0;transition:opacity .22s;
+}
+#audio-switch-popup.on{pointer-events:auto;opacity:1;}
+.asp-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);}
+.asp-modal{
+  position:relative;z-index:1;
+  background:var(--card2);border:1px solid var(--border2);
+  border-radius:20px;padding:28px 24px 20px;
+  width:min(88vw,320px);text-align:center;
+  box-shadow:0 8px 40px rgba(0,0,0,.6);
+  transform:scale(.92);transition:transform .22s;
+}
+#audio-switch-popup.on .asp-modal{transform:scale(1);}
+.asp-icon{font-size:36px;margin-bottom:10px;}
+.asp-title{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:8px;}
+.asp-desc{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:18px;}
+.asp-confirm-msg{font-size:13px;color:var(--green);margin-bottom:14px;padding:10px 14px;background:rgba(16,185,129,.1);border-radius:10px;}
+.asp-btns{display:flex;gap:10px;}
+.asp-cancel-btn{
+  flex:1;padding:12px 0;border-radius:12px;
+  background:var(--bg2);border:1px solid var(--border);
+  color:var(--t2);font-size:14px;font-weight:700;cursor:pointer;
+  font-family:inherit;transition:all .15s;
+}
+.asp-cancel-btn:hover{background:var(--card);color:var(--t1);}
+.asp-ok-btn{
+  flex:1;padding:12px 0;border-radius:12px;
+  background:linear-gradient(135deg,var(--acc),var(--acc2));
+  border:none;color:#fff;font-size:14px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:all .15s;
+  box-shadow:0 2px 12px rgba(124,58,237,.4);
+}
+.asp-ok-btn:hover{filter:brightness(1.1);}
+
 </style>
 </head>
 <body>
@@ -2050,6 +2089,24 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
           <div class="fp-lyrics-empty">가사 없음</div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── 오디오 전환 확인 팝업 ── -->
+<div id="audio-switch-popup">
+  <div class="asp-backdrop" id="asp-backdrop"></div>
+  <div class="asp-modal">
+    <div class="asp-icon">🎵</div>
+    <div class="asp-title">재생 중인 음악이 있어요</div>
+    <div class="asp-desc" id="asp-desc"></div>
+    <div class="asp-confirm-msg" id="asp-confirm-msg" style="display:none;">
+      <span class="asp-check">✅</span> 선택한 곡으로 전환합니다
+    </div>
+    <div class="asp-btns" id="asp-btns">
+      <button class="asp-cancel-btn" id="asp-cancel-btn">취소</button>
+      <button class="asp-ok-btn" id="asp-ok-btn">확인 · 전환</button>
     </div>
   </div>
 </div>
@@ -3532,11 +3589,19 @@ function togglePlay(btn){
     else{activeAudio.pause();btn.textContent='▶';stopViz(idx);}
     return;
   }
-  /* 다른 소스가 재생 중이면 차단 */
-  if(fpAudio&&!fpAudio.paused){toast('⏸ 풀스크린 플레이어가 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-  if(commHeroAudio&&!commHeroAudio.paused){toast('⏸ 커뮤니티 곡이 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-  if(commAudio&&!commAudio.paused){toast('⏸ 커뮤니티 곡이 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-  if(kpAudio&&!kpAudio.paused){toast('⏸ 노래방 모드가 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
+  /* 다른 소스가 재생 중이면 팝업으로 확인 */
+  const _tpSrc=getPlayingInfo();
+  if(_tpSrc&&!(activeAudio&&!activeAudio.paused&&activeAudio._idx!==idx)){
+    showAudioSwitchPopup(_tpSrc,url,()=>{
+      const a2=new Audio(url);a2._idx=idx;activeAudio=a2;
+      if(activeAudio&&activeAudio._idx!==idx){activeAudio.pause();stopViz(activeAudio._idx);const old=document.querySelector(`.ap-play-btn[data-idx="${activeAudio._idx}"]`);if(old)old.textContent='▶';}
+      a2.addEventListener('timeupdate',()=>{const pct=a2.duration?(a2.currentTime/a2.duration)*100:0;const f=document.getElementById(`ap-prog-${idx}`);if(f)f.style.width=pct+'%';const t=document.getElementById(`ap-time-${idx}`);if(t)t.textContent=`${formatTime(a2.currentTime)} / ${formatTime(a2.duration||0)}`;updateKaraokeSync(idx,a2.currentTime);});
+      a2.addEventListener('ended',()=>{btn.textContent='▶';stopViz(idx);const f=document.getElementById(`ap-prog-${idx}`);if(f)f.style.width='0%';});
+      a2.addEventListener('error',()=>toast('오디오 재생 오류','err'));
+      a2.play().then(()=>{btn.textContent='⏸';startViz(idx);}).catch(e=>toast('재생 실패: '+e.message,'err'));
+    });
+    return;
+  }
   /* 결과 카드 내 다른 트랙 정지 */
   if(activeAudio){
     activeAudio.pause();stopViz(activeAudio._idx);
@@ -3805,11 +3870,25 @@ let fpAudio=null,fpVizTimer=null,fpCurrentIdx=-1,fpLiked=false,fpDisliked=false,
 function openFullPlayer(idx){
   const h=historyData[idx];
   if(!h)return;
-  /* 다른 소스 재생 중 차단 */
-  if(activeAudio&&!activeAudio.paused){toast('⏸ 결과 카드에서 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-  if(commHeroAudio&&!commHeroAudio.paused){toast('⏸ 커뮤니티 곡이 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-  if(commAudio&&!commAudio.paused){toast('⏸ 커뮤니티 곡이 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-  if(kpAudio&&!kpAudio.paused){toast('⏸ 노래방 모드가 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
+  /* fp 내부에서 다른 곡으로 교체 시 — 바로 허용 (fpAudio는 아래서 정지) */
+  /* 다른 소스가 재생 중이면 팝업으로 확인 */
+  const playingSrc=getPlayingInfo&&getPlayingInfo();
+  /* fpAudio는 fp 전환이므로 차단 대상 아님, 나머지만 체크 */
+  const otherPlaying=(activeAudio&&!activeAudio.paused)?getPlayingInfo()
+    :(commHeroAudio&&!commHeroAudio.paused)?getPlayingInfo()
+    :(commAudio&&!commAudio.paused)?getPlayingInfo()
+    :(kpAudio&&!kpAudio.paused)?getPlayingInfo()
+    :null;
+  if(otherPlaying){
+    showAudioSwitchPopup(otherPlaying,h.title||'무제',()=>_doOpenFullPlayer(idx));
+    return;
+  }
+  _doOpenFullPlayer(idx);
+}
+
+function _doOpenFullPlayer(idx){
+  const h=historyData[idx];
+  if(!h)return;
   fpCurrentIdx=idx;
   fpLiked=h._liked||false;
   fpDisliked=h._disliked||false;
@@ -4144,15 +4223,67 @@ function guardPlay(action){
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 /* ── 노래방 풀스크린 플레이어 ── */
+
+/* ── 오디오 전환 확인 팝업 ── */
+let _aspCallback=null;
+
+function showAudioSwitchPopup(currentSource,newTitle,onConfirm){
+  const desc=$('asp-desc');
+  const confMsg=$('asp-confirm-msg');
+  const btns=$('asp-btns');
+  if(desc)desc.innerHTML=`<strong style="color:var(--acc3);">${esc(currentSource)}</strong> 이(가) 재생 중이에요.<br>멈추고 선택한 곡을 재생할까요?`;
+  if(confMsg)confMsg.style.display='none';
+  if(btns)btns.style.display='flex';
+  _aspCallback=onConfirm;
+  $('audio-switch-popup').classList.add('on');
+}
+
+function closeAudioSwitchPopup(){
+  $('audio-switch-popup').classList.remove('on');
+  _aspCallback=null;
+}
+
+$('asp-cancel-btn').addEventListener('click',closeAudioSwitchPopup);
+$('asp-backdrop').addEventListener('click',closeAudioSwitchPopup);
+
+$('asp-ok-btn').addEventListener('click',()=>{
+  /* 확인 메시지 표시 후 팝업 닫기 */
+  const btns=$('asp-btns');
+  const confMsg=$('asp-confirm-msg');
+  if(btns)btns.style.display='none';
+  if(confMsg)confMsg.style.display='block';
+  const cb=_aspCallback;
+  setTimeout(()=>{
+    closeAudioSwitchPopup();
+    if(cb){stopAllAudio();cb();}
+  },700);
+});
+
+/* 재생 중 소스 감지 헬퍼 — 곡 이름 포함 */
+function getPlayingInfo(){
+  if(fpAudio&&!fpAudio.paused){
+    const h=historyData[fpCurrentIdx];
+    return h?`🎵 ${h.title||'무제'}`:'🎵 풀스크린 플레이어';
+  }
+  if(activeAudio&&!activeAudio.paused){
+    return'🎵 결과 카드 재생 중';
+  }
+  if(commHeroAudio&&!commHeroAudio.paused)return'🎵 커뮤니티 추천 트랙';
+  if(commAudio&&!commAudio.paused)return'🎵 커뮤니티 리스트';
+  if(kpAudio&&!kpAudio.paused)return'🎤 노래방 모드';
+  return null;
+}
+
 let kpAudio=null,kpVizTimer=null,kpLines=[];
 
 function openKaraokePlayer(audioUrl,title,tags,imageUrl,taskId,audioId,plainLyrics){
   const player=$('karaoke-player');
-  /* 다른 소스 재생 중 차단 */
-  if(fpAudio&&!fpAudio.paused){toast('⏸ 풀스크린 플레이어가 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-  if(commHeroAudio&&!commHeroAudio.paused){toast('⏸ 커뮤니티 곡이 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-  if(commAudio&&!commAudio.paused){toast('⏸ 커뮤니티 곡이 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-  if(activeAudio&&!activeAudio.paused){toast('⏸ 결과 카드에서 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
+  /* 다른 소스 재생 중이면 팝업 */
+  const _kpSrc=getPlayingInfo();
+  if(_kpSrc){
+    showAudioSwitchPopup(_kpSrc,title||'노래방',()=>openKaraokePlayer(audioUrl,title,tags,imageUrl,taskId,audioId,plainLyrics));
+    return;
+  }
   /* 기존 노래방 오디오 정지 */
   if(kpAudio){kpAudio.pause();clearInterval(kpVizTimer);}
 
@@ -4533,11 +4664,14 @@ function setupHeroAudio(hero){
   playBtn.onclick=()=>{
     /* 히어로 일시정지/재생 토글 */
     if(!audio.paused){audio.pause();playBtn.textContent='▶';playBtn.classList.remove('playing');commHeroPlaying=false;return;}
-    /* 다른 소스 재생 중 차단 */
-    if(fpAudio&&!fpAudio.paused){toast('⏸ 풀스크린 플레이어가 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-    if(activeAudio&&!activeAudio.paused){toast('⏸ 결과 카드에서 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-    if(commAudio&&!commAudio.paused){toast('⏸ 커뮤니티 다른 곡이 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-    if(kpAudio&&!kpAudio.paused){toast('⏸ 노래방 모드가 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
+    /* 다른 소스 재생 중이면 팝업 */
+    const _hSrc=getPlayingInfo();
+    if(_hSrc){
+      showAudioSwitchPopup(_hSrc,hero.title||'커뮤니티 트랙',()=>{
+        audio.play().then(()=>{playBtn.textContent='⏸';playBtn.classList.add('playing');commHeroPlaying=true;}).catch(e=>toast('재생 실패: '+e.message,'err'));
+      });
+      return;
+    }
     audio.play().then(()=>{playBtn.textContent='⏸';playBtn.classList.add('playing');commHeroPlaying=true;}).catch(e=>toast('재생 실패: '+e.message,'err'));
   };
   const prog=$('comm-hero-prog');
@@ -4555,21 +4689,27 @@ function commPlay(i){
   /* 이미 같은 트랙 재생 중이면 토글 */
   if(commPlayingIdx===i&&commAudio){
     if(commAudio.paused){
-      /* 다른 소스 재생 중 차단 */
-      if(fpAudio&&!fpAudio.paused){toast('⏸ 풀스크린 플레이어가 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-      if(activeAudio&&!activeAudio.paused){toast('⏸ 결과 카드에서 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-      if(commHeroAudio&&!commHeroAudio.paused){toast('⏸ 대표 트랙이 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
+      /* 다른 소스 재생 중이면 팝업 */
+      const _cSrc1=getPlayingInfo();
+      if(_cSrc1){showAudioSwitchPopup(_cSrc1,t.title||'커뮤니티 곡',()=>{commAudio.play();document.getElementById(`comm-play-${i}`).textContent='⏸';});return;}
       commAudio.play();document.getElementById(`comm-play-${i}`).textContent='⏸';}
     else{commAudio.pause();document.getElementById(`comm-play-${i}`).textContent='▶';}
     return;
   }
   /* 이전 정지 */
   if(commAudio){commAudio.pause();}
-  /* 다른 소스 재생 중 차단 */
-  if(fpAudio&&!fpAudio.paused){toast('⏸ 풀스크린 플레이어가 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-  if(activeAudio&&!activeAudio.paused){toast('⏸ 결과 카드에서 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-  if(commHeroAudio&&!commHeroAudio.paused){toast('⏸ 대표 트랙이 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
-  if(kpAudio&&!kpAudio.paused){toast('⏸ 노래방 모드가 재생 중이에요. 먼저 정지해주세요.','err',2500);return;}
+  /* 다른 소스 재생 중이면 팝업 */
+  const _cSrc2=getPlayingInfo();
+  if(_cSrc2){
+    showAudioSwitchPopup(_cSrc2,t.title||'커뮤니티 곡',()=>{
+      if(commPlayingIdx>=0){const old2=document.getElementById(`comm-play-${commPlayingIdx}`);if(old2)old2.textContent='▶';document.getElementById(`comm-item-${commPlayingIdx}`)?.classList.remove('playing');}
+      const a2=new Audio(t.audioUrl);commAudio=a2;commPlayingIdx=i;
+      a2.addEventListener('timeupdate',()=>{if(!a2.duration)return;commSyncLyrics(i,a2.currentTime,a2.duration);const h2=historyData[t._hIdx];if(h2&&!a2._counted&&a2.currentTime>5){a2._counted=true;h2._commPlays=(h2._commPlays||0)+1;saveHistory();}});
+      a2.addEventListener('ended',()=>{const pb2=document.getElementById(`comm-play-${i}`);if(pb2)pb2.textContent='▶';commPlayingIdx=-1;document.getElementById(`comm-item-${i}`)?.classList.remove('playing');});
+      a2.play();document.getElementById(`comm-play-${i}`).textContent='⏸';document.getElementById(`comm-item-${i}`)?.classList.add('playing');
+    });
+    return;
+  }
   if(commPlayingIdx>=0){const old=document.getElementById(`comm-play-${commPlayingIdx}`);if(old)old.textContent='▶';document.getElementById(`comm-item-${commPlayingIdx}`)?.classList.remove('playing');}
   /* 새 재생 */
   const audio=new Audio(t.audioUrl);commAudio=audio;commPlayingIdx=i;
