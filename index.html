@@ -340,9 +340,8 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
 .hist-info{padding:10px 10px 8px;}
 .hist-title{font-size:12px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--t1);}
 .hist-sub{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.hist-del{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:rgba(255,68,68,.15);border:1px solid rgba(255,68,68,.35);color:var(--red);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;z-index:2;}
-.hist-card:hover .hist-del{opacity:1;}
-.hist-del:hover{background:rgba(255,68,68,.3);}
+.hist-del{position:absolute;top:5px;right:5px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.55);border:1px solid rgba(255,68,68,.4);color:var(--red);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:1;transition:all .15s;z-index:2;backdrop-filter:blur(4px);}
+.hist-del:hover{background:rgba(255,68,68,.3);border-color:var(--red);transform:scale(1.1);}
 .clear-all-btn{font-size:10px;font-weight:700;color:var(--red);font-family:'JetBrains Mono',monospace;background:none;border:1px solid rgba(255,68,68,.3);border-radius:6px;padding:4px 10px;cursor:pointer;transition:all .15s;white-space:nowrap;}
 .clear-all-btn:hover{background:rgba(255,68,68,.1);border-color:var(--red);}
 
@@ -430,6 +429,70 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
 @media(max-width:400px){
   .adv-grid{grid-template-columns:1fr;}
 }
+
+/* ── 풀스크린 플레이어 (히스토리) ── */
+#fullplayer{position:fixed;inset:0;z-index:250;display:none;flex-direction:column;background:#06060E;}
+#fullplayer.on{display:flex;}
+.fp-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(40px) brightness(.25);transform:scale(1.1);z-index:0;}
+.fp-inner{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;overflow:hidden;}
+.fp-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0;flex-shrink:0;}
+.fp-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:var(--t1);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s;}
+.fp-back:hover{background:rgba(255,255,255,.15);}
+.fp-header-title{font-size:11px;font-weight:800;color:var(--t3);letter-spacing:2px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
+.fp-scroll{flex:1;overflow-y:auto;display:flex;flex-direction:column;}.fp-scroll::-webkit-scrollbar{display:none;}
+.fp-cover-wrap{padding:28px 40px 0;display:flex;justify-content:center;flex-shrink:0;}
+.fp-cover{width:220px;height:220px;border-radius:20px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:72px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.7);flex-shrink:0;}
+.fp-cover img{width:100%;height:100%;object-fit:cover;}
+.fp-info{padding:24px 28px 0;text-align:center;flex-shrink:0;}
+.fp-title{font-size:22px;font-weight:800;letter-spacing:-.5px;margin-bottom:5px;}
+.fp-tags{font-size:12px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+.fp-actions{display:flex;align-items:center;justify-content:space-around;padding:20px 20px 0;flex-shrink:0;}
+.fp-act-btn{display:flex;flex-direction:column;align-items:center;gap:5px;background:none;border:none;cursor:pointer;color:var(--t3);font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;transition:color .15s;padding:0 8px;}
+.fp-act-btn:hover{color:var(--t1);}
+.fp-act-btn.liked{color:#FF4081;}
+.fp-act-btn.disliked{color:var(--blue);}
+.fp-act-icon{font-size:22px;line-height:1;}
+.fp-prog-section{padding:16px 28px 0;flex-shrink:0;}
+.fp-prog-wrap{height:4px;background:rgba(255,255,255,.12);border-radius:10px;cursor:pointer;position:relative;margin-bottom:8px;}
+.fp-prog-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--acc2),var(--acc));width:0%;transition:width .1s linear;pointer-events:none;}
+.fp-prog-thumb{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(0,0,0,.5);pointer-events:none;opacity:0;transition:opacity .15s;}
+.fp-prog-wrap:hover .fp-prog-thumb{opacity:1;}
+.fp-prog-time{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);}
+.fp-controls{display:flex;align-items:center;justify-content:center;gap:20px;padding:12px 28px 0;flex-shrink:0;}
+.fp-ctrl-btn{background:none;border:none;cursor:pointer;color:var(--t2);font-size:26px;transition:color .12s,transform .1s;display:flex;align-items:center;justify-content:center;}
+.fp-ctrl-btn:hover{color:var(--t1);transform:scale(1.08);}
+.fp-play-btn{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));border:none;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(208,64,232,.45);transition:transform .12s;color:#fff;}
+.fp-play-btn:hover{transform:scale(1.07);}.fp-play-btn:active{transform:scale(.94);}
+.fp-viz{display:flex;align-items:flex-end;justify-content:center;gap:2px;height:28px;padding:0 28px;margin-top:10px;flex-shrink:0;}
+.fp-vbar{flex:1;max-width:5px;border-radius:2px;background:linear-gradient(to top,var(--acc2),var(--acc));height:3px;transition:height .07s;opacity:.5;}
+.fp-lyrics-section{padding:20px 20px 32px;flex-shrink:0;}
+.fp-lyrics-header{font-size:10px;font-weight:800;color:var(--t3);letter-spacing:2px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.fp-lyrics-toggle{font-size:10px;color:var(--acc);cursor:pointer;font-weight:700;font-family:'JetBrains Mono',monospace;background:none;border:none;padding:0;}
+.fp-lyrics-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow-y:auto;max-height:400px;}
+.fp-lyrics-box::-webkit-scrollbar{width:3px;}
+.fp-lyrics-box::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px;}
+.fp-lyric-line{padding:12px 18px;font-size:15px;font-weight:600;color:rgba(255,255,255,.3);cursor:pointer;transition:all .2s;line-height:1.5;border-bottom:1px solid rgba(255,255,255,.04);}
+.fp-lyric-line:last-child{border-bottom:none;}
+.fp-lyric-line:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);}
+.fp-lyric-line.active{color:#fff;background:rgba(208,64,232,.12);font-size:16px;font-weight:700;}
+.fp-lyric-line.done{color:rgba(255,255,255,.5);}
+.fp-lyric-sec{padding:10px 18px 4px;font-size:9px;font-weight:800;color:var(--acc);letter-spacing:3px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;opacity:.7;}
+.fp-lyrics-plain{padding:16px 18px;font-size:14px;color:rgba(255,255,255,.5);line-height:2;white-space:pre-wrap;font-family:'Syne',sans-serif;}
+.fp-lyrics-empty{padding:24px;text-align:center;font-size:12px;color:rgba(255,255,255,.2);font-family:'JetBrains Mono',monospace;}
+/* 공유 바텀시트 */
+#share-sheet{position:fixed;inset:0;z-index:400;display:none;}
+#share-sheet.on{display:block;}
+.share-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);}
+.share-panel{position:absolute;bottom:0;left:0;right:0;max-width:780px;margin:0 auto;background:#0F0F1E;border-radius:24px 24px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);animation:slideUp .25s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.share-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.15);margin:12px auto 20px;}
+.share-title{font-size:14px;font-weight:800;color:var(--t1);text-align:center;margin-bottom:20px;}
+.share-btns{display:flex;justify-content:space-around;padding:0 20px 24px;}
+.share-btn{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;background:none;border:none;}
+.share-btn-icon{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;}
+.share-btn-label{font-size:10px;font-weight:700;color:var(--t2);font-family:'Syne',sans-serif;}
+.share-copy-row{padding:0 20px 20px;}
+.share-copy-input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--t2);font-family:'JetBrains Mono',monospace;outline:none;}
 
 /* ── 하단 탭바 ── */
 #bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(8,8,18,.92);backdrop-filter:blur(16px);border-top:1px solid var(--bdr2);display:flex;align-items:center;justify-content:space-around;padding:0 4px;padding-bottom:env(safe-area-inset-bottom,0);}
@@ -1017,6 +1080,120 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
   </button>
 </nav>
 
+<!-- ── 풀스크린 플레이어 ── -->
+<div id="fullplayer">
+  <div class="fp-bg" id="fp-bg"></div>
+  <div class="fp-inner">
+    <!-- 헤더 -->
+    <div class="fp-header">
+      <button class="fp-back" id="fp-back">⌄</button>
+      <div class="fp-header-title">지금 재생 중</div>
+      <div style="width:36px;"></div>
+    </div>
+    <!-- 스크롤 영역 -->
+    <div class="fp-scroll" id="fp-scroll">
+      <!-- 커버 -->
+      <div class="fp-cover-wrap">
+        <div class="fp-cover" id="fp-cover">🎵</div>
+      </div>
+      <!-- 곡 정보 -->
+      <div class="fp-info">
+        <div class="fp-title" id="fp-title">곡 제목</div>
+        <div class="fp-tags" id="fp-tags"></div>
+      </div>
+      <!-- 액션: 좋아요/싫어요/공유/다운로드/삭제 -->
+      <div class="fp-actions">
+        <button class="fp-act-btn" id="fp-like-btn" onclick="fpToggleLike()">
+          <span class="fp-act-icon">🤍</span>
+          <span id="fp-like-label">좋아요</span>
+        </button>
+        <button class="fp-act-btn" id="fp-dislike-btn" onclick="fpToggleDislike()">
+          <span class="fp-act-icon">👎</span>
+          <span>싫어요</span>
+        </button>
+        <button class="fp-act-btn" onclick="fpOpenShare()">
+          <span class="fp-act-icon">↗</span>
+          <span>공유</span>
+        </button>
+        <button class="fp-act-btn" id="fp-dl-btn" onclick="fpDownload()">
+          <span class="fp-act-icon">⬇</span>
+          <span>다운로드</span>
+        </button>
+        <button class="fp-act-btn" onclick="fpDeleteCurrent()" style="color:rgba(255,68,68,.5);">
+          <span class="fp-act-icon">🗑</span>
+          <span>삭제</span>
+        </button>
+      </div>
+      <!-- 진행바 -->
+      <div class="fp-prog-section">
+        <div class="fp-prog-wrap" id="fp-prog-wrap">
+          <div class="fp-prog-fill" id="fp-prog-fill"></div>
+          <div class="fp-prog-thumb" id="fp-prog-thumb"></div>
+        </div>
+        <div class="fp-prog-time">
+          <span id="fp-cur">0:00</span>
+          <span id="fp-dur">0:00</span>
+        </div>
+      </div>
+      <!-- 컨트롤 -->
+      <div class="fp-controls">
+        <button class="fp-ctrl-btn" onclick="fpSeekRel(-10)" title="-10초">⏮</button>
+        <button class="fp-play-btn" id="fp-play-btn">▶</button>
+        <button class="fp-ctrl-btn" onclick="fpSeekRel(10)" title="+10초">⏭</button>
+      </div>
+      <!-- Viz -->
+      <div class="fp-viz" id="fp-viz">
+        <div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div>
+        <div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div>
+        <div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div>
+        <div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div>
+        <div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div>
+        <div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div>
+      </div>
+      <!-- 가사 -->
+      <div class="fp-lyrics-section">
+        <div class="fp-lyrics-header">
+          <span>가사</span>
+          <button class="fp-lyrics-toggle" id="fp-lyrics-mode-btn" onclick="fpToggleLyricsMode()">싱크 모드</button>
+        </div>
+        <div class="fp-lyrics-box" id="fp-lyrics-box">
+          <div class="fp-lyrics-empty">가사 없음</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 공유 바텀시트 ── -->
+<div id="share-sheet">
+  <div class="share-backdrop" onclick="fpCloseShare()"></div>
+  <div class="share-panel">
+    <div class="share-handle"></div>
+    <div class="share-title" id="share-title">공유하기</div>
+    <div class="share-btns">
+      <button class="share-btn" onclick="fpShareKakao()">
+        <div class="share-btn-icon" style="background:#FEE500;">💬</div>
+        <span class="share-btn-label">카카오톡</span>
+      </button>
+      <button class="share-btn" onclick="fpShareInstagram()">
+        <div class="share-btn-icon" style="background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);">📸</div>
+        <span class="share-btn-label">인스타그램</span>
+      </button>
+      <button class="share-btn" onclick="fpShareFacebook()">
+        <div class="share-btn-icon" style="background:#1877F2;">📘</div>
+        <span class="share-btn-label">페이스북</span>
+      </button>
+      <button class="share-btn" onclick="fpCopyLink()">
+        <div class="share-btn-icon" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);">🔗</div>
+        <span class="share-btn-label">링크 복사</span>
+      </button>
+    </div>
+    <div class="share-copy-row">
+      <input class="share-copy-input" id="share-url-input" readonly value="">
+    </div>
+  </div>
+</div>
+
 <!-- ── 보컬 변경 모달 ── -->
 <div class="modal-backdrop" id="vocal-modal">
   <div class="modal" style="max-width:420px;width:100%;">
@@ -1077,7 +1254,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
       </div>
       <div class="kp-left-controls" style="width:100%;display:flex;flex-direction:column;align-items:center;">
         <div class="kp-viz" id="kp-viz">
-          ${Array(18).fill(0).map(()=>'<div class="kp-vbar"></div>').join('')}
+          <div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div>
         </div>
         <div class="kp-prog-wrap" id="kp-prog-wrap">
           <div class="kp-prog-fill" id="kp-prog-fill"></div>
@@ -2202,7 +2379,8 @@ function renderHistoryView(){
         data-audio="${esc(h.audio_url)}"
         data-video="${esc(h.video_url||'')}"
         data-title="${esc(h.title)}"
-        onclick="playFromHistory(this.dataset.audio,this.dataset.video,this.dataset.title)">
+        data-idx="${idx}"
+        onclick="openFullPlayer(${idx})">
         ${thumbContent}
         ${hasVideo?`<div class="hist-type-badge">🎬 VIDEO</div>`:''}
         <div class="hist-play-overlay"><div class="hist-play-icon">▶</div></div>
@@ -2212,6 +2390,7 @@ function renderHistoryView(){
         <div class="hist-sub">${esc(h.tags?.split(',')[0]?.trim()||'')} · ${timeAgo}</div>
       </div>
       <button class="hist-del" title="삭제" onclick="deleteHistory(${idx},event)">✕</button>
+      ${h._liked?'<div style="position:absolute;top:5px;left:5px;background:rgba(255,64,129,.2);border:1px solid rgba(255,64,129,.5);border-radius:20px;padding:2px 6px;font-size:9px;color:#FF4081;font-weight:800;">❤️</div>':''}
     </div>`;
   }).join('')}</div>`;
 }
@@ -2230,95 +2409,262 @@ function renderHistory(){updateHistBadge();}
 /* ── HISTORY SAVE ── */
 function saveHistory(){localStorage.setItem('kms_history',JSON.stringify(historyData));}
 
-function playFromHistory(audioUrl,videoUrl,title){
-  /* ✅ 오디오/비디오 모두 풀스크린 모달 플레이어 */
-  const backdrop=document.createElement('div');
-  backdrop.id='hist-player-modal';
-  backdrop.style.cssText='position:fixed;inset:0;background:rgba(4,4,14,.92);backdrop-filter:blur(12px);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;';
+/* ── 풀스크린 플레이어 ── */
+let fpAudio=null,fpVizTimer=null,fpCurrentIdx=-1,fpLiked=false,fpDisliked=false,fpSyncMode=true,fpTimestampLines=[];
 
-  if(videoUrl){
-    backdrop.innerHTML=`
-      <div style="width:100%;max-width:560px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <div style="font-size:15px;font-weight:800;color:var(--t1);letter-spacing:-.5px;">${esc(title)}</div>
-          <button style="padding:7px 16px;border-radius:20px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--t2);font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;" onclick="document.getElementById('hist-player-modal').remove()">✕ 닫기</button>
-        </div>
-        <video src="${esc(videoUrl)}" controls autoplay playsinline style="width:100%;border-radius:12px;background:#000;display:block;"></video>
-      </div>`;
-  } else if(audioUrl){
-    /* 오디오 풀스크린 — 커버 이미지 + 웨이브 애니메이션 */
-    const hist=historyData.find(h=>h.audio_url===audioUrl)||{};
-    const imgUrl=hist.image_url||'';
-    const tags=hist.tags||'';
-    backdrop.innerHTML=`
-      <div style="width:100%;max-width:420px;text-align:center;">
-        <button style="position:absolute;top:20px;right:20px;padding:8px 16px;border-radius:20px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--t2);font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;" onclick="document.getElementById('hist-player-modal').remove();if(window._histAudio){window._histAudio.pause();}">✕ 닫기</button>
-        <div style="${imgUrl?`background:url(${esc(imgUrl)}) center/cover;`:'background:var(--s3);'}width:200px;height:200px;border-radius:16px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:60px;box-shadow:0 16px 48px rgba(0,0,0,.6);flex-shrink:0;">${imgUrl?'':'🎵'}</div>
-        <div style="font-size:20px;font-weight:800;color:var(--t1);margin-bottom:6px;letter-spacing:-.5px;">${esc(title)}</div>
-        <div style="font-size:12px;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-bottom:24px;">${esc(tags.split(',')[0]||'')}</div>
-        <div style="display:flex;align-items:flex-end;justify-content:center;gap:3px;height:36px;margin-bottom:20px;" id="hist-viz">
-          ${Array(20).fill(0).map(()=>'<div style="width:4px;border-radius:2px;background:linear-gradient(to top,var(--acc2),var(--acc));height:4px;transition:height .07s;opacity:.6;"></div>').join('')}
-        </div>
-        <div style="background:var(--s2);border-radius:8px;height:4px;margin-bottom:16px;cursor:pointer;" id="hist-prog-wrap">
-          <div style="height:100%;border-radius:8px;background:linear-gradient(90deg,var(--acc2),var(--acc));width:0%;transition:width .1s linear;" id="hist-prog-fill"></div>
-        </div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);margin-bottom:16px;" id="hist-time">0:00 / 0:00</div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
-          <button id="hist-play-btn" style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));border:none;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(208,64,232,.4);">▶</button>
-        </div>
-      </div>`;
+function openFullPlayer(idx){
+  const h=historyData[idx];
+  if(!h)return;
+  fpCurrentIdx=idx;
+  fpLiked=h._liked||false;
+  fpDisliked=h._disliked||false;
 
-    /* 오디오 연결 */
-    if(window._histAudio){window._histAudio.pause();}
-    const audio=new Audio(audioUrl);
-    window._histAudio=audio;
-    const playBtn=backdrop.querySelector('#hist-play-btn');
-    const progFill=backdrop.querySelector('#hist-prog-fill');
-    const timeEl=backdrop.querySelector('#hist-time');
-    const vizBars=backdrop.querySelectorAll('#hist-viz div');
-    let vizTimer=null;
+  /* 배경 블러 */
+  const bg=$('fp-bg');
+  bg.style.backgroundImage=h.image_url?`url(${h.image_url})`:'none';
+  bg.style.background=h.image_url?`url(${h.image_url}) center/cover`:'linear-gradient(135deg,#1a0030,#000d1a)';
 
-    function startVizModal(){
-      clearInterval(vizTimer);
-      vizTimer=setInterval(()=>{
-        vizBars.forEach(b=>{b.style.height=Math.max(4,Math.floor(Math.random()*32))+'px';});
-      },80);
+  /* 커버 */
+  const cov=$('fp-cover');
+  cov.innerHTML=h.image_url?`<img src="${esc(h.image_url)}" alt="">`:'🎵';
+
+  /* 정보 */
+  $('fp-title').textContent=h.title||'무제';
+  $('fp-tags').textContent=(h.tags||'').split(',')[0]?.trim()||'';
+
+  /* 좋아요 상태 */
+  fpUpdateLikeUI();
+
+  /* 리셋 */
+  $('fp-prog-fill').style.width='0%';
+  $('fp-prog-thumb').style.left='0%';
+  $('fp-cur').textContent='0:00';
+  $('fp-dur').textContent='0:00';
+  $('fp-play-btn').textContent='▶';
+  fpTimestampLines=[];
+
+  /* 가사 렌더 */
+  fpRenderLyrics(h);
+
+  /* 플레이어 열기 */
+  $('fullplayer').classList.add('on');
+  document.body.style.overflow='hidden';
+
+  /* 오디오 */
+  if(fpAudio){fpAudio.pause();clearInterval(fpVizTimer);}
+  if(!h.audio_url){toast('오디오 URL 없음','err');return;}
+  const audio=new Audio(h.audio_url);
+  fpAudio=audio;
+
+  audio.addEventListener('timeupdate',()=>{
+    if(!audio.duration)return;
+    const pct=(audio.currentTime/audio.duration)*100;
+    $('fp-prog-fill').style.width=pct+'%';
+    $('fp-prog-thumb').style.left=pct+'%';
+    $('fp-cur').textContent=formatTime(audio.currentTime);
+    $('fp-dur').textContent=formatTime(audio.duration);
+    if(fpSyncMode&&fpTimestampLines.length)fpSyncLyrics(audio.currentTime);
+  });
+  audio.addEventListener('ended',()=>{$('fp-play-btn').textContent='▶';fpStopViz();});
+  audio.addEventListener('error',()=>toast('오디오 재생 오류','err'));
+  audio.play().then(()=>{$('fp-play-btn').textContent='⏸';fpStartViz();}).catch(()=>{});
+
+  /* 시크 */
+  $('fp-prog-wrap').onclick=e=>{
+    if(!fpAudio?.duration)return;
+    const r=$('fp-prog-wrap').getBoundingClientRect();
+    fpAudio.currentTime=fpAudio.duration*Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
+  };
+}
+
+function closeFullPlayer(){
+  if(fpAudio){fpAudio.pause();fpAudio=null;}
+  fpStopViz();
+  $('fullplayer').classList.remove('on');
+  document.body.style.overflow='';
+}
+
+$('fp-back').addEventListener('click',closeFullPlayer);
+
+$('fp-play-btn').addEventListener('click',()=>{
+  if(!fpAudio)return;
+  if(fpAudio.paused){fpAudio.play();$('fp-play-btn').textContent='⏸';fpStartViz();}
+  else{fpAudio.pause();$('fp-play-btn').textContent='▶';fpStopViz();}
+});
+
+function fpSeekRel(sec){
+  if(!fpAudio?.duration)return;
+  fpAudio.currentTime=Math.max(0,Math.min(fpAudio.duration,fpAudio.currentTime+sec));
+}
+
+function fpStartViz(){
+  clearInterval(fpVizTimer);
+  const bars=$('fp-viz').querySelectorAll('.fp-vbar');
+  fpVizTimer=setInterval(()=>{bars.forEach(b=>{b.style.height=Math.max(3,Math.floor(Math.random()*24))+'px';});},90);
+}
+function fpStopViz(){
+  clearInterval(fpVizTimer);
+  $('fp-viz').querySelectorAll('.fp-vbar').forEach(b=>{b.style.height='3px';});
+}
+
+/* 좋아요/싫어요 */
+function fpUpdateLikeUI(){
+  const lb=$('fp-like-btn'),db=$('fp-dislike-btn');
+  if(lb){lb.classList.toggle('liked',fpLiked);lb.querySelector('.fp-act-icon').textContent=fpLiked?'❤️':'🤍';}
+  if(db){db.classList.toggle('disliked',fpDisliked);}
+}
+function fpToggleLike(){
+  fpLiked=!fpLiked;if(fpLiked)fpDisliked=false;
+  if(fpCurrentIdx>=0){historyData[fpCurrentIdx]._liked=fpLiked;historyData[fpCurrentIdx]._disliked=fpDisliked;saveHistory();}
+  fpUpdateLikeUI();toast(fpLiked?'❤️ 좋아요!':'좋아요 취소','',1200);
+}
+function fpToggleDislike(){
+  fpDisliked=!fpDisliked;if(fpDisliked)fpLiked=false;
+  if(fpCurrentIdx>=0){historyData[fpCurrentIdx]._liked=fpLiked;historyData[fpCurrentIdx]._disliked=fpDisliked;saveHistory();}
+  fpUpdateLikeUI();toast(fpDisliked?'👎 싫어요':'싫어요 취소','',1200);
+}
+
+/* 가사 렌더 */
+function fpRenderLyrics(h){
+  const box=$('fp-lyrics-box');
+  const plain=h.lyrics||h.lyric||h._inputLyrics||'';
+  fpTimestampLines=[];
+
+  if(!plain){box.innerHTML='<div class="fp-lyrics-empty">가사 없음<br><span style="font-size:10px;opacity:.5;">커스텀 모드로 생성하면 가사가 표시됩니다</span></div>';return;}
+
+  /* 타임스탬프 없이 plain 가사 표시 — 라인 클릭은 비율 기반 이동 */
+  const lines=plain.split('\n');
+  let html='';
+  lines.forEach((line,li)=>{
+    if(!line.trim()){html+='<div style="height:6px;"></div>';return;}
+    if(/^\[.+\]$/.test(line.trim())){
+      html+=`<div class="fp-lyric-sec">${esc(line.replace(/[\[\]]/g,'').trim())}</div>`;
+    } else {
+      html+=`<div class="fp-lyric-line" data-line="${li}" onclick="fpSeekToLine(this)">${esc(line)}</div>`;
     }
-    function stopVizModal(){
-      clearInterval(vizTimer);
-      vizBars.forEach(b=>{b.style.height='4px';});
-    }
+  });
+  box.innerHTML=html;
+  fpTimestampLines=[...box.querySelectorAll('.fp-lyric-line')];
+}
 
-    audio.addEventListener('timeupdate',()=>{
-      const pct=audio.duration?(audio.currentTime/audio.duration)*100:0;
-      progFill.style.width=pct+'%';
-      timeEl.textContent=`${formatTime(audio.currentTime)} / ${formatTime(audio.duration||0)}`;
-    });
-    audio.addEventListener('ended',()=>{playBtn.textContent='▶';stopVizModal();});
-
-    playBtn.addEventListener('click',()=>{
-      if(audio.paused){audio.play().then(()=>{playBtn.textContent='⏸';startVizModal();}).catch(e=>toast('재생 실패','err'));}
-      else{audio.pause();playBtn.textContent='▶';stopVizModal();}
-    });
-
-    backdrop.querySelector('#hist-prog-wrap').addEventListener('click',e=>{
-      if(!audio.duration)return;
-      const rect=e.currentTarget.getBoundingClientRect();
-      audio.currentTime=audio.duration*((e.clientX-rect.left)/rect.width);
-    });
-
-    /* 모달 닫을 때 오디오 정지 */
-    backdrop.addEventListener('click',e=>{
-      if(e.target===backdrop){audio.pause();stopVizModal();backdrop.remove();}
-    });
-
-    audio.play().then(()=>{playBtn.textContent='⏸';startVizModal();}).catch(()=>{});
-    document.body.appendChild(backdrop);
-    return;
+function fpSeekToLine(el){
+  /* 타임스탬프 데이터가 있으면 사용, 없으면 비율로 추정 */
+  const startS=parseFloat(el.dataset.start);
+  if(!isNaN(startS)&&fpAudio){
+    fpAudio.currentTime=startS;
+  } else if(fpAudio?.duration&&fpTimestampLines.length){
+    const idx=[...fpTimestampLines].indexOf(el);
+    fpAudio.currentTime=fpAudio.duration*(idx/fpTimestampLines.length);
   }
+  if(fpAudio?.paused){fpAudio.play();$('fp-play-btn').textContent='⏸';fpStartViz();}
+}
 
-  backdrop.addEventListener('click',e=>{if(e.target===backdrop)backdrop.remove();});
-  document.body.appendChild(backdrop);
+function fpToggleLyricsMode(){
+  fpSyncMode=!fpSyncMode;
+  $('fp-lyrics-mode-btn').textContent=fpSyncMode?'싱크 모드':'일반 모드';
+  if(!fpSyncMode)fpTimestampLines.forEach(l=>l.classList.remove('active','done'));
+  toast(fpSyncMode?'🎤 싱크 모드 ON':'📝 일반 모드','',1500);
+}
+
+function fpSyncLyrics(currentTime){
+  if(!fpTimestampLines.length||!fpAudio?.duration)return;
+  const total=fpAudio.duration;
+  const n=fpTimestampLines.length;
+  let activeEl=null;
+  fpTimestampLines.forEach((el,i)=>{
+    const s=parseFloat(el.dataset.start);
+    const e=parseFloat(el.dataset.end);
+    /* 타임스탬프 있으면 정확히, 없으면 균등 분할 */
+    const lineStart=isNaN(s)?(total/n)*i:s;
+    const lineEnd=isNaN(e)?(total/n)*(i+1):e;
+    if(currentTime>=lineStart&&currentTime<lineEnd){
+      el.classList.add('active');el.classList.remove('done');activeEl=el;
+    } else if(currentTime>=lineEnd){
+      el.classList.remove('active');el.classList.add('done');
+    } else {
+      el.classList.remove('active','done');
+    }
+  });
+  if(activeEl){
+    const box=$('fp-lyrics-box');
+    const br=box.getBoundingClientRect();
+    const er=activeEl.getBoundingClientRect();
+    box.scrollTo({top:box.scrollTop+(er.top-br.top)-(br.height/2),behavior:'smooth'});
+  }
+}
+
+/* 다운로드 */
+async function fpDownload(){
+  const h=historyData[fpCurrentIdx];if(!h?.audio_url)return;
+  toast('⬇ 다운로드 준비 중...','',5000);
+  try{
+    const res=await fetch(h.audio_url);
+    const blob=await res.blob();
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=(h.title||'track').replace(/[\/\\:*?"<>|]/g,'_')+'.mp3';
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
+    toast('✅ 다운로드 완료!','ok',2000);
+  }catch{
+    window.open(h.audio_url,'_blank');
+    toast('↗ 새 탭에서 열립니다 (우클릭 → 저장)','',3500);
+  }
+}
+
+/* 삭제 */
+function fpDeleteCurrent(){
+  if(fpCurrentIdx<0)return;
+  if(!confirm(`"${historyData[fpCurrentIdx]?.title||'이 곡'}"을 삭제할까요?`))return;
+  historyData.splice(fpCurrentIdx,1);
+  saveHistory();updateHistBadge();renderHistoryView();
+  closeFullPlayer();
+  toast('🗑 삭제되었습니다');
+}
+
+/* 공유 */
+function fpOpenShare(){
+  const h=historyData[fpCurrentIdx]||{};
+  const shareUrl=h.audio_url||window.location.href;
+  $('share-url-input').value=shareUrl;
+  $('share-title').textContent=`"${h.title||'이 곡'}" 공유하기`;
+  $('share-sheet').classList.add('on');
+}
+function fpCloseShare(){$('share-sheet').classList.remove('on');}
+
+function fpShareKakao(){
+  const h=historyData[fpCurrentIdx]||{};
+  const text=`🎵 AI로 만든 노래를 들어봐!\n"${h.title||'나의 노래'}"\nKenny's Music Studio에서 만들었어요`;
+  if(window.Kakao?.isInitialized?.()){
+    window.Kakao.Share?.sendDefault?.({objectType:'text',text,link:{mobileWebUrl:window.location.href,webUrl:window.location.href}});
+  } else {
+    const url=`https://story.kakao.com/share?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`;
+    window.open(url,'_blank','width=500,height=400');
+  }
+  fpCloseShare();toast('💬 카카오톡 공유','ok',1500);
+}
+function fpShareInstagram(){
+  /* 인스타는 직접 URL 공유 불가 — 링크 복사 후 안내 */
+  fpCopyLink();
+  toast('📸 링크 복사 완료! 인스타 스토리에 붙여넣기하세요','ok',3000);
+  fpCloseShare();
+}
+function fpShareFacebook(){
+  const h=historyData[fpCurrentIdx]||{};
+  const url=`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(`🎵 AI로 만든 노래: "${h.title||'나의 노래'}"`)}`
+  window.open(url,'_blank','width=600,height=400');
+  fpCloseShare();toast('📘 페이스북 공유','ok',1500);
+}
+function fpCopyLink(){
+  const url=$('share-url-input').value||window.location.href;
+  navigator.clipboard.writeText(url).then(()=>toast('🔗 링크 복사됨!','ok',1500)).catch(()=>toast('복사 실패','err'));
+}
+
+/* 레거시 playFromHistory 호환 */
+function playFromHistory(audioUrl,videoUrl,title){
+  const idx=historyData.findIndex(h=>h.audio_url===audioUrl);
+  if(idx>=0){openFullPlayer(idx);}
+  else{toast('히스토리에서 재생','',1500);}
 }
 
 function deleteHistory(idx,e){
