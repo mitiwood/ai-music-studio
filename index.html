@@ -350,7 +350,14 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
 .dual-label{font-size:10px;font-weight:700;color:var(--t2);letter-spacing:2px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
 .dual-label::after{content:'';flex:1;height:1px;background:var(--bdr);}
 
-/* ── TOAST ── */
+/* ── KARAOKE ── */
+.karaoke-wrap{font-size:15px;line-height:2;color:var(--t2);white-space:pre-wrap;font-family:'Syne',sans-serif;}
+.k-word{display:inline;transition:color .1s,text-shadow .1s;cursor:default;}
+.k-word.active{color:var(--acc);text-shadow:0 0 12px rgba(208,64,232,.5);font-weight:700;}
+.k-word.done{color:var(--t1);}
+.k-sec{color:var(--acc);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;display:block;margin-top:14px;margin-bottom:4px;}
+.karaoke-loading{display:flex;align-items:center;gap:8px;padding:12px;font-size:12px;color:var(--t2);font-family:'JetBrains Mono',monospace;}
+.karaoke-loading .ks{width:10px;height:10px;border:1.5px solid rgba(255,208,0,.3);border-top-color:var(--ylw);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
 #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--s2);border:1px solid var(--bdr);color:var(--t1);padding:10px 18px;border-radius:10px;font-size:12px;font-weight:700;opacity:0;pointer-events:none;z-index:999;transition:all .2s;white-space:nowrap;font-family:'JetBrains Mono',monospace;}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
 #toast.ok{border-color:var(--grn);color:var(--grn);}
@@ -430,7 +437,6 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
 <div id="app">
   <header>
     <div class="logo-block">
-      <div class="logo-eyebrow">Powered by Suno AI</div>
       <div class="logo-title">Kenny's <em>Music</em> Studio</div>
     </div>
     <div class="header-right">
@@ -481,14 +487,13 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
         <div class="opt-label">카테고리</div>
         <select class="opt-select" id="genre-cat">
           <option value="">선택 안함</option>
-          <option value="electronic">Electronic</option>
           <option value="pop">Pop / K-Pop</option>
           <option value="hiphop">Hip-Hop / R&amp;B</option>
-          <option value="rock">Rock / Metal</option>
-          <option value="jazz">Jazz / Blues</option>
-          <option value="classical">Classical</option>
+          <option value="electronic">Electronic</option>
+          <option value="rock">Rock</option>
           <option value="lofi">Lo-Fi / Chill</option>
-          <option value="world">World Music</option>
+          <option value="jazz">Jazz / Blues</option>
+          <option value="classical">Classical / OST</option>
           <option value="acoustic">Acoustic</option>
         </select>
       </div>
@@ -503,16 +508,12 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
 
     <!-- 감정 -->
     <div class="emotion-row" id="emotion-row">
-      <div class="opt-label">감정 <span style="color:var(--t3);font-weight:400;">(복수 선택)</span></div>
+      <div class="opt-label">감정 <span style="color:var(--t3);font-weight:400;">(선택)</span></div>
       <div class="emotion-grid">
         <span class="etag" data-e="기쁨">😄 기쁨</span>
         <span class="etag" data-e="슬픔">😢 슬픔</span>
-        <span class="etag" data-e="분노">😤 분노</span>
         <span class="etag" data-e="설렘">💕 설렘</span>
         <span class="etag" data-e="그리움">🌊 그리움</span>
-        <span class="etag" data-e="외로움">🌙 외로움</span>
-        <span class="etag" data-e="희망">🌱 희망</span>
-        <span class="etag" data-e="불안">🌀 불안</span>
         <span class="etag" data-e="평온">🍃 평온</span>
         <span class="etag" data-e="열정">🔥 열정</span>
       </div>
@@ -709,6 +710,53 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
 
 </div>
 
+<!-- ── 보컬 변경 모달 ── -->
+<div class="modal-overlay" id="vocal-modal">
+  <div class="modal-box" style="max-width:420px;">
+    <button class="modal-close" id="vocal-modal-close">✕</button>
+    <div class="modal-title" style="margin-bottom:16px;">🎙 보컬 변경</div>
+    <div style="font-size:12px;color:var(--t2);margin-bottom:14px;line-height:1.6;">
+      기존 음악에서 보컬을 새로운 스타일로 교체합니다.<br>
+      <span style="color:var(--t3);">인스트루멘탈 트랙에 새 보컬을 입히거나, 보컬 스타일을 바꿉니다.</span>
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <div class="opt-label" style="margin-bottom:6px;">보컬 성별</div>
+      <div style="display:flex;gap:8px;">
+        <button class="vbtn on" id="vc-gender-auto" data-vg="">🎤 자동</button>
+        <button class="vbtn" id="vc-gender-m" data-vg="m">👨 남성</button>
+        <button class="vbtn" id="vc-gender-f" data-vg="f">👩 여성</button>
+      </div>
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <div class="opt-label" style="margin-bottom:6px;">보컬 스타일 <span style="color:var(--t3);font-weight:400;">(선택)</span></div>
+      <input class="neg-input" id="vc-style" type="text" placeholder="예: soulful R&B, powerful pop, soft ballad">
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <div class="opt-label" style="margin-bottom:6px;">가사 프롬프트 <span style="color:var(--t3);font-weight:400;">(새 가사 아이디어)</span></div>
+      <textarea class="prompt-input" id="vc-prompt" rows="3" style="font-size:12px;" placeholder="예: romantic ballad about missing someone in summer"></textarea>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <div class="opt-label" style="margin-bottom:6px;">모델</div>
+      <select class="opt-select" id="vc-model">
+        <option value="V4_5">V4.5 (권장)</option>
+        <option value="V4_5PLUS">V4.5+</option>
+        <option value="V5">V5 (최신)</option>
+        <option value="V4">V4</option>
+      </select>
+    </div>
+
+    <button class="gen-btn" id="vc-submit-btn" style="width:100%;">
+      <span class="gen-spinner" id="vc-spinner" style="display:none;"></span>
+      <span id="vc-btn-txt">🎙 보컬 교체 생성</span>
+    </button>
+    <div id="vc-result" style="margin-top:12px;"></div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -720,25 +768,21 @@ const MAX_POLLS = 50;
 
 /* ── 장르 ── */
 const GENRE_SUBS={
-  electronic:['EDM','House','Techno','Dubstep','Trance','Ambient Electronic'],
-  pop:['Synth-pop','Dance-pop','K-Pop Idol','J-Pop','Teen Pop','Electropop'],
-  hiphop:['Trap','Old School Boom Bap','Soul','Neo-Soul','R&B','Lo-fi Hip Hop'],
-  rock:['Alternative','Punk','Heavy Metal','Indie Rock','Grunge','Post-Rock'],
-  jazz:['Swing','Bebop','Bossanova','Smooth Jazz','Blues','Soul Jazz'],
-  classical:['Baroque','Romantic','Modern Classical','Opera','Minimalism','Orchestral'],
-  lofi:['Lo-fi Hip-hop','Chillstep','Study Beat','Chillwave','Vaporwave','Ambient'],
-  world:['Reggae','Flamenco','Latin Salsa','Afrobeat','K-Traditional','Bossa Nova'],
-  acoustic:['Folk','Country','Singer-Songwriter','Fingerpicking','Bluegrass','Celtic'],
+  pop:['K-Pop Idol','K-Pop Ballad','Synth-pop','Dance-pop','J-Pop','Electropop'],
+  hiphop:['Trap','R&B','Lo-fi Hip Hop','Neo-Soul','Old School Boom Bap','Soul'],
+  electronic:['EDM','House','Ambient Electronic','Techno','Dubstep','Synthwave'],
+  rock:['Indie Rock','Alternative','Punk','Post-Rock','Grunge','Heavy Metal'],
+  lofi:['Lo-fi Hip-hop','Study Beat','Chillwave','Vaporwave','Chillstep','Ambient'],
+  jazz:['Smooth Jazz','Swing','Bossanova','Blues','Bebop','Soul Jazz'],
+  classical:['Orchestral','Modern Classical','Baroque','Minimalism','Romantic','Opera'],
+  acoustic:['Folk','Singer-Songwriter','Fingerpicking','Country','Bluegrass','Celtic'],
 };
 const PRESET_MAP={
   '🌙 Lo-Fi 새벽':{cat:'lofi',sub:'Lo-fi Hip-hop',mood:'calm, relaxing',ph:'[Verse]\n창밖에 빗소리가 들려\n혼자 앉아 커피를 마셔\n\n[Chorus]\n이 새벽이 영원하길...'},
-  '🎵 K-Pop 발라드':{cat:'pop',sub:'K-Pop Idol',mood:'sad, emotional',ph:'[Verse]\n네가 떠난 자리에\n아직 네 향기가 남아\n\n[Chorus]\n사랑한다는 말 한마디...'},
+  '🎵 K-Pop 발라드':{cat:'pop',sub:'K-Pop Ballad',mood:'sad, emotional',ph:'[Verse]\n네가 떠난 자리에\n아직 네 향기가 남아\n\n[Chorus]\n사랑한다는 말 한마디...'},
   '⚡ EDM 드롭':{cat:'electronic',sub:'EDM',mood:'energetic, hype',ph:'[Verse]\nFeel the bass drop tonight\nWe are alive\n\n[Chorus]\nLet the music take control...'},
   '🎷 재즈 카페':{cat:'jazz',sub:'Smooth Jazz',mood:'calm, relaxing',ph:'[Verse]\n달빛이 내리는 카페\n재즈 선율이 흘러\n\n[Chorus]\n그대와 이 밤을...'},
-  '🎸 인디 팝':{cat:'pop',sub:'Electropop',mood:'happy, uplifting',ph:'[Verse]\n오늘 하루도 별거 없었어\n그래도 괜찮아\n\n[Chorus]\n우리 그냥 웃자...'},
-  '🌊 Synthwave':{cat:'electronic',sub:'Ambient Electronic',mood:'romantic, dreamy',ph:'[Verse]\nNeon lights in the rain\nDriving through the night\n\n[Chorus]\nForever in this 80s dream...'},
   '🎬 영화 OST':{cat:'classical',sub:'Orchestral',mood:'epic, cinematic',ph:'[Verse]\n세상의 끝에서\n우리는 서로를 찾았어\n\n[Chorus]\n이 순간이 영원하길...'},
-  '🥁 트랩 비트':{cat:'hiphop',sub:'Trap',mood:'dark, intense',ph:'[Verse]\n새벽 3시 스튜디오\n펜을 잡고 종이를 채워\n\n[Hook]\n내 꿈은 멈추지 않아...'},
   '🌿 Acoustic':{cat:'acoustic',sub:'Folk',mood:'calm, relaxing',ph:'[Verse]\n봄바람이 불어오는 날\n너의 손을 잡고 걸었어\n\n[Chorus]\n그 기억이 지금도...'},
 };
 
@@ -754,6 +798,7 @@ let bpmAuto=true, selectedBpm=120;
 let selectedDuration=120; /* 초 */
 let fbRating=0, fbTags=new Set();
 let lastGenerateParams=null; /* 피드백 재작곡용 */
+let lastTaskId=''; /* 뮤직비디오 요청용 */
 
 /* ── 현재 세션에서 생성된 트랙 데이터 (가사 복사용) ── */
 let lastTracks=[];
@@ -971,32 +1016,21 @@ $('yt-analyze-btn').addEventListener('click',async()=>{
       title=m?`YouTube 영상 (${m[1]})`:'YouTube 영상';
     }
 
-    /* Claude API로 음악 스타일 분석 */
-    const analyzePrompt=`다음 YouTube 영상 정보를 바탕으로 비슷한 결의 음악을 만들기 위한 Suno AI 스타일 프롬프트를 생성해주세요.
-
-영상 제목: "${title}"
-채널명: "${author}"
-
-다음 형식의 JSON으로만 답변하세요:
-{
-  "genre": "장르 (영어, 예: K-Pop, Lo-fi Hip-hop, EDM)",
-  "mood": "분위기 (영어, 예: energetic, uplifting, melancholic)",
-  "style_prompt": "Suno AI 스타일 프롬프트 (영어, 콤마 구분, 20단어 이내)",
-  "description": "분석 결과 한 줄 설명 (한국어)",
-  "bpm_estimate": 숫자 (추정 BPM)
-}`;
-
-    const claudeRes=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:400,
-        messages:[{role:'user',content:analyzePrompt}]
-      })
-    });
-    const claudeData=await claudeRes.json();
-    const rawText=claudeData.content?.find(c=>c.type==='text')?.text||'';
+    /* Claude API → Vercel 서버리스 프록시 (/api/analyze) 로 호출 — CORS 우회 */
+    let rawText='';
+    try{
+      const proxyRes=await fetch('/api/analyze',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({title,author})
+      });
+      if(!proxyRes.ok)throw new Error('proxy '+proxyRes.status);
+      const proxyData=await proxyRes.json();
+      rawText=proxyData.text||'';
+    }catch(proxyErr){
+      console.warn('analyze proxy failed:',proxyErr);
+      /* 프록시 실패 시 제목 기반 폴백 — 아래 분기에서 처리됨 */
+    }
     let analysis;
     try{
       const clean=rawText.replace(/```json|```/g,'').trim();
@@ -1184,6 +1218,7 @@ async function generate(overrideParams){
     const genData=await kieRequest(apiKey,'POST','/api/v1/generate',body);
     const taskId=genData?.data?.taskId||genData?.taskId;
     if(!taskId)throw new Error('taskId 없음 — '+JSON.stringify(genData).slice(0,100));
+    lastTaskId=taskId; /* ✅ 뮤직비디오 요청용으로 저장 */
     $('ld-task').textContent=`Task: ${taskId}`;
     $('ld-sub').innerHTML='AI가 멜로디, 리듬, 편곡 중...<br>보통 30~60초 소요됩니다 ☕';
 
@@ -1191,13 +1226,13 @@ async function generate(overrideParams){
     if(!tracks?.length)throw new Error('트랙을 받지 못했어요');
     $('loading-card').classList.remove('on');
 
-    lastTracks=tracks.map(t=>({...t,_inputLyrics:lastLyricsInput}));
+    lastTracks=tracks.map(t=>({...t,_inputLyrics:lastLyricsInput,_taskId:taskId}));
     renderTracks(lastTracks,prompt,styleStr);
     showFeedbackCard();
 
     tracks.forEach(t=>{
       historyData.unshift({
-        id:t.id,title:t.title||'무제',
+        id:t.id,taskId,title:t.title||'무제',
         audio_url:t.audioUrl||t.audio_url||'',
         video_url:'',
         image_url:t.imageUrl||t.image_url||'',
@@ -1212,7 +1247,7 @@ async function generate(overrideParams){
     toast('🎵 음악 생성 완료!','ok');
 
     if(makeMV&&tracks[0]?.id){
-      requestMusicVideo(apiKey,tracks[0].id,0);
+      requestMusicVideo(apiKey,taskId,tracks[0].id,0);
     }
   }catch(e){
     $('loading-card').classList.remove('on');
@@ -1223,7 +1258,7 @@ async function generate(overrideParams){
 }
 
 /* ── 뮤직비디오 ── */
-async function requestMusicVideo(apiKey,audioId,trackIdx){
+async function requestMusicVideo(apiKey,taskId,audioId,trackIdx){
   const card=document.querySelectorAll('.result-card')[trackIdx];
   if(!card)return;
 
@@ -1243,26 +1278,45 @@ async function requestMusicVideo(apiKey,audioId,trackIdx){
 
   const mvPanel=document.createElement('div');
   mvPanel.className='rc-tab-panel';mvPanel.id=mvPanelId;
-  mvPanel.innerHTML=`<div class="mv-making"><div class="mv-spin"></div>뮤직비디오를 생성 중이에요... (30초 영상 · 1~3분 소요)</div>`;
+  mvPanel.innerHTML=`<div class="mv-making"><div class="mv-spin"></div>뮤직비디오를 생성 중이에요... (약 1~3분 소요)</div>`;
   card.querySelector('.rc-body').appendChild(mvPanel);
 
   try{
-    /* ✅ FIX: kie.ai API는 'audioId' 파라미터 사용 */
-    const data=await kieRequest(apiKey,'POST','/api/v1/create-music-video',{
-      audioId: audioId,
-      callBackUrl: CALLBACK
+    /* ✅ FIX: 올바른 엔드포인트 /api/v1/mp4/generate (docs.kie.ai 확인) */
+    const data=await kieRequest(apiKey,'POST','/api/v1/mp4/generate',{
+      taskId,
+      audioId,
+      callBackUrl: CALLBACK,
+      author: 'Kenny\'s Music Studio',
+      domainName: 'ai-music-studio-bice.vercel.app'
     });
-    const taskId=data?.data?.taskId||data?.taskId;
-    if(!taskId)throw new Error('뮤직비디오 taskId 없음 — API가 이 기능을 지원하지 않을 수 있어요');
+    console.log('[MV] generate response:', JSON.stringify(data));
+    /* kie.ai 응답 구조: data.data.taskId 또는 data.taskId */
+    const mvTaskId=data?.data?.taskId||data?.taskId||data?.data?.task_id;
+    if(!mvTaskId){
+      console.error('[MV] 전체 응답:', JSON.stringify(data));
+      throw new Error('뮤직비디오 taskId 없음 — 응답: '+JSON.stringify(data).slice(0,120));
+    }
+    console.log('[MV] mvTaskId:', mvTaskId);
 
-    for(let i=0;i<60;i++){
+    for(let i=0;i<80;i++){
       await sleep(4000);
       try{
-        const res=await kieRequest(apiKey,'GET',`/api/v1/create-music-video/record-info?taskId=${taskId}`);
+        /* ✅ FIX: 폴링 엔드포인트 확인 */
+        const res=await kieRequest(apiKey,'GET',`/api/v1/mp4/record-info?taskId=${mvTaskId}`);
+        console.log(`[MV] poll ${i}:`, JSON.stringify(res).slice(0,200));
         const d=res?.data;if(!d)continue;
         const status=(d.status||'').toUpperCase();
         if(status==='SUCCESS'){
-          const videoUrl=d.response?.videoUrl||d.videoUrl||'';
+          /* ✅ FIX: 응답 구조 여러 경로 시도 */
+          const videoUrl=d.response?.videoUrl
+            ||d.response?.video_url
+            ||d.videoUrl
+            ||d.video_url
+            ||d.response?.mp4Url
+            ||d.response?.data?.[0]?.videoUrl
+            ||'';
+          console.log('[MV] videoUrl:', videoUrl);
           if(videoUrl){
             mvPanel.innerHTML=`
               <video class="mv-video" controls playsinline preload="metadata">
@@ -1279,26 +1333,108 @@ async function requestMusicVideo(apiKey,audioId,trackIdx){
             if(historyData[0])historyData[0].video_url=videoUrl,historyData[0].type='video';
             saveHistory();renderHistory();
             toast('🎬 뮤직비디오 완성!','ok');
+          }else{
+            mvPanel.innerHTML=`<div style="font-size:12px;color:var(--ylw);padding:12px;">⚠️ 비디오 생성 완료 — URL을 찾을 수 없습니다<br><span style="color:var(--t3);font-size:10px;">${esc(JSON.stringify(d).slice(0,200))}</span></div>`;
           }
           return;
         }
         if(status==='FAILED'||status==='ERROR'){
-          mvPanel.innerHTML=`<div style="font-size:12px;color:var(--red);padding:12px;">❌ 뮤직비디오 생성 실패 (API 서버 오류)</div>`;
+          mvPanel.innerHTML=`<div style="font-size:12px;color:var(--red);padding:12px;">❌ 뮤직비디오 생성 실패<br><span style="color:var(--t3);font-size:10px;">${esc(JSON.stringify(d).slice(0,200))}</span></div>`;
           return;
         }
-      }catch(pollErr){console.warn('MV poll:',pollErr);}
+        /* 진행 중 표시 업데이트 */
+        const pct=Math.min(95,Math.round((i/80)*100));
+        mvPanel.querySelector('.mv-making')&&(mvPanel.querySelector('.mv-making').textContent=`🎬 뮤직비디오 생성 중... (${pct}%) 상태: ${status||'처리 중'}`);
+      }catch(pollErr){console.warn('[MV] poll err:',pollErr);}
     }
     mvPanel.innerHTML=`<div style="font-size:12px;color:var(--ylw);padding:12px;">⏱ 시간 초과 — 나중에 다시 시도해주세요</div>`;
   }catch(e){
-    console.error('MV:',e);
+    console.error('[MV] error:', e);
     const p=document.getElementById(mvPanelId);
-    /* ✅ 404 = API 미지원 플랜 안내 */
-    const msg=e.message.includes('404')||e.message.includes('Not Found')
-      ? '❌ 뮤직비디오는 kie.ai 유료 플랜에서 지원됩니다'
-      : '❌ '+esc(e.message);
-    if(p)p.innerHTML=`<div style="font-size:12px;color:var(--red);padding:12px;">${msg}</div>`;
+    let msg='❌ '+esc(e.message);
+    /* 크레딧/플랜 관련 오류 */
+    if(e.message.includes('credit')||e.message.includes('Credit')||e.message.includes('insufficient')){
+      msg='❌ kie.ai 크레딧 부족 — 충전 후 다시 시도해주세요';
+    } else if(e.message.includes('404')||e.message.includes('Not Found')){
+      msg='❌ 뮤직비디오 API 엔드포인트 오류 (404) — 콘솔 확인';
+    } else if(e.message.includes('403')||e.message.includes('permission')||e.message.includes('plan')){
+      msg='❌ 뮤직비디오는 kie.ai 유료 플랜에서 지원됩니다';
+    }
+    if(p)p.innerHTML=`<div style="font-size:12px;color:var(--red);padding:12px;line-height:1.6;">${msg}</div>`;
   }
 }
+
+/* ── 보컬 변경 ── */
+let vcAudioUrl='',vcTrackTitle='',vcGender='';
+
+function openVocalModal(audioUrl,trackTitle){
+  vcAudioUrl=audioUrl;vcTrackTitle=trackTitle;
+  $('vc-prompt').value='';$('vc-style').value='';
+  $('vc-result').innerHTML='';
+  vcGender='';
+  document.querySelectorAll('#vocal-modal .vbtn').forEach(b=>b.classList.remove('on'));
+  $('vc-gender-auto').classList.add('on');
+  $('vocal-modal').classList.add('on');
+}
+$('vocal-modal-close').addEventListener('click',()=>$('vocal-modal').classList.remove('on'));
+$('vocal-modal').addEventListener('click',e=>{if(e.target===$('vocal-modal'))$('vocal-modal').classList.remove('on');});
+
+document.querySelectorAll('#vocal-modal .vbtn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('#vocal-modal .vbtn').forEach(b=>b.classList.remove('on'));
+    this.classList.add('on');vcGender=this.dataset.vg;
+  });
+});
+
+$('vc-submit-btn').addEventListener('click',async()=>{
+  const apiKey=kieApiKey;
+  if(!apiKey){toast('API 키 로딩 중... 잠시 후 다시 시도해주세요','err');return;}
+  if(!vcAudioUrl){toast('오디오 URL 없음','err');return;}
+  const prompt=$('vc-prompt').value.trim()||'emotional vocal singing';
+  const style=$('vc-style').value.trim();
+  const model=$('vc-model').value;
+  $('vc-submit-btn').disabled=true;$('vc-spinner').style.display='inline-block';$('vc-btn-txt').textContent='보컬 교체 중...';
+  $('vc-result').innerHTML='<div style="font-size:12px;color:var(--t2);padding:8px;">🎙 보컬을 교체하고 있어요... (약 30~90초)</div>';
+  try{
+    const body={uploadUrl:vcAudioUrl,prompt,model,callBackUrl:CALLBACK,title:vcTrackTitle||'Vocal Track'};
+    if(style)body.style=style;
+    if(vcGender)body.vocalGender=vcGender;
+    const data=await kieRequest(apiKey,'POST','/api/v1/generate/add-vocals',body);
+    const taskId=data?.data?.taskId||data?.taskId;
+    if(!taskId)throw new Error('보컬 변경 taskId 없음');
+    let result=null;
+    for(let i=0;i<40;i++){
+      await sleep(4000);
+      try{
+        const res=await kieRequest(apiKey,'GET',`/api/v1/generate/record-info?taskId=${taskId}`);
+        const st=res?.data;if(!st)continue;
+        const status=(st.status||'').toUpperCase();
+        const trks=st.response?.sunoData||[];
+        if(status==='SUCCESS'&&trks.length){result=trks[0];break;}
+        if(status==='FAILED'||status==='ERROR')throw new Error('보컬 교체 실패');
+        $('vc-result').innerHTML=`<div style="font-size:12px;color:var(--t2);padding:8px;">🎙 보컬 교체 중... ${Math.min(90,Math.round((i/40)*100))}%</div>`;
+      }catch(pe){if(pe.message.includes('실패'))throw pe;}
+    }
+    if(!result)throw new Error('시간 초과');
+    const newUrl=result.audioUrl||result.audio_url||'';
+    const newTitle=result.title||'Vocal Track';
+    $('vc-result').innerHTML=`
+      <div style="font-size:12px;color:var(--grn);font-weight:700;margin-bottom:8px;">✅ 보컬 교체 완성!</div>
+      <audio controls style="width:100%;margin-bottom:8px;border-radius:8px;" src="${esc(newUrl)}"></audio>
+      <div class="dl-row" style="margin-top:0;">
+        <button class="dl-btn audio" onclick="downloadFile('${esc(newUrl)}','${esc(newTitle)}-vocal.mp3')">⬇ MP3</button>
+        <button class="dl-btn lnk" onclick="navigator.clipboard.writeText('${esc(newUrl)}').then(()=>toast('링크 복사됨!','ok'))">🔗 링크</button>
+      </div>`;
+    historyData.unshift({id:result.id||Date.now().toString(),taskId,title:newTitle,audio_url:newUrl,video_url:'',image_url:result.imageUrl||'',tags:'보컬 변경',lyrics:'',created:Date.now(),type:'audio'});
+    historyData=historyData.slice(0,30);saveHistory();updateHistBadge();
+    toast('🎙 보컬 교체 완성!','ok');
+  }catch(e){
+    $('vc-result').innerHTML=`<div style="font-size:12px;color:var(--red);padding:8px;">❌ ${esc(e.message)}</div>`;
+    toast('보컬 변경 실패: '+e.message,'err');
+  }finally{
+    $('vc-submit-btn').disabled=false;$('vc-spinner').style.display='none';$('vc-btn-txt').textContent='🎙 보컬 교체 생성';
+  }
+});
 
 /* ── 음악 연장 ── */
 function openExtendModal(audioId){extendAudioId=audioId;$('extend-prompt').value='';$('extend-at').value='';$('extend-modal').classList.add('on');}
@@ -1398,16 +1534,19 @@ function renderTracks(tracks,prompt,tags){
             <div class="ap-viz" id="ap-viz-${i}">${Array(28).fill(0).map(()=>'<div class="ap-vbar"></div>').join('')}</div>
           </div>
           <div class="dl-row">
-            <button class="dl-btn audio" data-dl-audio="${esc(audioUrl)}" data-dl-name="${esc(title)}.mp3">⬇ MP3 다운로드</button>
-            <button class="dl-btn lnk" data-copy-url="${esc(audioUrl)}">🔗 링크 복사</button>
+            <button class="dl-btn audio" data-dl-audio="${esc(audioUrl)}" data-dl-name="${esc(title)}.mp3">⬇ MP3</button>
+            <button class="dl-btn lnk" data-copy-url="${esc(audioUrl)}">🔗 링크</button>
             <button class="dl-btn ext" data-extend-id="${esc(audioId)}"${!audioId?' disabled':''}>➕ 연장</button>
+            <button class="dl-btn vocal-chg" data-vocal-change="${esc(audioUrl)}" data-track-title="${esc(title)}" style="color:var(--grn);border-color:rgba(0,221,160,.25);">🎙 보컬 변경</button>
           </div>
         </div>
         <div class="rc-tab-panel" id="ly-${i}">
-          <div class="lyrics-display">${parseLyrics(lyricsRaw)}</div>
-          <div class="dl-row">
+          <div class="dl-row" style="margin-bottom:10px;">
             <button class="dl-btn lnk" data-copy-lyrics-idx="${i}">📋 가사 복사</button>
+            <button class="dl-btn audio" data-karaoke-idx="${i}" data-task-id="${esc(track._taskId||lastTaskId||'')}" data-audio-id="${esc(audioId)}" style="color:var(--ylw);border-color:rgba(255,208,0,.3);">🎤 노래방 모드</button>
           </div>
+          <div class="lyrics-display" id="lyrics-plain-${i}">${parseLyrics(lyricsRaw)}</div>
+          <div class="lyrics-display" id="lyrics-karaoke-${i}" style="display:none;"></div>
         </div>
         <div id="mvpanel-slot-${i}"></div>
       </div>`;
@@ -1433,6 +1572,12 @@ function renderTracks(tracks,prompt,tags){
   container.querySelectorAll('[data-copy-url]').forEach(btn=>{
     btn.addEventListener('click',function(){navigator.clipboard.writeText(this.dataset.copyUrl).then(()=>toast('🔗 링크 복사됨!','ok')).catch(()=>toast('복사 실패','err'));});
   });
+  /* 보컬 변경 버튼 */
+  container.querySelectorAll('[data-vocal-change]').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      openVocalModal(this.dataset.vocalChange, this.dataset.trackTitle||'');
+    });
+  });
   /* ✅ FIX: 가사 복사 — 실제 입력 가사 사용 */
   container.querySelectorAll('[data-copy-lyrics-idx]').forEach(btn=>{
     btn.addEventListener('click',function(){
@@ -1443,9 +1588,91 @@ function renderTracks(tracks,prompt,tags){
       navigator.clipboard.writeText(text).then(()=>toast('📋 가사 복사됨!','ok')).catch(()=>toast('복사 실패','err'));
     });
   });
+
+  /* 노래방 모드 */
+  container.querySelectorAll('[data-karaoke-idx]').forEach(btn=>{
+    btn.addEventListener('click',async function(){
+      const idx=parseInt(this.dataset.karaokeIdx);
+      const taskId=this.dataset.taskId;
+      const audioId=this.dataset.audioId;
+      const plainEl=document.getElementById(`lyrics-plain-${idx}`);
+      const karaokeEl=document.getElementById(`lyrics-karaoke-${idx}`);
+      if(!karaokeEl)return;
+
+      /* 이미 로드된 경우 토글 */
+      if(karaokeEl.dataset.loaded==='1'){
+        const isK=karaokeEl.style.display!=='none';
+        karaokeEl.style.display=isK?'none':'block';
+        plainEl.style.display=isK?'block':'none';
+        this.style.color=isK?'var(--ylw)':'var(--grn)';
+        this.textContent=isK?'🎤 노래방 모드':'📝 일반 가사';
+        return;
+      }
+
+      if(!taskId||!audioId){toast('타임스탬프 정보가 없어요 (재생성 필요)','err',3000);return;}
+      this.disabled=true;
+      karaokeEl.innerHTML=`<div class="karaoke-loading"><span class="ks"></span>노래방 가사 로딩 중...</div>`;
+      karaokeEl.style.display='block';
+      plainEl.style.display='none';
+
+      try{
+        const apiKey=kieApiKey;
+        const res=await kieRequest(apiKey,'POST','/api/v1/generate/get-timestamped-lyrics',{taskId,audioId});
+        const words=res?.data?.alignedWords||[];
+        if(!words.length)throw new Error('타임스탬프 가사 없음');
+
+        let html='<div class="karaoke-wrap">';
+        words.forEach((w,wi)=>{
+          const text=w.word||'';
+          if(/^\[.+\]$/.test(text.trim())){
+            html+=`<span class="k-sec">${esc(text.replace(/[\[\]\n]/g,'').trim())}</span>`;
+          } else if(text.includes('\n')){
+            const parts=text.split('\n');
+            parts.forEach((p,pi)=>{
+              if(p.trim())html+=`<span class="k-word" data-start="${w.startS||0}" data-end="${w.endS||0}">${esc(p)}</span>`;
+              if(pi<parts.length-1)html+='<br>';
+            });
+          } else {
+            html+=`<span class="k-word" data-start="${w.startS||0}" data-end="${w.endS||0}">${esc(text)} </span>`;
+          }
+        });
+        html+='</div>';
+        karaokeEl.innerHTML=html;
+        karaokeEl.dataset.loaded='1';
+        karaokeEl.dataset.trackIdx=String(idx);
+        this.style.color='var(--grn)';
+        this.style.borderColor='rgba(0,221,160,.3)';
+        this.textContent='📝 일반 가사';
+        toast('🎤 노래방 모드 ON — 재생하면 가사가 따라와요!','ok',3000);
+      }catch(e){
+        karaokeEl.innerHTML=`<div style="font-size:12px;color:var(--red);padding:12px;">❌ ${esc(e.message)}</div>`;
+        plainEl.style.display='block';karaokeEl.style.display='none';
+        toast('가사 타임스탬프 로드 실패','err');
+      }finally{this.disabled=false;}
+    });
+  });
 }
 
 /* ── AUDIO PLAYER ── */
+function updateKaraokeSync(idx,currentTime){
+  /* 노래방 모드가 활성화된 경우 단어 하이라이트 */
+  const karaokeEl=document.getElementById(`lyrics-karaoke-${idx}`);
+  if(!karaokeEl||karaokeEl.style.display==='none'||karaokeEl.dataset.loaded!=='1')return;
+  karaokeEl.querySelectorAll('.k-word').forEach(w=>{
+    const start=parseFloat(w.dataset.start)||0;
+    const end=parseFloat(w.dataset.end)||0;
+    if(currentTime>=start&&currentTime<end){
+      w.classList.add('active');w.classList.remove('done');
+      /* 현재 단어가 뷰포트에 보이도록 스크롤 */
+      w.scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'});
+    } else if(currentTime>=end){
+      w.classList.remove('active');w.classList.add('done');
+    } else {
+      w.classList.remove('active','done');
+    }
+  });
+}
+
 function togglePlay(btn){
   const idx=+btn.dataset.idx,url=btn.dataset.url;
   if(!url){toast('오디오 URL이 없어요','err');return;}
@@ -1464,6 +1691,7 @@ function togglePlay(btn){
     const pct=audio.duration?(audio.currentTime/audio.duration)*100:0;
     const f=document.getElementById(`ap-prog-${idx}`);if(f)f.style.width=pct+'%';
     const t=document.getElementById(`ap-time-${idx}`);if(t)t.textContent=`${formatTime(audio.currentTime)} / ${formatTime(audio.duration||0)}`;
+    updateKaraokeSync(idx,audio.currentTime); /* ✅ 노래방 싱크 */
   });
   audio.addEventListener('ended',()=>{btn.textContent='▶';stopViz(idx);const f=document.getElementById(`ap-prog-${idx}`);if(f)f.style.width='0%';});
   audio.addEventListener('error',()=>toast('오디오 재생 오류','err'));
