@@ -70,10 +70,14 @@ header{padding:24px 0 28px;display:flex;align-items:center;justify-content:space
 .pc-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--t2);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
 
 /* ── MODE TABS ── */
-.mode-tabs{display:flex;gap:6px;margin-bottom:16px;}
-.mtab{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;border:1.5px solid var(--bdr);background:var(--s2);color:var(--t2);cursor:pointer;transition:all .15s;font-family:'Syne',sans-serif;}
-.mtab:hover{border-color:var(--acc);color:var(--acc);}
-.mtab.on{background:rgba(224,64,251,.12);border-color:var(--acc);color:var(--acc);}
+/* ── MODE TABS ── */
+.mode-tabs{display:flex;gap:0;margin-bottom:0;background:var(--s2);border-radius:14px 14px 0 0;padding:4px 4px 0;border:1px solid var(--bdr);border-bottom:none;}
+.mtab{flex:1;padding:9px 8px;border-radius:10px 10px 0 0;font-size:12px;font-weight:700;border:none;background:transparent;color:var(--t3);cursor:pointer;transition:all .15s;font-family:'Syne',sans-serif;text-align:center;position:relative;}
+.mtab:hover{color:var(--t2);}
+.mtab.on{background:var(--s3);color:var(--acc);box-shadow:0 -1px 0 var(--acc);}
+/* 모드 패널 */
+.mode-panel{display:none;padding:18px 16px 16px;background:var(--s3);border:1px solid var(--bdr);border-top:none;border-radius:0 0 14px 14px;margin-bottom:16px;}
+.mode-panel.on{display:block;}
 
 /* ── FORM ELEMENTS ── */
 .genre-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
@@ -763,11 +767,6 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
         <span class="key-spin" id="key-spin"></span>
         <span id="key-status-txt">API 키 로딩 중...</span>
       </div>
-      <div id="login-area">
-        <button class="login-btn" id="login-btn" onclick="document.getElementById('login-modal').classList.add('on')">
-          👤 로그인
-        </button>
-      </div>
     </div>
   </header>
 
@@ -777,14 +776,181 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
   <div class="view on" id="create-view">
 
   <div class="prompt-card">
+    <!-- 모드 탭 -->
     <div class="mode-tabs">
       <button class="mtab on" data-mode="custom">✦ 커스텀 모드</button>
       <button class="mtab" data-mode="simple">⚡ 심플 모드</button>
       <button class="mtab" data-mode="youtube">▶ YouTube 분석</button>
     </div>
 
-    <!-- YouTube 패널 -->
-    <div id="youtube-row" style="display:none;margin-bottom:14px;">
+    <!-- ━━━ 커스텀 패널 ━━━ -->
+    <div class="mode-panel on" id="panel-custom">
+      <!-- 장르 -->
+      <div id="genre-row">
+        <div class="opt-label" style="margin-bottom:8px;">장르 선택</div>
+        <div class="genre-btn-grid" id="genre-btn-grid">
+          <button class="genre-btn" data-cat="pop">🎵 K-Pop</button>
+          <button class="genre-btn" data-cat="hiphop">🎤 Hip-Hop</button>
+          <button class="genre-btn" data-cat="electronic">⚡ Electronic</button>
+          <button class="genre-btn" data-cat="rock">🎸 Rock</button>
+          <button class="genre-btn" data-cat="lofi">☕ Lo-Fi</button>
+          <button class="genre-btn" data-cat="jazz">🎷 Jazz</button>
+          <button class="genre-btn" data-cat="classical">🎻 Classical</button>
+          <button class="genre-btn" data-cat="acoustic">🪕 Acoustic</button>
+        </div>
+        <div class="sub-genre-row" id="sub-genre-row" style="display:none;"></div>
+        <select id="genre-cat" style="display:none;"></select>
+        <select id="genre-sub" style="display:none;"><option value="">카테고리 먼저 선택</option></select>
+      </div>
+      <!-- 제목 -->
+      <div class="title-row" style="margin-top:14px;">
+        <div class="opt-label" style="margin-bottom:6px;">곡 제목 <span style="color:var(--t3);font-weight:400;">(선택 — 비우면 AI 자동 생성)</span></div>
+        <input class="title-input" id="song-title" type="text" placeholder="예: 새벽 세 시의 고백">
+      </div>
+      <!-- 가사 -->
+      <div class="pc-label" id="prompt-label" style="margin-top:14px;">가사 / 곡 설명</div>
+      <textarea class="prompt-input" id="prompt" rows="4"
+        placeholder="여기에 가사를 입력하세요&#10;&#10;[Verse]&#10;가사 첫 번째 줄&#10;&#10;[Chorus]&#10;후렴구..."></textarea>
+      <div class="lyrics-btn-row" id="lyrics-btn-row">
+        <span class="lyrics-hint">✦ Ctrl+Enter로 바로 생성</span>
+        <button class="lyrics-gen-btn" id="lyrics-btn">
+          <span class="lspin" id="lyrics-spinner"></span>
+          ✍️ AI 자동 작사
+        </button>
+      </div>
+      <!-- 옵션 -->
+      <div class="options-row">
+        <div class="opt-group">
+          <div class="opt-label">분위기</div>
+          <select class="opt-select" id="mood">
+            <option value="">선택 안함</option>
+            <option value="happy, uplifting">밝고 신나는</option>
+            <option value="sad, emotional">슬프고 감성적인</option>
+            <option value="calm, relaxing">잔잔하고 편안한</option>
+            <option value="dark, intense">어둡고 강렬한</option>
+            <option value="romantic, dreamy">로맨틱하고 몽환적인</option>
+            <option value="epic, cinematic">웅장하고 영화적인</option>
+            <option value="energetic, hype">에너지 넘치는</option>
+          </select>
+        </div>
+        <div class="vocal-group" id="vocal-group">
+          <div class="opt-label">보컬 성별</div>
+          <div class="vocal-btns">
+            <button class="vbtn on" data-v="">🎤 자동</button>
+            <button class="vbtn" data-v="m">👨 남성</button>
+            <button class="vbtn" data-v="f">👩 여성</button>
+          </div>
+        </div>
+        <div class="opt-group">
+          <div class="opt-label">인스트루멘탈</div>
+          <div class="toggle-label-row" id="inst-toggle">
+            <div class="toggle-switch"><div class="toggle-thumb"></div></div>
+            <span class="toggle-txt">보컬 없음</span>
+          </div>
+        </div>
+      </div>
+      <!-- 고급 -->
+      <div class="advanced-toggle" id="adv-toggle">
+        <span class="adv-lbl">고급 설정</span>
+        <span class="adv-chev" id="adv-chev">▼</span>
+      </div>
+      <div class="advanced-panel" id="adv-panel">
+        <div class="opt-label" style="margin-bottom:8px;">BPM <span style="color:var(--t3);font-weight:400;">(템포)</span></div>
+        <div class="bpm-row">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <div class="bpm-val" id="bpm-val">—</div>
+            <div class="bpm-unit">BPM</div>
+          </div>
+          <input type="range" class="bpm-slider" id="bpm-slider" min="60" max="200" step="1" value="120" style="flex:1;">
+          <button class="bpm-auto-btn on" id="bpm-auto-btn">AUTO</button>
+        </div>
+        <div class="opt-label" style="margin-bottom:8px;">곡 시간</div>
+        <div class="duration-btns" style="margin-bottom:10px;">
+          <button class="dbtn" data-dur="60">1분</button>
+          <button class="dbtn on" data-dur="120">2분</button>
+          <button class="dbtn" data-dur="180">3분</button>
+          <button class="dbtn pro-req" data-dur="240">4분 👑</button>
+          <button class="dbtn pro-req" data-dur="300">5분 👑</button>
+          <button class="dbtn pro-req" data-dur="480">8분 👑</button>
+        </div>
+        <div class="pro-warning" id="pro-warning">
+          👑 <span>3분 이상 곡은 <strong>Pro 플랜</strong> 구독이 필요합니다.</span>
+        </div>
+        <div class="adv-grid">
+          <div class="opt-group">
+            <div class="opt-label">Negative Tags</div>
+            <input class="neg-input" id="neg-tags" type="text" placeholder="heavy metal, screaming...">
+          </div>
+          <div class="opt-group">
+            <div class="opt-label">모델</div>
+            <select class="opt-select" id="model-sel">
+              <option value="V3_5">V3.5 (빠름)</option>
+              <option value="V4">V4</option>
+              <option value="V4_5" selected>V4.5 (권장)</option>
+              <option value="V4_5PLUS">V4.5+ (8분)</option>
+              <option value="V5">V5 (최신)</option>
+            </select>
+          </div>
+        </div>
+        <div class="adv-grid" style="margin-bottom:14px;">
+          <div class="slider-group">
+            <div class="slider-header"><div class="opt-label">스타일 강도</div><span class="slider-val" id="sw-val">0.65</span></div>
+            <input type="range" id="style-weight" min="0" max="1" step="0.05" value="0.65">
+          </div>
+          <div class="slider-group">
+            <div class="slider-header"><div class="opt-label">창의성</div><span class="slider-val" id="wc-val">0.65</span></div>
+            <input type="range" id="weird-constraint" min="0" max="1" step="0.05" value="0.65">
+          </div>
+        </div>
+      </div>
+      <!-- MV 토글 -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div class="toggle-label-row" id="mv-toggle" style="flex:0 0 auto;padding:8px 12px;">
+          <div class="toggle-switch"><div class="toggle-thumb"></div></div>
+          <span class="toggle-txt">🎬 뮤직비디오도 생성</span>
+        </div>
+        <span style="font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;">음악 완성 후 자동 요청 · ~20 credits</span>
+      </div>
+      <button class="gen-btn" id="gen-btn">
+        <span class="gen-spinner" id="gen-spinner"></span>
+        <span id="gen-txt">✦ 음악 생성하기</span>
+      </button>
+    </div>
+
+    <!-- ━━━ 심플 패널 ━━━ -->
+    <div class="mode-panel" id="panel-simple">
+      <div class="opt-label" style="margin-bottom:10px;">음악 설명 <span style="color:var(--t3);font-weight:400;">(장르, 분위기, 스타일 자유롭게 입력)</span></div>
+      <textarea class="prompt-input" id="simple-prompt" rows="3"
+        placeholder="예: upbeat K-pop with bright synths, female vocals&#10;예: 비 오는 날 카페에 어울리는 잔잔한 재즈"></textarea>
+      <div style="display:flex;align-items:center;gap:10px;margin:12px 0 10px;">
+        <div class="opt-group" style="flex:1;">
+          <div class="opt-label" style="margin-bottom:5px;">분위기</div>
+          <select class="opt-select" id="simple-mood">
+            <option value="">선택 안함</option>
+            <option value="happy, uplifting">밝고 신나는</option>
+            <option value="sad, emotional">슬프고 감성적인</option>
+            <option value="calm, relaxing">잔잔하고 편안한</option>
+            <option value="dark, intense">어둡고 강렬한</option>
+            <option value="romantic, dreamy">로맨틱하고 몽환적인</option>
+            <option value="energetic, hype">에너지 넘치는</option>
+          </select>
+        </div>
+        <div class="opt-group" style="flex:1;">
+          <div class="opt-label" style="margin-bottom:5px;">인스트루멘탈</div>
+          <div class="toggle-label-row" id="simple-inst-toggle">
+            <div class="toggle-switch"><div class="toggle-thumb"></div></div>
+            <span class="toggle-txt">보컬 없음</span>
+          </div>
+        </div>
+      </div>
+      <button class="gen-btn" id="simple-gen-btn">
+        <span class="gen-spinner" id="simple-gen-spinner"></span>
+        <span id="simple-gen-txt">⚡ 음악 생성하기</span>
+      </button>
+    </div>
+
+    <!-- ━━━ YouTube 패널 ━━━ -->
+    <div class="mode-panel" id="panel-youtube">
       <div class="opt-label" style="margin-bottom:8px;">YouTube URL <span style="color:var(--t3);font-weight:400;">(영상 제목/채널 기반 분석)</span></div>
       <div style="display:flex;gap:8px;">
         <input class="opt-input" id="yt-url" type="url" placeholder="https://youtube.com/watch?v=..." style="flex:1;">
@@ -794,168 +960,30 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
         </button>
       </div>
       <div id="yt-result" style="margin-top:10px;display:none;padding:12px;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--rsm);font-size:12px;color:var(--t2);line-height:1.6;"></div>
-    </div>
-
-    <!-- 장르 버튼 형식 -->
-    <div id="genre-row">
-      <div class="opt-label" style="margin-bottom:8px;">장르 선택</div>
-      <div class="genre-btn-grid" id="genre-btn-grid">
-        <button class="genre-btn" data-cat="pop">🎵 K-Pop</button>
-        <button class="genre-btn" data-cat="hiphop">🎤 Hip-Hop</button>
-        <button class="genre-btn" data-cat="electronic">⚡ Electronic</button>
-        <button class="genre-btn" data-cat="rock">🎸 Rock</button>
-        <button class="genre-btn" data-cat="lofi">☕ Lo-Fi</button>
-        <button class="genre-btn" data-cat="jazz">🎷 Jazz</button>
-        <button class="genre-btn" data-cat="classical">🎻 Classical</button>
-        <button class="genre-btn" data-cat="acoustic">🪕 Acoustic</button>
-      </div>
-      <!-- 세부 장르 (동적) -->
-      <div class="sub-genre-row" id="sub-genre-row" style="display:none;"></div>
-      <!-- hidden selects (JS 호환용) -->
-      <select id="genre-cat" style="display:none;"></select>
-      <select id="genre-sub" style="display:none;"><option value="">카테고리 먼저 선택</option></select>
-    </div>
-
-    <!-- 프리셋 -->
-    <div class="preset-row" id="preset-row"></div>
-
-    <!-- 감정 -->
-    <div class="emotion-row" id="emotion-row">
-      <div class="opt-label">감정 <span style="color:var(--t3);font-weight:400;">(선택)</span></div>
-      <div class="emotion-grid">
-        <span class="etag" data-e="기쁨">😄 기쁨</span>
-        <span class="etag" data-e="슬픔">😢 슬픔</span>
-        <span class="etag" data-e="설렘">💕 설렘</span>
-        <span class="etag" data-e="그리움">🌊 그리움</span>
-        <span class="etag" data-e="평온">🍃 평온</span>
-        <span class="etag" data-e="열정">🔥 열정</span>
-      </div>
-    </div>
-
-    <!-- 제목 -->
-    <div class="title-row" id="title-row">
-      <div class="opt-label" style="margin-bottom:6px;">곡 제목 <span style="color:var(--t3);font-weight:400;">(선택 — 비우면 AI 자동 생성)</span></div>
-      <input class="title-input" id="song-title" type="text" placeholder="예: 새벽 세 시의 고백">
-    </div>
-
-    <!-- 가사 -->
-    <div class="pc-label" id="prompt-label">가사 / 곡 설명</div>
-    <textarea class="prompt-input" id="prompt" rows="4"
-      placeholder="여기에 가사를 입력하세요&#10;&#10;[Verse]&#10;가사 첫 번째 줄&#10;&#10;[Chorus]&#10;후렴구..."></textarea>
-
-    <!-- AI 자동 작사 -->
-    <div class="lyrics-btn-row" id="lyrics-btn-row">
-      <span class="lyrics-hint">✦ Ctrl+Enter로 바로 생성</span>
-      <button class="lyrics-gen-btn" id="lyrics-btn">
-        <span class="lspin" id="lyrics-spinner"></span>
-        ✍️ AI 자동 작사
-      </button>
-    </div>
-
-    <!-- 옵션 -->
-    <div class="options-row">
-      <div class="opt-group">
-        <div class="opt-label">분위기</div>
-        <select class="opt-select" id="mood">
-          <option value="">선택 안함</option>
-          <option value="happy, uplifting">밝고 신나는</option>
-          <option value="sad, emotional">슬프고 감성적인</option>
-          <option value="calm, relaxing">잔잔하고 편안한</option>
-          <option value="dark, intense">어둡고 강렬한</option>
-          <option value="romantic, dreamy">로맨틱하고 몽환적인</option>
-          <option value="epic, cinematic">웅장하고 영화적인</option>
-          <option value="energetic, hype">에너지 넘치는</option>
-        </select>
-      </div>
-      <div class="vocal-group" id="vocal-group">
-        <div class="opt-label">보컬 성별</div>
-        <div class="vocal-btns">
-          <button class="vbtn on" data-v="">🎤 자동</button>
-          <button class="vbtn" data-v="m">👨 남성</button>
-          <button class="vbtn" data-v="f">👩 여성</button>
-        </div>
-      </div>
-      <div class="opt-group">
-        <div class="opt-label">인스트루멘탈</div>
-        <div class="toggle-label-row" id="inst-toggle">
-          <div class="toggle-switch"><div class="toggle-thumb"></div></div>
-          <span class="toggle-txt">보컬 없음</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 고급 -->
-    <div class="advanced-toggle" id="adv-toggle">
-      <span class="adv-lbl">고급 설정</span>
-      <span class="adv-chev" id="adv-chev">▼</span>
-    </div>
-    <div class="advanced-panel" id="adv-panel">
-      <!-- BPM -->
-      <div class="opt-label" style="margin-bottom:8px;">BPM <span style="color:var(--t3);font-weight:400;">(템포)</span></div>
-      <div class="bpm-row">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
-          <div class="bpm-val" id="bpm-val">—</div>
-          <div class="bpm-unit">BPM</div>
-        </div>
-        <input type="range" class="bpm-slider" id="bpm-slider" min="60" max="200" step="1" value="120" style="flex:1;">
-        <button class="bpm-auto-btn on" id="bpm-auto-btn">AUTO</button>
-      </div>
-
-      <!-- 곡 시간 -->
-      <div class="opt-label" style="margin-bottom:8px;">곡 시간</div>
-      <div class="duration-btns" style="margin-bottom:10px;">
-        <button class="dbtn" data-dur="60">1분</button>
-        <button class="dbtn on" data-dur="120">2분</button>
-        <button class="dbtn" data-dur="180">3분</button>
-        <button class="dbtn pro-req" data-dur="240">4분 👑</button>
-        <button class="dbtn pro-req" data-dur="300">5분 👑</button>
-        <button class="dbtn pro-req" data-dur="480">8분 👑</button>
-      </div>
-      <div class="pro-warning" id="pro-warning">
-        👑 <span>3분 이상 곡은 <strong>Pro 플랜</strong> 구독이 필요합니다. V4.5+ 또는 V5 모델로 자동 설정됩니다.</span>
-      </div>
-
-      <div class="adv-grid">
-        <div class="opt-group">
-          <div class="opt-label">Negative Tags</div>
-          <input class="neg-input" id="neg-tags" type="text" placeholder="heavy metal, screaming...">
-        </div>
-        <div class="opt-group">
-          <div class="opt-label">모델</div>
-          <select class="opt-select" id="model-sel">
-            <option value="V3_5">V3.5 (빠름)</option>
-            <option value="V4">V4</option>
-            <option value="V4_5" selected>V4.5 (권장)</option>
-            <option value="V4_5PLUS">V4.5+ (8분)</option>
-            <option value="V5">V5 (최신)</option>
+      <div style="display:flex;align-items:center;gap:10px;margin:12px 0 10px;">
+        <div class="opt-group" style="flex:1;">
+          <div class="opt-label" style="margin-bottom:5px;">분위기</div>
+          <select class="opt-select" id="yt-mood">
+            <option value="">자동 (분석 결과 사용)</option>
+            <option value="happy, uplifting">밝고 신나는</option>
+            <option value="sad, emotional">슬프고 감성적인</option>
+            <option value="calm, relaxing">잔잔하고 편안한</option>
+            <option value="energetic, hype">에너지 넘치는</option>
           </select>
         </div>
-      </div>
-      <div class="adv-grid" style="margin-bottom:14px;">
-        <div class="slider-group">
-          <div class="slider-header"><div class="opt-label">스타일 강도</div><span class="slider-val" id="sw-val">0.65</span></div>
-          <input type="range" id="style-weight" min="0" max="1" step="0.05" value="0.65">
-        </div>
-        <div class="slider-group">
-          <div class="slider-header"><div class="opt-label">창의성</div><span class="slider-val" id="wc-val">0.65</span></div>
-          <input type="range" id="weird-constraint" min="0" max="1" step="0.05" value="0.65">
+        <div class="opt-group" style="flex:1;">
+          <div class="opt-label" style="margin-bottom:5px;">인스트루멘탈</div>
+          <div class="toggle-label-row" id="yt-inst-toggle">
+            <div class="toggle-switch"><div class="toggle-thumb"></div></div>
+            <span class="toggle-txt">보컬 없음</span>
+          </div>
         </div>
       </div>
+      <button class="gen-btn" id="yt-gen-btn" disabled style="opacity:.5;">
+        <span class="gen-spinner" id="yt-gen-spinner"></span>
+        <span id="yt-gen-txt">▶ 분석 후 생성 가능</span>
+      </button>
     </div>
-
-    <!-- 뮤직비디오 옵션 -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-      <div class="toggle-label-row" id="mv-toggle" style="flex:0 0 auto;padding:8px 12px;">
-        <div class="toggle-switch"><div class="toggle-thumb"></div></div>
-        <span class="toggle-txt">🎬 뮤직비디오도 생성</span>
-      </div>
-      <span style="font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;">음악 완성 후 자동 요청 · ~20 credits · 약 30초 영상</span>
-    </div>
-
-    <button class="gen-btn" id="gen-btn">
-      <span class="gen-spinner" id="gen-spinner"></span>
-      <span id="gen-txt">✦ 음악 생성하기</span>
-    </button>
   </div>
 
   <div class="loading-card" id="loading-card">
@@ -1466,7 +1494,7 @@ function updateLoginUI(){
       <span class="user-name">${esc(currentUser.name)}</span>
     </div>`;
   } else {
-    area.innerHTML=`<button class="login-btn" onclick="document.getElementById('login-modal').classList.add('on')">👤 로그인</button>`;
+    area.innerHTML=`<div style='font-size:12px;color:var(--t3);padding:8px 0;'>게스트 모드로 이용 중</div>`;
   }
 }
 
@@ -1580,8 +1608,7 @@ document.querySelectorAll('.dbtn').forEach(btn=>{
 $('mv-toggle').addEventListener('click',function(){makeMV=!makeMV;this.classList.toggle('on',makeMV);});
 
 /* ── 프리셋 ── */
-function renderPresets(){
-  const row=$('preset-row');
+function renderPresets(){const row=$('preset-row');if(!row)return;
   row.innerHTML=Object.keys(PRESET_MAP).map(p=>`<div class="ptag" data-p="${p}">${p}</div>`).join('');
   row.querySelectorAll('.ptag').forEach(tag=>{
     tag.addEventListener('click',function(){
@@ -1603,25 +1630,47 @@ function renderPresets(){
 document.querySelectorAll('.mtab').forEach(tab=>{
   tab.addEventListener('click',function(){
     document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('on'));
-    this.classList.add('on');currentMode=this.dataset.mode;
-    const isC=currentMode==='custom';
-    const isYT=currentMode==='youtube';
-    ['genre-row','preset-row','emotion-row','title-row','lyrics-btn-row','vocal-group'].forEach(id=>{
-      const el=$(id);if(el)el.style.display=(isC&&!isYT)?'':'none';
-    });
-    $('youtube-row').style.display=isYT?'block':'none';
-    $('prompt-label').textContent=isC?'가사 / 곡 설명':isYT?'생성할 음악 설명 (자동 입력됨)':'음악 설명 (프롬프트)';
-    $('prompt').placeholder=isC?'여기에 가사를 입력하세요\n\n[Verse]\n가사 첫 번째 줄\n\n[Chorus]\n후렴구...':
-      isYT?'YouTube 영상을 분석하면 여기에 자동으로 스타일 프롬프트가 입력됩니다...':
-      '예: 잔잔한 피아노 발라드, 가을 감성, 오후 햇살이 드는 카페...';
-
-    /* 해당 모드 결과 섹션이 있으면 살짝 하이라이트 */
-    const activeSection=$(`results-${currentMode}`);
-    if(activeSection&&activeSection.style.display!=='none'){
-      activeSection.style.outline='2px solid rgba(208,64,232,.3)';
-      setTimeout(()=>{activeSection.style.outline='none';},1000);
-    }
+    document.querySelectorAll('.mode-panel').forEach(p=>p.classList.remove('on'));
+    this.classList.add('on');
+    currentMode=this.dataset.mode;
+    const panel=$('panel-'+currentMode);if(panel)panel.classList.add('on');
+    const sec=$(`results-${currentMode}`);
+    if(sec&&sec.style.display!=='none'){sec.style.outline='2px solid rgba(208,64,232,.3)';setTimeout(()=>sec.style.outline='',1000);}
   });
+});
+
+/* ── 심플 인스트루멘탈 토글 ── */
+let simpleInstOn=false;
+$('simple-inst-toggle').addEventListener('click',function(){
+  simpleInstOn=!simpleInstOn;this.classList.toggle('on',simpleInstOn);
+});
+
+/* ── YouTube 인스트루멘탈 토글 ── */
+let ytInstOn=false;
+$('yt-inst-toggle').addEventListener('click',function(){
+  ytInstOn=!ytInstOn;this.classList.toggle('on',ytInstOn);
+});
+
+/* ── 심플 모드 생성 버튼 ── */
+$('simple-gen-btn').addEventListener('click',()=>{
+  const desc=$('simple-prompt').value.trim();
+  const moodVal=$('simple-mood').value;
+  if(!desc&&!moodVal){toast('음악 설명을 입력해주세요','err');return;}
+  currentMode='simple';
+  const origPrompt=$('prompt').value;
+  const origInst=instOn;
+  $('prompt').value=desc;
+  instOn=simpleInstOn;
+  generate();
+  setTimeout(()=>{$('prompt').value=origPrompt;instOn=origInst;},100);
+});
+
+/* ── YouTube 생성 버튼 ── */
+$('yt-gen-btn').addEventListener('click',()=>{
+  currentMode='youtube';
+  const origInst=instOn;instOn=ytInstOn;
+  generate();
+  setTimeout(()=>{instOn=origInst;},100);
 });
 
 /* ── /api/config 에서 API 키 로드 ── */
@@ -1733,12 +1782,17 @@ $('yt-analyze-btn').addEventListener('click',async()=>{
           장르: ${esc(analysis.genre||'—')} · BPM: ~${analysis.bpm_estimate||'?'} · 분위기: ${esc(analysis.mood||'—')}
         </div>`;
       toast('✅ 분석 완료! 스타일이 자동 입력되었습니다.','ok',3000);
+      /* yt-gen-btn 활성화 */
+      const ytGenBtn=$('yt-gen-btn');
+      if(ytGenBtn){ytGenBtn.disabled=false;ytGenBtn.style.opacity='1';$('yt-gen-txt').textContent='▶ YouTube 스타일로 생성';}
     }else{
       /* Claude API 없을 경우 제목 기반 기본 처리 */
       $('prompt').value=`${title} style, ${author} inspired music`;
       resultEl.style.display='block';
       resultEl.innerHTML=`<div style="color:var(--ylw);font-size:11px;">⚠️ AI 분석 불가 — 영상 제목 기반으로 기본 프롬프트를 입력했습니다.<br><span style="font-size:10px;color:var(--t3);">${esc(title)} (${esc(author)})</span></div>`;
       toast('⚠️ 제목 기반 프롬프트 입력됨','',3000);
+      const ytGenBtn=$('yt-gen-btn');
+      if(ytGenBtn){ytGenBtn.disabled=false;ytGenBtn.style.opacity='1';$('yt-gen-txt').textContent='▶ YouTube 스타일로 생성';}
     }
   }catch(e){
     toast('❌ 분석 실패: '+e.message,'err',5000);
@@ -1801,7 +1855,7 @@ $('lyrics-btn').addEventListener('click',async()=>{
   const sub=$('genre-sub').value||'';
   const mood=$('mood').value||'';
   const existing=$('prompt').value.trim();
-  const emotions=[...selectedEmotions].join(', ');
+  /* emotions removed */
   const lyricsPrompt=[existing||'감성적인 노래',sub,mood,emotions?`감정: ${emotions}`:''].filter(Boolean).join(', ');
 
   $('lyrics-btn').disabled=true;
@@ -1852,19 +1906,33 @@ $('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.ctrlKey)generat
 async function generate(overrideParams){
   const apiKey=kieApiKey;
   if(!apiKey){toast('API 키 로딩 중... 잠시 후 다시 시도해주세요','err');return;}
-  const lyricsText=overrideParams?.prompt||$('prompt').value.trim();
-  const subGenre=overrideParams?.subGenre||$('genre-sub').value;
-  const mood=overrideParams?.mood||$('mood').value;
+  /* 모드별 입력값 수집 */
+  const isSimple=currentMode==='simple';
+  const isYT=currentMode==='youtube';
+  const isCustom=currentMode==='custom';
+
+  let lyricsText, moodVal, subGenre;
+  if(isSimple){
+    lyricsText=overrideParams?.prompt||$('simple-prompt').value.trim();
+    moodVal=overrideParams?.mood||$('simple-mood').value;
+    subGenre='';
+  } else if(isYT){
+    lyricsText=overrideParams?.prompt||$('prompt').value.trim();
+    moodVal=overrideParams?.mood||$('yt-mood').value||$('mood').value;
+    subGenre='';
+  } else {
+    lyricsText=overrideParams?.prompt||$('prompt').value.trim();
+    moodVal=overrideParams?.mood||$('mood').value;
+    subGenre=overrideParams?.subGenre||$('genre-sub').value;
+  }
+  const mood=moodVal;
   const negTags=$('neg-tags').value.trim();
   const model=$('model-sel').value;
   const sw=parseFloat($('style-weight').value);
   const wc=parseFloat($('weird-constraint').value);
-  const isCustom=currentMode==='custom';
-  const emotions=overrideParams?.emotions||[...selectedEmotions];
-  if(!lyricsText&&!subGenre){toast('가사 또는 장르를 선택해주세요','err');return;}
+  if(!lyricsText&&!subGenre){toast(isSimple?'음악 설명을 입력해주세요':'가사 또는 장르를 선택해주세요','err');return;}
 
-  const emotionStyle=emotions.length?emotions.join(', '):'';
-  let styleStr=overrideParams?.styleStr||[subGenre,mood,emotionStyle].filter(Boolean).join(', ');
+  let styleStr=overrideParams?.styleStr||[subGenre,mood].filter(Boolean).join(', ');
 
   /* BPM을 스타일에 추가 */
   if(!bpmAuto&&selectedBpm){styleStr=[styleStr,`${selectedBpm}bpm`].filter(Boolean).join(', ');}
@@ -1875,7 +1943,13 @@ async function generate(overrideParams){
   /* 재작곡을 위한 파라미터 저장 */
   lastGenerateParams={prompt,subGenre,mood,emotions,styleStr,isCustom};
 
-  $('gen-btn').disabled=true;$('gen-spinner').style.display='block';$('gen-txt').textContent='생성 중...';
+  /* 모드별 버튼 비활성화 */
+  const activeGenBtn=isSimple?$('simple-gen-btn'):isYT?$('yt-gen-btn'):$('gen-btn');
+  const activeSpinner=isSimple?$('simple-gen-spinner'):isYT?$('yt-gen-spinner'):$('gen-spinner');
+  const activeTxt=isSimple?$('simple-gen-txt'):isYT?$('yt-gen-txt'):$('gen-txt');
+  if(activeGenBtn){activeGenBtn.disabled=true;}
+  if(activeSpinner){activeSpinner.style.display='block';}
+  if(activeTxt){activeTxt.textContent='생성 중...';}
   $('loading-card').classList.add('on');$('results').innerHTML='';
   $('feedback-card').style.display='none';
   const fill=$('ld-fill');fill.style.animation='none';void fill.offsetWidth;fill.style.animation='';
@@ -1934,6 +2008,9 @@ async function generate(overrideParams){
     $('loading-card').classList.remove('on');
     toast('❌ '+e.message,'err',5000);console.error(e);
   }finally{
+    if(activeGenBtn){activeGenBtn.disabled=isYT&&!$('yt-result').style.display!=='none'?false:false;}
+    if(activeSpinner){activeSpinner.style.display='none';}
+    if(activeTxt){activeTxt.textContent=isSimple?'⚡ 음악 생성하기':isYT?'▶ YouTube로 생성':' ✦ 음악 생성하기';}
     $('gen-btn').disabled=false;$('gen-spinner').style.display='none';$('gen-txt').textContent='✦ 음악 생성하기';
   }
 }
@@ -1993,19 +2070,25 @@ async function requestMusicVideo(apiKey,taskId,audioId,trackIdx){
     for(let i=0;i<80;i++){
       await sleep(4000);
       try{
-        const res=await kieRequest(apiKey,'GET',`/api/v1/jobs/getTaskDetail?taskId=${mvTaskId}`);
-        console.log(`[MV Kling] poll ${i}:`, JSON.stringify(res).slice(0,300));
+        const res=await kieRequest(apiKey,'GET',`/api/v1/jobs/recordInfo?taskId=${mvTaskId}`);
+        console.log(`[MV Kling] poll ${i}:`, JSON.stringify(res).slice(0,400));
+        /* recordInfo 응답: res.data.state / res.data.resultJson */
         const d=res?.data;if(!d)continue;
-        const status=(d.status||d.state||'').toUpperCase();
+        const status=(d.state||d.status||'').toLowerCase();
 
-        if(status==='SUCCESS'||status==='COMPLETED'||status==='FINISH'){
-          /* 비디오 URL 추출 — 응답 구조 여러 경로 시도 */
-          const output=d.output||d.response||d.result||{};
-          const videoUrl=
-            output.videoUrl||output.video_url||output.url||
-            output.videos?.[0]?.url||output.works?.[0]?.video?.resource||
-            d.videoUrl||d.video_url||'';
-          console.log('[MV Kling] videoUrl:', videoUrl, 'full output:', JSON.stringify(output));
+        if(status==='success'||status==='completed'||status==='finish'){
+          /* resultJson은 JSON 문자열 {"resultUrls":["..."]} */
+          let videoUrl='';
+          try{
+            const rj=typeof d.resultJson==='string'?JSON.parse(d.resultJson):d.resultJson||{};
+            videoUrl=rj.resultUrls?.[0]||rj.videoUrl||rj.video_url||rj.url||'';
+          }catch{}
+          /* fallback: 직접 필드 탐색 */
+          if(!videoUrl){
+            const out=d.output||d.response||d.result||{};
+            videoUrl=out.videoUrl||out.video_url||out.url||out.videos?.[0]?.url||out.works?.[0]?.video?.resource||d.videoUrl||d.video_url||'';
+          }
+          console.log('[MV Kling] videoUrl:', videoUrl);
 
           if(videoUrl){
             mvPanel.innerHTML=`
@@ -2024,13 +2107,13 @@ async function requestMusicVideo(apiKey,taskId,audioId,trackIdx){
             saveHistory();renderHistory();
             toast('🎬 뮤직비디오 완성!','ok');
           }else{
-            mvPanel.innerHTML=`<div style="font-size:12px;color:var(--ylw);padding:12px;">⚠️ 생성 완료 — URL 없음<br><span style="color:var(--t3);font-size:10px;">${esc(JSON.stringify(output).slice(0,200))}</span></div>`;
+            mvPanel.innerHTML=`<div style="font-size:12px;color:var(--ylw);padding:12px;">⚠️ 생성 완료 — URL 없음<br><span style="color:var(--t3);font-size:10px;">${esc(JSON.stringify(d).slice(0,200))}</span></div>`;
           }
           return;
         }
 
-        if(status==='FAILED'||status==='ERROR'||status==='FAIL'){
-          const errMsg=d.failReason||d.error||d.message||status;
+        if(status==='fail'||status==='failed'||status==='error'){
+          const errMsg=d.failMsg||d.failReason||d.error||d.message||status;
           mvPanel.innerHTML=`<div style="font-size:12px;color:var(--red);padding:12px;">❌ 뮤직비디오 생성 실패: ${esc(errMsg)}</div>`;
           return;
         }
@@ -3397,7 +3480,7 @@ function renderSettings(){
 }
 
 /* ── INIT ── */
-renderPresets();
+/* renderPresets removed */
 updateHistBadge();
 updateLoginUI();
 /* 하단탭 data-view=create-view 버튼을 on으로 (HTML에서 on 클래스 직접 설정됨) */
