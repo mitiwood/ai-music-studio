@@ -1281,6 +1281,36 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
   box-shadow:0 0 0 1px rgba(168,85,247,.3);
 }
 
+
+/* ── MV 패널 ── */
+.mv-gen-hero{text-align:center;padding:14px 0 20px;border-bottom:1px solid var(--border);margin-bottom:18px;}
+.mv-gen-title{font-size:18px;font-weight:800;background:linear-gradient(135deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;}
+.mv-gen-sub{font-size:12px;color:var(--t3);line-height:1.6;}
+/* MV 옵션 버튼 */
+.mv-ratio-btns,.mv-mode-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.mv-opt-btn{
+  padding:6px 12px;border-radius:var(--rx);
+  border:1px solid var(--border);background:var(--bg2);
+  color:var(--t2);font-size:11px;font-weight:700;
+  cursor:pointer;transition:all .18s;font-family:inherit;
+}
+.mv-opt-btn:hover{border-color:rgba(168,85,247,.4);color:var(--acc3);}
+.mv-opt-btn.on{
+  background:linear-gradient(135deg,rgba(124,58,237,.5),rgba(236,72,153,.35));
+  border-color:rgba(168,85,247,.5);color:#fff;
+  box-shadow:0 0 0 1px rgba(168,85,247,.3);
+}
+/* MV 결과 카드 */
+.mv-result-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px;}
+.mv-result-title{font-size:13px;font-weight:700;margin-bottom:10px;color:var(--t1);}
+.mv-video-wrap{border-radius:var(--rs);overflow:hidden;background:var(--bg);margin-bottom:10px;}
+.mv-video-wrap video{width:100%;display:block;}
+.mv-progress{background:var(--card2);border-radius:var(--rs);padding:14px;text-align:center;}
+.mv-progress-bar-wrap{width:100%;height:4px;background:var(--bg);border-radius:2px;margin:8px 0;}
+.mv-progress-bar{height:100%;background:linear-gradient(90deg,#7c3aed,#a855f7,#ec4899);border-radius:2px;width:5%;transition:width .5s;}
+.mv-progress-txt{font-size:11px;color:var(--t3);margin-top:4px;}
+.mv-empty-hint{font-size:11px;color:var(--t3);text-align:center;padding:20px 0;}
+
 </style>
 </head>
 <body>
@@ -1314,6 +1344,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
       <button class="mtab on" data-mode="custom">✦ 커스텀</button>
       <button class="mtab" data-mode="simple">⚡ 심플</button>
       <button class="mtab" data-mode="youtube">▶ YouTube</button>
+      <button class="mtab" data-mode="mv">🎬 MV</button>
     </div>
 
     <div class="prompt-card">
@@ -1360,6 +1391,31 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
           <input class="title-input" id="song-desc" type="text" placeholder="예: Warm acoustic pop, 감성적인 피아노, 잔잔한 새벽 분위기">
         </div>
 
+        <!-- 분위기 셀렉트 + 인스트루멘탈 — 곡설명 바로 아래 -->
+<!-- 분위기 셀렉트 + 인스트루멘탈 -->
+        <div class="options-row">
+          <div class="opt-group">
+            <div class="opt-label">분위기</div>
+            <select class="opt-select" id="mood">
+              <option value="">선택 안함</option>
+              <option value="happy, uplifting">밝고 신나는</option>
+              <option value="sad, emotional">슬프고 감성적인</option>
+              <option value="calm, relaxing">잔잔하고 편안한</option>
+              <option value="dark, intense">어둡고 강렬한</option>
+              <option value="romantic, dreamy">로맨틱하고 몽환적인</option>
+              <option value="epic, cinematic">웅장하고 영화적인</option>
+              <option value="energetic, hype">에너지 넘치는</option>
+            </select>
+          </div>
+          <div class="opt-group">
+            <div class="opt-label">인스트루멘탈</div>
+            <div class="toggle-label-row" id="inst-toggle">
+              <div class="toggle-switch"><div class="toggle-thumb"></div></div>
+              <span class="toggle-txt">보컬 없음</span>
+            </div>
+          </div>
+        </div>
+
         <!-- 가사 — 곡설명 바로 아래 -->
         <div class="form-grp">
           <div class="form-label">
@@ -1402,30 +1458,6 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
             <button class="vbtn on" data-v="">🎤 자동</button>
             <button class="vbtn" data-v="m">👨 남성</button>
             <button class="vbtn" data-v="f">👩 여성</button>
-          </div>
-        </div>
-
-        <!-- 분위기 셀렉트 + 인스트루멘탈 -->
-        <div class="options-row">
-          <div class="opt-group">
-            <div class="opt-label">분위기</div>
-            <select class="opt-select" id="mood">
-              <option value="">선택 안함</option>
-              <option value="happy, uplifting">밝고 신나는</option>
-              <option value="sad, emotional">슬프고 감성적인</option>
-              <option value="calm, relaxing">잔잔하고 편안한</option>
-              <option value="dark, intense">어둡고 강렬한</option>
-              <option value="romantic, dreamy">로맨틱하고 몽환적인</option>
-              <option value="epic, cinematic">웅장하고 영화적인</option>
-              <option value="energetic, hype">에너지 넘치는</option>
-            </select>
-          </div>
-          <div class="opt-group">
-            <div class="opt-label">인스트루멘탈</div>
-            <div class="toggle-label-row" id="inst-toggle">
-              <div class="toggle-switch"><div class="toggle-thumb"></div></div>
-              <span class="toggle-txt">보컬 없음</span>
-            </div>
           </div>
         </div>
 
@@ -1629,6 +1661,69 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
         </button>
       </div>
 
+
+      <!-- ━━━ 뮤직비디오 패널 ━━━ -->
+      <div class="mode-panel" id="panel-mv">
+        <div class="mv-gen-hero">
+          <div class="mv-gen-title">🎬 AI 뮤직비디오 생성</div>
+          <div class="mv-gen-sub">텍스트 프롬프트로 고품질 뮤직비디오를 제작하세요<br><span style="color:var(--acc3);">Grok Imagine Text-to-Video 모델</span></div>
+        </div>
+
+        <!-- 프롬프트 -->
+        <div class="form-grp">
+          <div class="form-label">
+            <span class="form-label-icon">✍️</span> 영상 프롬프트
+            <span class="form-label-hint">영어 권장 · 최대 5000자</span>
+          </div>
+          <textarea class="form-input" id="mv-prompt" rows="4"
+            placeholder="예: A cinematic music video with neon lights and a singer performing on stage, dynamic camera movements, dark atmosphere with purple and blue tones, 4K quality"></textarea>
+          <div class="lyrics-btn-row" style="justify-content:flex-end;">
+            <button class="lyrics-gen-btn" id="mv-ai-prompt-btn">
+              <span class="lspin" id="mv-prompt-spinner"></span>
+              ✨ AI 프롬프트 생성
+            </button>
+          </div>
+        </div>
+
+        <!-- 비율 + 모드 -->
+        <div class="options-row">
+          <div class="opt-group">
+            <div class="opt-label">📐 화면 비율</div>
+            <div class="mv-ratio-btns" id="mv-ratio-btns">
+              <button class="mv-opt-btn on" data-ratio="2:3">9:16 세로</button>
+              <button class="mv-opt-btn" data-ratio="3:2">16:9 가로</button>
+              <button class="mv-opt-btn" data-ratio="1:1">1:1 정사각</button>
+            </div>
+          </div>
+          <div class="opt-group">
+            <div class="opt-label">🎨 생성 모드</div>
+            <div class="mv-mode-btns" id="mv-mode-btns">
+              <button class="mv-opt-btn on" data-mode="normal">🎯 노멀</button>
+              <button class="mv-opt-btn" data-mode="fun">😄 펀</button>
+              <button class="mv-opt-btn" data-mode="spicy">🔥 스파이시</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 히스토리 음악 연결 옵션 -->
+        <div class="form-grp" style="margin-bottom:16px;">
+          <div class="form-label" style="margin-bottom:6px;">
+            <span class="form-label-icon">🎵</span> 기존 음악과 연결 <span class="form-label-hint">선택사항</span>
+          </div>
+          <select class="opt-select" id="mv-link-track" style="width:100%;">
+            <option value="">연결 안함 (순수 영상만 생성)</option>
+          </select>
+        </div>
+
+        <!-- 생성 버튼 -->
+        <button class="gen-btn" id="mv-gen-btn" style="background:linear-gradient(135deg,#7c3aed,#a855f7,#ec4899);">
+          <span class="gen-spinner" id="mv-gen-spinner"></span>
+          <span id="mv-gen-txt">🎬 뮤직비디오 생성하기</span>
+        </button>
+
+        <!-- 결과 영역 -->
+        <div id="mv-result-area" style="margin-top:16px;display:none;"></div>
+      </div>
       </div><!-- /mode-panel-wrap -->
     </div><!-- /prompt-card -->
 
@@ -1671,6 +1766,14 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
       <div class="results-inner" id="results-inner-youtube"></div>
     </div>
     <div id="results"></div>
+    <div id="results-mv" class="results-section" style="display:none;">
+      <div class="results-section-header">
+        <span class="rsec-icon">🎬</span>
+        <span class="rsec-label">뮤직비디오</span>
+        <span class="rsec-count" id="rsec-count-mv"></span>
+      </div>
+      <div class="results-inner" id="results-inner-mv"></div>
+    </div>
 
     <!-- 피드백 카드 -->
     <div class="feedback-card" id="feedback-card" style="display:none;">
@@ -2336,8 +2439,10 @@ document.querySelectorAll('.mtab').forEach(tab=>{
     this.classList.add('on');
     currentMode=this.dataset.mode;
     const panel=$('panel-'+currentMode);if(panel)panel.classList.add('on');
-    const sec=$(`results-${currentMode}`);
+    const sec=document.getElementById(`results-${currentMode}`);
     if(sec&&sec.style.display!=='none'){sec.style.outline='2px solid rgba(208,64,232,.3)';setTimeout(()=>sec.style.outline='',1000);}
+    /* MV 탭 진입 시 트랙 셀렉트 업데이트 */
+    if(currentMode==='mv')mvRefreshTrackSelect();
   });
 });
 
@@ -2422,6 +2527,210 @@ document.querySelectorAll('.vbtn').forEach(btn=>{
 
 /* ── 고급 ── */
 $('adv-toggle').addEventListener('click',()=>{$('adv-panel').classList.toggle('on');$('adv-chev').classList.toggle('open');});
+/* ══════════════════════════════════════════════════════
+   MV 패널 — 독립 뮤직비디오 생성 (Grok Imagine text-to-video)
+══════════════════════════════════════════════════════ */
+let mvSelectedRatio='2:3',mvSelectedMode='normal';
+
+/* 비율 버튼 */
+document.querySelectorAll('#mv-ratio-btns .mv-opt-btn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('#mv-ratio-btns .mv-opt-btn').forEach(b=>b.classList.remove('on'));
+    this.classList.add('on');
+    mvSelectedRatio=this.dataset.ratio;
+  });
+});
+/* 모드 버튼 */
+document.querySelectorAll('#mv-mode-btns .mv-opt-btn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('#mv-mode-btns .mv-opt-btn').forEach(b=>b.classList.remove('on'));
+    this.classList.add('on');
+    mvSelectedMode=this.dataset.mode;
+  });
+});
+
+/* 히스토리 트랙 셀렉트 채우기 */
+function mvRefreshTrackSelect(){
+  const sel=$('mv-link-track');
+  if(!sel)return;
+  sel.innerHTML='<option value="">연결 안함 (순수 영상만 생성)</option>';
+  historyData.slice(0,15).forEach((h,i)=>{
+    if(!h.audio_url)return;
+    const opt=document.createElement('option');
+    opt.value=i;
+    opt.textContent=(h.title||'무제')+' — '+(h.tags||'').split(',')[0]?.trim()||'';
+    sel.appendChild(opt);
+  });
+}
+
+/* AI 프롬프트 생성 */
+$('mv-ai-prompt-btn')?.addEventListener('click',async()=>{
+  const apiKey=kieApiKey;
+  if(!apiKey){toast('API 키 로딩 중...','err');return;}
+  const spinner=$('mv-prompt-spinner');const btn=$('mv-ai-prompt-btn');
+  if(spinner)spinner.style.display='inline-block';if(btn)btn.disabled=true;
+  try{
+    /* 최근 히스토리에서 태그/제목 참고 */
+    const ref=historyData[0];
+    const hint=ref?`Music track: "${ref.title||''}", tags: ${ref.tags||''}`:
+      'A Korean pop music video';
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:400,
+        messages:[{role:'user',content:`Generate a detailed English text-to-video prompt for a music video based on: ${hint}. 
+Return ONLY the prompt text, no explanation. Make it vivid, cinematic, 100-200 words.`}]
+      })
+    });
+    const d=await resp.json();
+    const txt=d.content?.[0]?.text?.trim()||'';
+    if(txt){const ta=$('mv-prompt');if(ta)ta.value=txt;toast('✨ 프롬프트 생성 완료','ok',2000);}
+  }catch(e){toast('프롬프트 생성 실패: '+e.message,'err');}
+  finally{if(spinner)spinner.style.display='none';if(btn)btn.disabled=false;}
+});
+
+/* MV 생성 버튼 */
+$('mv-gen-btn')?.addEventListener('click',generateMV);
+
+async function generateMV(){
+  const apiKey=kieApiKey;
+  if(!apiKey){toast('API 키 로딩 중... 잠시 후 다시 시도해주세요','err');return;}
+  const prompt=($('mv-prompt')?.value||'').trim();
+  if(!prompt){toast('영상 프롬프트를 입력해주세요','err');return;}
+
+  const btn=$('mv-gen-btn'),spinner=$('mv-gen-spinner'),txt=$('mv-gen-txt');
+  btn.disabled=true;if(spinner)spinner.classList.add('on');if(txt)txt.textContent='생성 중...';
+
+  /* 결과 영역 */
+  const resultArea=$('mv-result-area');
+  resultArea.style.display='block';
+  resultArea.innerHTML=`
+    <div class="mv-result-card">
+      <div class="mv-result-title">🎬 뮤직비디오 생성 중</div>
+      <div class="mv-progress">
+        <div style="font-size:22px;margin-bottom:8px;">🎬</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Grok AI가 영상을 제작하고 있어요</div>
+        <div class="mv-progress-bar-wrap"><div class="mv-progress-bar" id="mv-pbar"></div></div>
+        <div class="mv-progress-txt" id="mv-prog-txt">작업 요청 중...</div>
+      </div>
+    </div>`;
+
+  /* 연결 트랙 */
+  const trackSelIdx=$('mv-link-track')?.value;
+  const linkedTrack=trackSelIdx!==''&&trackSelIdx!=null?historyData[parseInt(trackSelIdx)]:null;
+
+  try{
+    /* Step 1: Grok Imagine text-to-video */
+    const genData=await kieRequest(apiKey,'POST','/api/v1/jobs/createTask',{
+      model:'grok-imagine/text-to-video',
+      callBackUrl:CALLBACK,
+      input:{
+        prompt:prompt,
+        aspect_ratio:mvSelectedRatio,
+        mode:mvSelectedMode
+      }
+    });
+
+    const mvTaskId=genData?.data?.taskId||genData?.taskId;
+    if(!mvTaskId)throw new Error('taskId 없음 — '+JSON.stringify(genData).slice(0,120));
+
+    /* Step 2: 폴링 */
+    let pct=5;
+    for(let i=0;i<90;i++){
+      await sleep(4000);
+      pct=Math.min(92,5+Math.round((i/90)*87));
+      const pbar=$('mv-pbar'),ptxt=$('mv-prog-txt');
+      if(pbar)pbar.style.width=pct+'%';
+      if(ptxt)ptxt.textContent=`처리 중... ${pct}% (약 2~5분 소요)`;
+
+      try{
+        const res=await kieRequest(apiKey,'GET',`/api/v1/jobs/recordInfo?taskId=${mvTaskId}`);
+        const d=res?.data;if(!d)continue;
+        const status=(d.state||d.status||'').toLowerCase();
+
+        if(status==='success'||status==='completed'||status==='finish'){
+          let videoUrl='';
+          try{
+            const rj=typeof d.resultJson==='string'?JSON.parse(d.resultJson):d.resultJson||{};
+            videoUrl=rj.resultUrls?.[0]||rj.videoUrl||rj.url||'';
+          }catch{}
+          if(!videoUrl){
+            const out=d.output||d.response||d.result||{};
+            videoUrl=out.videoUrl||out.video_url||out.url||out.videos?.[0]?.url||d.videoUrl||d.video_url||'';
+          }
+
+          if(videoUrl){
+            /* 히스토리에 저장 */
+            const mvTitle=linkedTrack?`${linkedTrack.title||'무제'} MV`:'뮤직비디오';
+            historyData.unshift({
+              id:'mv_'+Date.now(),taskId:mvTaskId,
+              title:mvTitle,audio_url:linkedTrack?.audio_url||'',
+              video_url:videoUrl,image_url:linkedTrack?.image_url||'',
+              tags:'뮤직비디오',lyrics:'',created:Date.now(),type:'video'
+            });
+            historyData=historyData.slice(0,30);
+            saveHistory();updateHistBadge();
+
+            /* 결과 렌더 */
+            resultArea.innerHTML=`
+              <div class="mv-result-card">
+                <div class="mv-result-title">✅ 뮤직비디오 완성!</div>
+                <div class="mv-video-wrap">
+                  <video controls playsinline preload="metadata" style="width:100%;display:block;max-height:70vh;">
+                    <source src="${esc(videoUrl)}" type="video/mp4">
+                  </video>
+                </div>
+                <div class="dl-row">
+                  <button class="dl-btn audio" onclick="downloadFile('${esc(videoUrl)}','${esc(mvTitle)}.mp4')">⬇ 다운로드</button>
+                  <button class="dl-btn lnk" onclick="navigator.clipboard.writeText('${esc(videoUrl)}').then(()=>toast('🔗 복사됨!','ok'))">🔗 링크 복사</button>
+                  ${linkedTrack?`<button class="dl-btn" onclick="openFullPlayer(0)" style="color:var(--acc3);">🎵 음악 플레이어</button>`:''}
+                </div>
+              </div>`;
+            /* 결과 섹션에도 추가 */
+            const sec=$('results-mv');const inner=$('results-inner-mv');
+            if(sec&&inner){
+              sec.style.display='block';
+              const card=document.createElement('div');card.className='mv-result-card';
+              card.innerHTML=`
+                <div class="mv-result-title">${esc(mvTitle)}</div>
+                <div class="mv-video-wrap"><video controls playsinline preload="metadata"><source src="${esc(videoUrl)}" type="video/mp4"></video></div>
+                <div class="dl-row">
+                  <button class="dl-btn audio" onclick="downloadFile('${esc(videoUrl)}','${esc(mvTitle)}.mp4')">⬇ 다운로드</button>
+                  <button class="dl-btn lnk" onclick="navigator.clipboard.writeText('${esc(videoUrl)}').then(()=>toast('🔗 복사됨!','ok'))">🔗 링크 복사</button>
+                </div>`;
+              inner.prepend(card);
+              const cnt=$('rsec-count-mv');if(cnt)cnt.textContent=inner.querySelectorAll('.mv-result-card').length+'개';
+            }
+            toast('🎬 뮤직비디오 완성!','ok');
+          }else{
+            resultArea.innerHTML=`<div class="mv-result-card"><div style="color:var(--ylw);font-size:12px;">⚠️ 완료됐지만 URL이 없어요. 잠시 후 다시 시도해주세요.</div></div>`;
+          }
+          return;
+        }
+
+        if(status==='fail'||status==='failed'||status==='error'){
+          const errMsg=d.failMsg||d.failReason||d.error||status;
+          resultArea.innerHTML=`<div class="mv-result-card"><div style="color:var(--red);font-size:12px;">❌ 생성 실패: ${esc(errMsg)}</div></div>`;
+          return;
+        }
+      }catch(pollErr){console.warn('[MV Grok] poll err:',pollErr);}
+    }
+    resultArea.innerHTML=`<div class="mv-result-card"><div style="color:var(--ylw);font-size:12px;">⏱ 시간 초과 — 나중에 다시 시도해주세요</div></div>`;
+
+  }catch(e){
+    console.error('[MV Grok]',e);
+    let msg='❌ '+e.message;
+    if(/credit|Credit|insufficient/i.test(e.message))msg='❌ kie.ai 크레딧 부족';
+    else if(/403|permission|plan/i.test(e.message))msg='❌ 유료 플랜에서 지원됩니다';
+    resultArea.innerHTML=`<div class="mv-result-card"><div style="color:var(--red);font-size:12px;">${esc(msg)}</div></div>`;
+  }finally{
+    btn.disabled=false;
+    if(spinner)spinner.classList.remove('on');
+    if(txt)txt.textContent='🎬 뮤직비디오 생성하기';
+  }
+}
+
 /* 악기 버튼 멀티셀렉트 */
 let selectedInstruments=[];
 document.querySelectorAll('.adv-inst-btn').forEach(btn=>{
