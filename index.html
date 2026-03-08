@@ -747,14 +747,11 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
 </div>
 
 <!-- ── 보컬 변경 모달 ── -->
-<div class="modal-overlay" id="vocal-modal">
-  <div class="modal-box" style="max-width:420px;">
+<div class="modal-backdrop" id="vocal-modal">
+  <div class="modal" style="max-width:420px;width:100%;">
     <button class="modal-close" id="vocal-modal-close">✕</button>
-    <div class="modal-title" style="margin-bottom:16px;">🎙 보컬 변경</div>
-    <div style="font-size:12px;color:var(--t2);margin-bottom:14px;line-height:1.6;">
-      기존 음악에서 보컬을 새로운 스타일로 교체합니다.<br>
-      <span style="color:var(--t3);">인스트루멘탈 트랙에 새 보컬을 입히거나, 보컬 스타일을 바꿉니다.</span>
-    </div>
+    <div class="modal-title">🎙 보컬 변경</div>
+    <div class="modal-sub">기존 트랙의 보컬을 새 스타일로 교체하거나, 인스트루멘탈에 보컬을 추가합니다.</div>
 
     <div style="margin-bottom:12px;">
       <div class="opt-label" style="margin-bottom:6px;">보컬 성별</div>
