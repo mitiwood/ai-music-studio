@@ -3239,7 +3239,7 @@ function commPlay(i){
     /* 재생수 업데이트 */
     const h=historyData[t._hIdx];if(h&&!audio._counted&&audio.currentTime>5){audio._counted=true;h._commPlays=(h._commPlays||0)+1;saveHistory();}
   });
-  audio.addEventListener('ended',()=>{document.getElementById(`comm-play-${i}`)?.textContent='▶';commPlayingIdx=-1;document.getElementById(`comm-item-${i}`)?.classList.remove('playing');});
+  audio.addEventListener('ended',()=>{const pb=document.getElementById(`comm-play-${i}`);if(pb)pb.textContent='▶';commPlayingIdx=-1;document.getElementById(`comm-item-${i}`)?.classList.remove('playing');});
   audio.play();
   document.getElementById(`comm-play-${i}`).textContent='⏸';
   document.getElementById(`comm-item-${i}`)?.classList.add('playing');
