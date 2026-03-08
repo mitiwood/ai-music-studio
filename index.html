@@ -2644,8 +2644,18 @@ document.querySelectorAll('.mtab').forEach(tab=>{
     this.classList.add('on');
     currentMode=this.dataset.mode;
     const panel=$('panel-'+currentMode);if(panel)panel.classList.add('on');
-    const sec=document.getElementById(`results-${currentMode}`);
-    if(sec&&sec.style.display!=='none'){sec.style.outline='2px solid rgba(208,64,232,.3)';setTimeout(()=>sec.style.outline='',1000);}
+    /* 현재 모드 결과 섹션만 표시, 나머지 숨김 */
+    ['custom','simple','youtube','mv'].forEach(m=>{
+      const s=document.getElementById('results-'+m);
+      if(!s)return;
+      if(m===currentMode){
+        /* 내용 있을 때만 표시 */
+        const inner=document.getElementById('results-inner-'+m);
+        if(inner&&inner.children.length>0)s.style.display='block';
+      } else {
+        s.style.display='none';
+      }
+    });
     /* MV 탭 진입 시 트랙 셀렉트 업데이트 */
     if(currentMode==='mv')mvRefreshTrackSelect();
   });
@@ -4978,16 +4988,27 @@ function setupHeroAudio(hero){
 function commPlayFull(i){
   const tracks=getCommTracks().slice(1);
   const t=tracks[i];if(!t)return;
+  /* 커뮤니티 오디오 먼저 정지 — 팝업 방지 */
+  if(commHeroAudio&&!commHeroAudio.paused){
+    commHeroAudio.pause();
+    const pb=$('comm-hero-play-btn');if(pb){pb.textContent='▶';pb.classList.remove('playing');}
+    commHeroPlaying=false;
+  }
+  if(commAudio&&!commAudio.paused){
+    commAudio.pause();
+    if(commPlayingIdx>=0){const ob=document.getElementById(`comm-play-${commPlayingIdx}`);if(ob)ob.textContent='▶';document.getElementById(`comm-item-${commPlayingIdx}`)?.classList.remove('playing');}
+    commPlayingIdx=-1;
+  }
   /* 히스토리에서 해당 트랙 매칭 */
   const hIdx=historyData.findIndex(h=>h.audio_url===t.audioUrl||(t._hIdx!==undefined&&historyData[t._hIdx]?.audio_url===t.audioUrl));
   if(hIdx>=0){
-    openFullPlayer(hIdx);
+    _doOpenFullPlayer(hIdx);
   }else if(t.audioUrl){
     /* 히스토리에 없으면 임시 추가 후 열기 */
     historyData.unshift({id:'comm_tmp_'+Date.now(),taskId:'',title:t.title||'커뮤니티 트랙',audio_url:t.audioUrl,video_url:'',image_url:t.img||'',tags:t.tags||'',lyrics:t.lyrics||'',created:Date.now(),type:'audio'});
     historyData=historyData.slice(0,30);
     saveHistory();updateHistBadge();
-    openFullPlayer(0);
+    _doOpenFullPlayer(0);
   }
 }
 
