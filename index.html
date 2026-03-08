@@ -395,6 +395,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
 .kp-right{flex:1;overflow-y:auto;padding:32px 36px;scroll-behavior:smooth;}
 .kp-right::-webkit-scrollbar{width:4px;}
 .kp-right::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px;}
+/* 좌측 하위 */
+.kp-left-info{display:flex;flex-direction:column;align-items:center;width:100%;}
+.kp-left-controls{width:100%;display:flex;flex-direction:column;align-items:center;}
 .kp-lyrics-line{font-size:22px;font-weight:700;line-height:1.6;color:rgba(255,255,255,.22);cursor:pointer;padding:8px 12px;border-radius:10px;transition:color .25s,background .2s;letter-spacing:-.3px;margin-bottom:4px;}
 .kp-lyrics-line:hover{background:rgba(255,255,255,.04);color:rgba(255,255,255,.45);}
 .kp-lyrics-line.active{color:#fff;text-shadow:0 0 40px rgba(208,64,232,.6);font-size:26px;}
@@ -404,17 +407,32 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
 .kp-loading{display:flex;align-items:center;gap:10px;padding:60px 20px;color:rgba(255,255,255,.3);font-size:13px;font-family:'JetBrains Mono',monospace;}
 .kp-spin{width:14px;height:14px;border:2px solid rgba(208,64,232,.2);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
 @media(max-width:640px){
-  .kp-left{width:100%;height:auto;border-right:none;border-bottom:1px solid rgba(255,255,255,.06);padding:20px;flex-direction:row;align-items:center;gap:16px;justify-content:flex-start;}
-  .kp-cover{width:72px;height:72px;border-radius:12px;font-size:28px;margin-bottom:0;flex-shrink:0;}
-  .kp-track-title{font-size:14px;margin-bottom:2px;text-align:left;}
-  .kp-track-tags{font-size:10px;text-align:left;margin-bottom:0;}
-  .kp-viz{display:none;}
-  .kp-prog-wrap{margin-bottom:8px;}
+  /* 노래방 플레이어 모바일 */
   .kp-body{flex-direction:column;}
-  .kp-right{padding:20px 16px;}
-  .kp-lyrics-line{font-size:17px;}.kp-lyrics-line.active{font-size:20px;}
-  .kp-left-info{flex:1;min-width:0;}
-  .kp-left-controls{width:100%;}
+  .kp-left{
+    width:100%;height:auto;border-right:none;
+    border-bottom:1px solid rgba(255,255,255,.06);
+    padding:14px 16px;
+    flex-direction:row;align-items:center;gap:12px;justify-content:flex-start;
+    flex-shrink:0;
+  }
+  .kp-cover{width:60px;height:60px;border-radius:10px;font-size:24px;margin-bottom:0;flex-shrink:0;}
+  .kp-left-info{flex:1;min-width:0;overflow:hidden;}
+  .kp-track-title{
+    font-size:13px;margin-bottom:2px;text-align:left;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    writing-mode:horizontal-tb !important;
+  }
+  .kp-track-tags{font-size:9px;text-align:left;margin-bottom:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .kp-viz{display:none;}
+  .kp-left-controls{flex:none;min-width:0;}
+  .kp-prog-wrap{width:100px;margin-bottom:4px;}
+  .kp-time{font-size:9px;width:100px;}
+  .kp-controls{margin-top:0;}
+  .kp-play-btn{width:38px;height:38px;font-size:15px;}
+  .kp-right{padding:16px 14px;}
+  .kp-lyrics-line{font-size:16px;padding:6px 10px;}
+  .kp-lyrics-line.active{font-size:19px;}
 }
 #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--s2);border:1px solid var(--bdr);color:var(--t1);padding:10px 18px;border-radius:10px;font-size:12px;font-weight:700;opacity:0;pointer-events:none;z-index:999;transition:all .2s;white-space:nowrap;font-family:'JetBrains Mono',monospace;}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -422,12 +440,65 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
 #toast.err{border-color:var(--red);color:var(--red);}
 
 @media(max-width:600px){
+  /* 기본 레이아웃 */
+  #app{padding:0 12px 88px;}
+  header{flex-wrap:wrap;gap:8px;padding:12px 0 10px;}
+  .logo{font-size:18px;}
+  .header-right{gap:6px;}
+
+  /* 그리드 */
   .adv-grid,.modal-row{grid-template-columns:1fr 1fr;}
-  header{flex-wrap:wrap;}
   .history-grid{grid-template-columns:1fr 1fr;}
+
+  /* 모드탭 */
+  .mode-tab{font-size:11px;padding:7px 12px;}
+
+  /* 장르 버튼 */
+  .genre-main-btn{font-size:11px;padding:8px 12px;}
+
+  /* 풀스크린 플레이어 */
+  .fp-cover-wrap{padding:20px 24px 0;}
+  .fp-cover{width:180px;height:180px;}
+  .fp-actions{padding:14px 10px 0;gap:0;}
+  .fp-action-btn .fa-label{font-size:9px;}
+  .fp-action-btn{width:54px;}
+  .fp-controls{gap:14px;padding:10px 16px 0;}
+  .fp-play-btn{width:52px;height:52px;font-size:20px;}
+  .fp-skip-btn{font-size:20px;}
+  .fp-prog-section{padding:12px 16px 0;}
+  .fp-lyrics-section{padding:14px 14px 28px;}
+  .fp-lyric-line{font-size:14px;padding:10px 14px;}
+  .fp-lyric-line.active{font-size:16px;}
+  .fp-title{font-size:18px;}
+
+  /* 공유 바텀시트 */
+  .share-panel{border-radius:20px 20px 0 0;}
+  .share-btn{padding:12px 8px;}
+  .share-btn-icon{font-size:22px;width:44px;height:44px;}
+  .share-btn-label{font-size:10px;}
+
+  /* 결과 카드 */
+  .result-tabs{gap:4px;}
+  .rtab{font-size:10px;padding:6px 10px;}
+  .ap-title{font-size:13px;}
+
+  /* 히스토리 */
+  .hist-card-title{font-size:12px;}
+  .hist-delete{width:22px;height:22px;font-size:9px;}
+
+  /* 커뮤니티 */
+  .comm-hero-title{font-size:18px;}
+  .comm-hero-actions{flex-wrap:wrap;gap:6px;}
+  .comm-hero-act{font-size:10px;padding:4px 10px;}
 }
 @media(max-width:400px){
   .adv-grid{grid-template-columns:1fr;}
+  .history-grid{grid-template-columns:1fr 1fr;}
+  .genre-btns-wrap{gap:5px;}
+  .genre-main-btn{font-size:10px;padding:7px 10px;}
+  .fp-cover{width:150px;height:150px;font-size:52px;}
+  .fp-actions{gap:0;}
+  .fp-action-btn{width:46px;}
 }
 
 /* ── 풀스크린 플레이어 (히스토리) ── */
@@ -1286,12 +1357,12 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
   <div class="kp-body">
     <!-- 좌측: 앨범 + 컨트롤 -->
     <div class="kp-left">
-      <div class="kp-left-info" style="display:flex;flex-direction:column;align-items:center;width:100%;">
+      <div class="kp-left-info">
         <div class="kp-cover" id="kp-cover">🎵</div>
         <div class="kp-track-title" id="kp-title">제목</div>
         <div class="kp-track-tags" id="kp-tags"></div>
       </div>
-      <div class="kp-left-controls" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+      <div class="kp-left-controls">
         <div class="kp-viz" id="kp-viz">
           <div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div><div class="kp-vbar"></div>
         </div>
