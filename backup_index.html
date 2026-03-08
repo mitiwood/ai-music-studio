@@ -7,10 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#06060E;--s1:#0C0C18;--s2:#141422;--s3:#1C1C30;
-  --bdr:#2A2A42;--bdr2:#1E1E32;--t1:#F0F0FF;--t2:#9090C0;--t3:#484868;
-  --acc:#D040E8;--acc2:#8800DD;--grn:#00DDA0;--ylw:#FFD000;--red:#FF4444;--blue:#4499FF;
-  --pro:#FF9500;
+  --bg:#06060E;--s1:#0C0C18;--s2:#121220;--s3:#1A1A2E;
+  --bdr:#252538;--bdr2:#1E1E30;--t1:#F5F5FF;--t2:#8080AA;--t3:#3A3A55;
+  --acc:#E040FB;--acc2:#AA00FF;--grn:#00E5A0;--ylw:#FFD740;--red:#FF5252;--blue:#448AFF;
   --r:12px;--rsm:8px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -67,7 +66,7 @@ header{padding:24px 0 28px;display:flex;align-items:center;justify-content:space
 /* ── CARD ── */
 .prompt-card{background:var(--s1);border:1px solid var(--bdr);border-radius:16px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;}
 .prompt-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc),var(--grn),transparent);}
-.pc-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--t2);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.pc-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
 
 /* ── MODE TABS ── */
 .mode-tabs{display:flex;gap:6px;margin-bottom:16px;}
@@ -78,7 +77,7 @@ header{padding:24px 0 28px;display:flex;align-items:center;justify-content:space
 /* ── FORM ELEMENTS ── */
 .genre-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
 .opt-group{display:flex;flex-direction:column;gap:5px;}
-.opt-label{font-size:10px;font-weight:700;color:var(--t2);letter-spacing:1px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
+.opt-label{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:1px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
 .opt-select,.opt-input{background:var(--s2);border:1.5px solid var(--bdr);border-radius:var(--rsm);padding:9px 12px;font-size:13px;font-family:'Syne',sans-serif;color:var(--t1);outline:none;transition:border-color .2s;-webkit-appearance:none;}
 .opt-select:focus,.opt-input:focus{border-color:var(--acc);}
 .opt-input::placeholder{color:var(--t3);}
@@ -146,7 +145,7 @@ header{padding:24px 0 28px;display:flex;align-items:center;justify-content:space
 
 /* ── ADVANCED ── */
 .advanced-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:10px;width:fit-content;}
-.adv-lbl{font-size:11px;font-weight:700;color:var(--t2);font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;}
+.adv-lbl{font-size:11px;font-weight:700;color:var(--t3);font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;}
 .adv-chev{font-size:9px;color:var(--t3);transition:transform .2s;display:inline-block;}
 .adv-chev.open{transform:rotate(180deg);}
 .advanced-panel{display:none;}.advanced-panel.open{display:block;}
@@ -261,93 +260,31 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
 .modal-btn{width:100%;padding:13px;background:linear-gradient(135deg,#2A5FCC,var(--blue));border:none;border-radius:var(--rsm);font-size:14px;font-weight:800;font-family:'Syne',sans-serif;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;}
 .modal-btn:hover{opacity:.9;}.modal-btn:disabled{opacity:.35;cursor:not-allowed;}
 
-/* ── NAV TABS ── */
-.nav-tabs{display:flex;gap:4px;padding:6px;background:var(--s1);border:1px solid var(--bdr);border-radius:12px;margin-bottom:18px;}
-.ntab{flex:1;padding:9px 12px;border-radius:8px;font-size:12px;font-weight:700;border:none;background:none;color:var(--t3);cursor:pointer;transition:all .15s;font-family:'Syne',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;}
-.ntab:hover{color:var(--t2);}
-.ntab.on{background:var(--s3);color:var(--t1);box-shadow:0 1px 6px rgba(0,0,0,.4);}
-.ntab .nbadge{background:var(--acc);color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;font-family:'JetBrains Mono',monospace;}
-
-/* ── VIEWS ── */
-.view{display:none;}.view.on{display:block;}
-
-/* ── PRO BADGE ── */
-.pro-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;background:rgba(255,149,0,.12);border:1px solid rgba(255,149,0,.4);font-size:10px;font-weight:700;color:var(--pro);font-family:'JetBrains Mono',monospace;}
-.pro-warning{display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,149,0,.06);border:1px solid rgba(255,149,0,.25);border-radius:var(--rsm);font-size:11px;color:var(--pro);margin-bottom:12px;display:none;}
-.pro-warning.on{display:flex;}
-
-/* ── DURATION ROW ── */
-.duration-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
-.duration-btns{display:flex;gap:4px;flex-wrap:wrap;}
-.dbtn{padding:7px 10px;border-radius:6px;background:var(--s2);border:1.5px solid var(--bdr);font-size:11px;font-weight:700;color:var(--t2);cursor:pointer;transition:all .15s;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
-.dbtn:hover{border-color:var(--grn);color:var(--grn);}
-.dbtn.on{background:rgba(0,221,160,.1);border-color:var(--grn);color:var(--grn);}
-.dbtn.pro-req{color:var(--pro);border-color:rgba(255,149,0,.3);}
-.dbtn.pro-req.on{background:rgba(255,149,0,.1);border-color:var(--pro);}
-
-/* ── FEEDBACK CARD ── */
-.feedback-card{background:linear-gradient(135deg,rgba(12,12,24,.9),rgba(20,20,40,.9));border:1px solid var(--bdr);border-radius:16px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;}
-.feedback-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--grn),var(--acc),transparent);}
-.fb-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.fb-title{font-size:15px;font-weight:800;color:var(--t1);}
-.fb-sub{font-size:11px;color:var(--t2);margin-bottom:14px;line-height:1.5;}
-.stars-row{display:flex;gap:6px;margin-bottom:16px;}
-.star{font-size:24px;cursor:pointer;transition:transform .1s,filter .15s;filter:grayscale(1);opacity:.35;}
-.star:hover,.star.on{filter:none;opacity:1;transform:scale(1.15);}
-.fb-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
-.fbtag{padding:6px 12px;border-radius:20px;background:var(--s2);border:1.5px solid var(--bdr);font-size:11px;font-weight:700;color:var(--t2);cursor:pointer;transition:all .12s;}
-.fbtag:hover{border-color:var(--acc);color:var(--acc);}
-.fbtag.on{background:rgba(208,64,232,.12);border-color:var(--acc);color:var(--acc);}
-.fb-textarea{width:100%;min-height:56px;resize:vertical;background:var(--s2);border:1.5px solid var(--bdr);border-radius:var(--rsm);padding:10px 12px;font-size:13px;font-family:'Syne',sans-serif;color:var(--t1);outline:none;line-height:1.5;transition:border-color .2s;margin-bottom:14px;}
-.fb-textarea:focus{border-color:var(--acc);}
-.fb-textarea::placeholder{color:var(--t3);}
-.fb-time-info{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--s2);border-radius:var(--rsm);font-size:11px;color:var(--t2);margin-bottom:14px;font-family:'JetBrains Mono',monospace;}
-.fb-time-dot{width:8px;height:8px;border-radius:50%;background:var(--grn);box-shadow:0 0 6px var(--grn);flex-shrink:0;animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
-.fb-actions{display:flex;gap:8px;}
-.fb-remix-btn{flex:1;padding:12px;background:linear-gradient(135deg,var(--acc2),var(--acc));border:none;border-radius:var(--rsm);font-size:13px;font-weight:800;font-family:'Syne',sans-serif;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;}
-.fb-remix-btn:hover{opacity:.9;}
-.fb-skip-btn{padding:12px 18px;background:none;border:1.5px solid var(--bdr);border-radius:var(--rsm);font-size:12px;font-weight:700;font-family:'Syne',sans-serif;color:var(--t2);cursor:pointer;transition:all .15s;}
-.fb-skip-btn:hover{border-color:var(--t2);color:var(--t1);}
-
-/* ── HISTORY FULL VIEW ── */
-.hist-view-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
-.hist-view-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.hist-view-title{font-size:18px;font-weight:800;color:var(--t1);}
-.hist-view-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);}
-.hist-empty{text-align:center;padding:60px 20px;color:var(--t3);}
-.hist-empty .he-icon{font-size:48px;margin-bottom:12px;}
-.hist-empty .he-txt{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:6px;}
-.hist-empty .he-sub{font-size:12px;color:var(--t3);}
-
-/* BPM row */
-.bpm-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 12px;background:var(--s2);border:1.5px solid var(--bdr);border-radius:var(--rsm);}
-.bpm-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--acc);min-width:48px;text-align:center;}
-.bpm-unit{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;letter-spacing:1px;}
-.bpm-slider{flex:1;}
-.bpm-auto-btn{padding:5px 10px;border-radius:6px;background:none;border:1px solid var(--bdr);font-size:10px;font-weight:700;color:var(--t3);cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .12s;white-space:nowrap;}
-.bpm-auto-btn:hover{border-color:var(--acc);color:var(--acc);}
-.bpm-auto-btn.on{background:rgba(208,64,232,.1);border-color:var(--acc);color:var(--acc);}
-
-.hist-card{background:var(--s1);border:1px solid var(--bdr2);border-radius:var(--r);overflow:hidden;transition:all .18s;position:relative;}
-.hist-card:hover{border-color:rgba(208,64,232,.35);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.4);}
+/* ── HISTORY ── */
+.history-section{margin-top:32px;}
+.section-header{display:flex;align-items:center;margin-bottom:14px;}
+.section-label{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:2px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;flex:1;display:flex;align-items:center;gap:8px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--bdr2);}
+.clear-all-btn{font-size:10px;font-weight:700;color:var(--red);font-family:'JetBrains Mono',monospace;background:none;border:1px solid rgba(255,82,82,.3);border-radius:6px;padding:4px 10px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.clear-all-btn:hover{background:rgba(255,82,82,.1);border-color:var(--red);}
+.history-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px;}
+.hist-card{background:var(--s1);border:1px solid var(--bdr2);border-radius:var(--r);overflow:hidden;transition:all .15s;position:relative;}
+.hist-card:hover{border-color:var(--bdr);transform:translateY(-2px);}
 .hist-thumb{width:100%;aspect-ratio:16/9;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;cursor:pointer;position:relative;}
 .hist-thumb img,.hist-thumb video{width:100%;height:100%;object-fit:cover;}
-.hist-play-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;}
+.hist-play-overlay{position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;}
 .hist-card:hover .hist-play-overlay{opacity:1;}
-.hist-play-icon{width:36px;height:36px;border-radius:50%;background:rgba(208,64,232,.85);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;box-shadow:0 4px 12px rgba(208,64,232,.5);}
-.hist-type-badge{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.75);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--ylw);border:1px solid rgba(255,208,0,.3);}
-.hist-info{padding:10px 10px 8px;}
-.hist-title{font-size:12px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--t1);}
-.hist-sub{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.hist-del{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:rgba(255,68,68,.15);border:1px solid rgba(255,68,68,.35);color:var(--red);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;z-index:2;}
+.hist-play-icon{width:32px;height:32px;border-radius:50%;background:rgba(224,64,251,.8);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;}
+.hist-type-badge{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.7);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--ylw);}
+.hist-info{padding:10px 10px 6px;}
+.hist-title{font-size:12px;font-weight:700;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hist-sub{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+.hist-del{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:rgba(255,82,82,.15);border:1px solid rgba(255,82,82,.3);color:var(--red);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;z-index:2;}
 .hist-card:hover .hist-del{opacity:1;}
-.hist-del:hover{background:rgba(255,68,68,.3);}
-.clear-all-btn{font-size:10px;font-weight:700;color:var(--red);font-family:'JetBrains Mono',monospace;background:none;border:1px solid rgba(255,68,68,.3);border-radius:6px;padding:4px 10px;cursor:pointer;transition:all .15s;white-space:nowrap;}
-.clear-all-btn:hover{background:rgba(255,68,68,.1);border-color:var(--red);}
+.hist-del:hover{background:rgba(255,82,82,.3);}
 
 /* ── DUAL LABEL ── */
-.dual-label{font-size:10px;font-weight:700;color:var(--t2);letter-spacing:2px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.dual-label{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:2px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
 .dual-label::after{content:'';flex:1;height:1px;background:var(--bdr);}
 
 /* ── TOAST ── */
@@ -446,33 +383,10 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
     </div>
   </header>
 
-  <!-- NAV TABS -->
-  <div class="nav-tabs">
-    <button class="ntab on" data-view="create-view">🎵 음악 만들기</button>
-    <button class="ntab" data-view="history-view">📂 최근 생성 <span class="nbadge" id="hist-badge" style="display:none">0</span></button>
-  </div>
-
-  <!-- CREATE VIEW -->
-  <div class="view on" id="create-view">
-
   <div class="prompt-card">
     <div class="mode-tabs">
       <button class="mtab on" data-mode="custom">✦ 커스텀 모드</button>
       <button class="mtab" data-mode="simple">⚡ 심플 모드</button>
-      <button class="mtab" data-mode="youtube">▶ YouTube 분석</button>
-    </div>
-
-    <!-- YouTube 패널 -->
-    <div id="youtube-row" style="display:none;margin-bottom:14px;">
-      <div class="opt-label" style="margin-bottom:8px;">YouTube URL <span style="color:var(--t3);font-weight:400;">(영상 제목/채널 기반 분석)</span></div>
-      <div style="display:flex;gap:8px;">
-        <input class="opt-input" id="yt-url" type="url" placeholder="https://youtube.com/watch?v=..." style="flex:1;">
-        <button class="lyrics-gen-btn" id="yt-analyze-btn" style="white-space:nowrap;flex-shrink:0;">
-          <span class="lspin" id="yt-spinner"></span>
-          🔍 분석
-        </button>
-      </div>
-      <div id="yt-result" style="margin-top:10px;display:none;padding:12px;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--rsm);font-size:12px;color:var(--t2);line-height:1.6;"></div>
     </div>
 
     <!-- 카테고리 -->
@@ -576,31 +490,6 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
       <span class="adv-chev" id="adv-chev">▼</span>
     </div>
     <div class="advanced-panel" id="adv-panel">
-      <!-- BPM -->
-      <div class="opt-label" style="margin-bottom:8px;">BPM <span style="color:var(--t3);font-weight:400;">(템포)</span></div>
-      <div class="bpm-row">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
-          <div class="bpm-val" id="bpm-val">—</div>
-          <div class="bpm-unit">BPM</div>
-        </div>
-        <input type="range" class="bpm-slider" id="bpm-slider" min="60" max="200" step="1" value="120" style="flex:1;">
-        <button class="bpm-auto-btn on" id="bpm-auto-btn">AUTO</button>
-      </div>
-
-      <!-- 곡 시간 -->
-      <div class="opt-label" style="margin-bottom:8px;">곡 시간</div>
-      <div class="duration-btns" style="margin-bottom:10px;">
-        <button class="dbtn" data-dur="60">1분</button>
-        <button class="dbtn on" data-dur="120">2분</button>
-        <button class="dbtn" data-dur="180">3분</button>
-        <button class="dbtn pro-req" data-dur="240">4분 👑</button>
-        <button class="dbtn pro-req" data-dur="300">5분 👑</button>
-        <button class="dbtn pro-req" data-dur="480">8분 👑</button>
-      </div>
-      <div class="pro-warning" id="pro-warning">
-        👑 <span>3분 이상 곡은 <strong>Pro 플랜</strong> 구독이 필요합니다. V4.5+ 또는 V5 모델로 자동 설정됩니다.</span>
-      </div>
-
       <div class="adv-grid">
         <div class="opt-group">
           <div class="opt-label">Negative Tags</div>
@@ -658,55 +547,13 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
 
   <div id="results"></div>
 
-  <!-- 피드백 카드 (음악 생성 후 표시) -->
-  <div class="feedback-card" id="feedback-card" style="display:none;">
-    <div class="fb-header">
-      <div class="fb-title">🎧 이 음악이 마음에 드셨나요?</div>
-    </div>
-    <div class="fb-sub">피드백을 주시면 더 비슷한 결의 음악을 다시 작곡해 드릴게요!</div>
-    <div class="stars-row" id="stars-row">
-      <span class="star" data-s="1">⭐</span>
-      <span class="star" data-s="2">⭐</span>
-      <span class="star" data-s="3">⭐</span>
-      <span class="star" data-s="4">⭐</span>
-      <span class="star" data-s="5">⭐</span>
-    </div>
-    <div class="opt-label" style="margin-bottom:8px;">어떤 점이 아쉬웠나요?</div>
-    <div class="fb-tags" id="fb-tags">
-      <span class="fbtag" data-f="tempo_fast">⏩ 템포 너무 빠름</span>
-      <span class="fbtag" data-f="tempo_slow">⏪ 템포 너무 느림</span>
-      <span class="fbtag" data-f="more_energy">🔥 에너지 더 필요</span>
-      <span class="fbtag" data-f="softer">🌊 더 잔잔하게</span>
-      <span class="fbtag" data-f="more_vocal">🎤 보컬 더 강하게</span>
-      <span class="fbtag" data-f="instrumental">🎸 인스트루멘탈로</span>
-      <span class="fbtag" data-f="different_genre">🎵 다른 장르로</span>
-      <span class="fbtag" data-f="keep_vibe">✨ 분위기 유지하고 재도전</span>
-    </div>
-    <textarea class="fb-textarea" id="fb-text" placeholder="원하시는 방향을 자유롭게 적어주세요... (선택)"></textarea>
-    <div class="fb-time-info">
-      <div class="fb-time-dot"></div>
-      <span id="fb-time-txt">재작곡 예상 시간: 약 <strong>45~90초</strong> · 2곡 생성 예정</span>
-    </div>
-    <div class="fb-actions">
-      <button class="fb-remix-btn" id="fb-remix-btn">🔄 이 결로 다시 작곡하기</button>
-      <button class="fb-skip-btn" id="fb-skip-btn">건너뛰기</button>
-    </div>
-  </div>
-
-  </div><!-- /create-view -->
-
-  <!-- HISTORY VIEW -->
-  <div class="view" id="history-view">
-    <div class="hist-view-header">
-      <div>
-        <div class="hist-view-title">📂 최근 생성</div>
-        <div class="hist-view-count" id="hist-view-count">0곡 저장됨</div>
-      </div>
+  <div class="history-section" id="history-section" style="display:none">
+    <div class="section-header">
+      <div class="section-label">최근 생성</div>
       <button class="clear-all-btn" id="clear-all-btn">전체 삭제</button>
     </div>
-    <div id="history-view-grid"></div>
+    <div class="history-grid" id="history-grid"></div>
   </div>
-
 </div>
 
 <div id="toast"></div>
@@ -750,10 +597,6 @@ let extendAudioId=null,toastTmr=null;
 let selectedEmotions=new Set(),makeMV=false;
 let currentUser=JSON.parse(localStorage.getItem('kms_user')||'null');
 let kieApiKey=''; /* /api/config 에서 로드됨 */
-let bpmAuto=true, selectedBpm=120;
-let selectedDuration=120; /* 초 */
-let fbRating=0, fbTags=new Set();
-let lastGenerateParams=null; /* 피드백 재작곡용 */
 
 /* ── 현재 세션에서 생성된 트랙 데이터 (가사 복사용) ── */
 let lastTracks=[];
@@ -814,54 +657,6 @@ document.querySelectorAll('.etag').forEach(tag=>{
   });
 });
 
-/* ── 네비게이션 탭 ── */
-document.querySelectorAll('.ntab').forEach(tab=>{
-  tab.addEventListener('click',function(){
-    document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
-    document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
-    this.classList.add('on');
-    const viewId=this.dataset.view;
-    const view=document.getElementById(viewId);
-    if(view)view.classList.add('on');
-    if(viewId==='history-view')renderHistoryView();
-  });
-});
-
-/* ── BPM ── */
-const bpmSlider=$('bpm-slider');
-const bpmAutoBtn=$('bpm-auto-btn');
-function updateBpmDisplay(){
-  $('bpm-val').textContent=bpmAuto?'—':selectedBpm;
-  bpmAutoBtn.classList.toggle('on',bpmAuto);
-  bpmSlider.style.opacity=bpmAuto?'.35':'1';
-  bpmSlider.style.pointerEvents=bpmAuto?'none':'';
-}
-bpmSlider.addEventListener('input',function(){
-  selectedBpm=parseInt(this.value);
-  if(!bpmAuto)$('bpm-val').textContent=selectedBpm;
-});
-bpmAutoBtn.addEventListener('click',function(){
-  bpmAuto=!bpmAuto;
-  updateBpmDisplay();
-  toast(bpmAuto?'BPM 자동 설정':'BPM 수동 설정: '+selectedBpm+'BPM','',1800);
-});
-updateBpmDisplay();
-
-/* ── 곡 시간 ── */
-document.querySelectorAll('.dbtn').forEach(btn=>{
-  btn.addEventListener('click',function(){
-    document.querySelectorAll('.dbtn').forEach(b=>b.classList.remove('on'));
-    this.classList.add('on');
-    selectedDuration=parseInt(this.dataset.dur);
-    const isPro=selectedDuration>180;
-    $('pro-warning').classList.toggle('on',isPro);
-    /* Pro 구간엔 적합한 모델 자동 선택 */
-    if(isPro&&$('model-sel').value==='V4_5')$('model-sel').value='V4_5PLUS';
-    else if(!isPro&&$('model-sel').value==='V4_5PLUS')$('model-sel').value='V4_5';
-    updateFbTimeEstimate();
-  });
-});
-
 /* ── MV 토글 ── */
 $('mv-toggle').addEventListener('click',function(){makeMV=!makeMV;this.classList.toggle('on',makeMV);});
 
@@ -891,15 +686,11 @@ document.querySelectorAll('.mtab').forEach(tab=>{
     document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('on'));
     this.classList.add('on');currentMode=this.dataset.mode;
     const isC=currentMode==='custom';
-    const isYT=currentMode==='youtube';
     ['genre-row','preset-row','emotion-row','title-row','lyrics-btn-row','vocal-group'].forEach(id=>{
-      const el=$(id);if(el)el.style.display=(isC&&!isYT)?'':'none';
+      const el=$(id);if(el)el.style.display=isC?'':'none';
     });
-    $('youtube-row').style.display=isYT?'block':'none';
-    $('prompt-label').textContent=isC?'가사 / 곡 설명':isYT?'생성할 음악 설명 (자동 입력됨)':'음악 설명 (프롬프트)';
-    $('prompt').placeholder=isC?'여기에 가사를 입력하세요\n\n[Verse]\n가사 첫 번째 줄\n\n[Chorus]\n후렴구...':
-      isYT?'YouTube 영상을 분석하면 여기에 자동으로 스타일 프롬프트가 입력됩니다...':
-      '예: 잔잔한 피아노 발라드, 가을 감성, 오후 햇살이 드는 카페...';
+    $('prompt-label').textContent=isC?'가사 / 곡 설명':'음악 설명 (프롬프트)';
+    $('prompt').placeholder=isC?'여기에 가사를 입력하세요\n\n[Verse]\n가사 첫 번째 줄\n\n[Chorus]\n후렴구...':'예: 잔잔한 피아노 발라드, 가을 감성, 오후 햇살이 드는 카페...';
   });
 });
 
@@ -948,95 +739,7 @@ $('adv-toggle').addEventListener('click',()=>{$('adv-panel').classList.toggle('o
 $('style-weight').addEventListener('input',function(){$('sw-val').textContent=this.value;});
 $('weird-constraint').addEventListener('input',function(){$('wc-val').textContent=this.value;});
 
-/* ── YouTube 분석 (oEmbed + Claude API로 스타일 추론) ── */
-$('yt-analyze-btn').addEventListener('click',async()=>{
-  const url=$('yt-url').value.trim();
-  if(!url||!url.includes('youtube')){toast('유효한 YouTube URL을 입력해주세요','err');return;}
-  $('yt-analyze-btn').disabled=true;
-  $('yt-spinner').style.display='inline-block';
-  const resultEl=$('yt-result');
-  resultEl.style.display='none';
-  toast('🔍 YouTube 영상 분석 중...','',30000);
-  try{
-    /* oEmbed로 제목/채널명 가져오기 */
-    const oembedUrl=`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
-    let title='',author='';
-    try{
-      const r=await fetch(oembedUrl);
-      if(r.ok){const d=await r.json();title=d.title||'';author=d.author_name||'';}
-    }catch(e){/* CORS일 경우 URL에서 직접 추출 */}
-    if(!title){
-      /* URL에서 videoId 추출 후 제목은 수동 안내 */
-      const m=url.match(/[?&]v=([^&]+)/);
-      title=m?`YouTube 영상 (${m[1]})`:'YouTube 영상';
-    }
-
-    /* Claude API로 음악 스타일 분석 */
-    const analyzePrompt=`다음 YouTube 영상 정보를 바탕으로 비슷한 결의 음악을 만들기 위한 Suno AI 스타일 프롬프트를 생성해주세요.
-
-영상 제목: "${title}"
-채널명: "${author}"
-
-다음 형식의 JSON으로만 답변하세요:
-{
-  "genre": "장르 (영어, 예: K-Pop, Lo-fi Hip-hop, EDM)",
-  "mood": "분위기 (영어, 예: energetic, uplifting, melancholic)",
-  "style_prompt": "Suno AI 스타일 프롬프트 (영어, 콤마 구분, 20단어 이내)",
-  "description": "분석 결과 한 줄 설명 (한국어)",
-  "bpm_estimate": 숫자 (추정 BPM)
-}`;
-
-    const claudeRes=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:400,
-        messages:[{role:'user',content:analyzePrompt}]
-      })
-    });
-    const claudeData=await claudeRes.json();
-    const rawText=claudeData.content?.find(c=>c.type==='text')?.text||'';
-    let analysis;
-    try{
-      const clean=rawText.replace(/```json|```/g,'').trim();
-      analysis=JSON.parse(clean);
-    }catch{analysis=null;}
-
-    if(analysis){
-      /* 분석 결과를 폼에 자동 입력 */
-      const stylePrompt=analysis.style_prompt||'';
-      $('prompt').value=stylePrompt;
-      $('prompt').classList.add('flash');
-      setTimeout(()=>$('prompt').classList.remove('flash'),2000);
-      if(analysis.bpm_estimate&&analysis.bpm_estimate>0){
-        bpmAuto=false;
-        selectedBpm=Math.min(200,Math.max(60,analysis.bpm_estimate));
-        $('bpm-slider').value=selectedBpm;
-        updateBpmDisplay();
-      }
-      resultEl.style.display='block';
-      resultEl.innerHTML=`
-        <div style="font-size:11px;font-weight:700;color:var(--acc);margin-bottom:6px;">✅ 분석 완료: ${esc(title)}</div>
-        <div style="margin-bottom:4px;">${esc(analysis.description||'')}</div>
-        <div style="color:var(--t3);font-size:10px;font-family:'JetBrains Mono',monospace;">
-          장르: ${esc(analysis.genre||'—')} · BPM: ~${analysis.bpm_estimate||'?'} · 분위기: ${esc(analysis.mood||'—')}
-        </div>`;
-      toast('✅ 분석 완료! 스타일이 자동 입력되었습니다.','ok',3000);
-    }else{
-      /* Claude API 없을 경우 제목 기반 기본 처리 */
-      $('prompt').value=`${title} style, ${author} inspired music`;
-      resultEl.style.display='block';
-      resultEl.innerHTML=`<div style="color:var(--ylw);font-size:11px;">⚠️ AI 분석 불가 — 영상 제목 기반으로 기본 프롬프트를 입력했습니다.<br><span style="font-size:10px;color:var(--t3);">${esc(title)} (${esc(author)})</span></div>`;
-      toast('⚠️ 제목 기반 프롬프트 입력됨','',3000);
-    }
-  }catch(e){
-    toast('❌ 분석 실패: '+e.message,'err',5000);
-  }finally{
-    $('yt-analyze-btn').disabled=false;
-    $('yt-spinner').style.display='none';
-  }
-});
+/* ── kie.ai 요청 ── */
 async function kieRequest(apiKey,method,path,body){
   const res=await fetch(`${KIE_BASE}${path}`,{
     method,
@@ -1130,35 +833,29 @@ $('lyrics-btn').addEventListener('click',async()=>{
 $('gen-btn').addEventListener('click',generate);
 $('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.ctrlKey)generate();});
 
-async function generate(overrideParams){
+async function generate(){
   const apiKey=kieApiKey;
   if(!apiKey){toast('API 키 로딩 중... 잠시 후 다시 시도해주세요','err');return;}
-  const lyricsText=overrideParams?.prompt||$('prompt').value.trim();
-  const subGenre=overrideParams?.subGenre||$('genre-sub').value;
-  const mood=overrideParams?.mood||$('mood').value;
+  const lyricsText=$('prompt').value.trim(); /* ✅ FIX: 입력 가사 캡처 */
+  const subGenre=$('genre-sub').value;
+  const mood=$('mood').value;
   const negTags=$('neg-tags').value.trim();
   const model=$('model-sel').value;
   const sw=parseFloat($('style-weight').value);
   const wc=parseFloat($('weird-constraint').value);
   const isCustom=currentMode==='custom';
-  const emotions=overrideParams?.emotions||[...selectedEmotions];
+  const emotions=[...selectedEmotions];
   if(!lyricsText&&!subGenre){toast('가사 또는 장르를 선택해주세요','err');return;}
 
   const emotionStyle=emotions.length?emotions.join(', '):'';
-  let styleStr=overrideParams?.styleStr||[subGenre,mood,emotionStyle].filter(Boolean).join(', ');
-
-  /* BPM을 스타일에 추가 */
-  if(!bpmAuto&&selectedBpm){styleStr=[styleStr,`${selectedBpm}bpm`].filter(Boolean).join(', ');}
-
+  const styleStr=[subGenre,mood,emotionStyle].filter(Boolean).join(', ');
   const prompt=lyricsText||styleStr;
-  lastLyricsInput=lyricsText;
 
-  /* 재작곡을 위한 파라미터 저장 */
-  lastGenerateParams={prompt,subGenre,mood,emotions,styleStr,isCustom};
+  /* ✅ FIX: 실제 입력 가사 저장 */
+  lastLyricsInput=lyricsText;
 
   $('gen-btn').disabled=true;$('gen-spinner').style.display='block';$('gen-txt').textContent='생성 중...';
   $('loading-card').classList.add('on');$('results').innerHTML='';
-  $('feedback-card').style.display='none';
   const fill=$('ld-fill');fill.style.animation='none';void fill.offsetWidth;fill.style.animation='';
   $('ld-sub').innerHTML='kie.ai에 작곡 요청 중...<br>잠시만 기다려주세요 ☕';
 
@@ -1167,10 +864,8 @@ async function generate(overrideParams){
     if(isCustom&&subGenre)body.style=styleStr;
     if(negTags)body.negativeTags=negTags;
     if(!instOn&&vocalGender)body.vocalGender=vocalGender;
-    const songTitle=overrideParams?.title||$('song-title').value.trim();
+    const songTitle=$('song-title').value.trim();
     if(songTitle)body.title=songTitle;
-    /* 곡 시간 (초) → duration 파라미터 */
-    if(selectedDuration)body.duration=selectedDuration;
 
     const genData=await kieRequest(apiKey,'POST','/api/v1/generate',body);
     const taskId=genData?.data?.taskId||genData?.taskId;
@@ -1182,24 +877,24 @@ async function generate(overrideParams){
     if(!tracks?.length)throw new Error('트랙을 받지 못했어요');
     $('loading-card').classList.remove('on');
 
+    /* ✅ FIX: lastTracks에 입력가사 주입 */
     lastTracks=tracks.map(t=>({...t,_inputLyrics:lastLyricsInput}));
     renderTracks(lastTracks,prompt,styleStr);
-    showFeedbackCard();
 
     tracks.forEach(t=>{
       historyData.unshift({
         id:t.id,title:t.title||'무제',
         audio_url:t.audioUrl||t.audio_url||'',
-        video_url:'',
+        video_url:'', /* 비디오는 나중에 update */
         image_url:t.imageUrl||t.image_url||'',
         tags:t.tags||styleStr,
-        lyrics:lastLyricsInput||t.lyric||t.lyrics||'',
+        lyrics:lastLyricsInput||t.lyric||t.lyrics||'', /* ✅ FIX */
         created:Date.now(),
         type:'audio',
       });
     });
     historyData=historyData.slice(0,30);
-    saveHistory();updateHistBadge();
+    saveHistory();renderHistory();
     toast('🎵 음악 생성 완료!','ok');
 
     if(makeMV&&tracks[0]?.id){
@@ -1472,140 +1167,40 @@ function stopViz(idx){
 }
 function formatTime(sec){if(!sec||isNaN(sec))return'0:00';return`${Math.floor(sec/60)}:${Math.floor(sec%60).toString().padStart(2,'0')}`;}
 
-/* ── 피드백 카드 ── */
-function updateFbTimeEstimate(){
-  const dur=selectedDuration||120;
-  const baseTime=dur<=120?'30~60초':dur<=180?'45~90초':'60~120초';
-  const el=$('fb-time-txt');
-  if(el)el.innerHTML=`재작곡 예상 시간: 약 <strong>${baseTime}</strong> · ${dur>180?'1곡':'2곡'} 생성 예정`;
-}
+/* ── HISTORY ── */
+function saveHistory(){localStorage.setItem('kms_history',JSON.stringify(historyData));}
 
-function showFeedbackCard(){
-  fbRating=0;fbTags.clear();
-  document.querySelectorAll('.star').forEach(s=>s.classList.remove('on'));
-  document.querySelectorAll('.fbtag').forEach(t=>t.classList.remove('on'));
-  if($('fb-text'))$('fb-text').value='';
-  updateFbTimeEstimate();
-  $('feedback-card').style.display='block';
-  $('feedback-card').scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-
-/* 별점 */
-document.querySelectorAll('.star').forEach(star=>{
-  star.addEventListener('click',function(){
-    fbRating=parseInt(this.dataset.s);
-    document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('on',i<fbRating));
-  });
-  star.addEventListener('mouseover',function(){
-    const n=parseInt(this.dataset.s);
-    document.querySelectorAll('.star').forEach((s,i)=>s.style.filter=i<n?'none':'grayscale(1)');
-    document.querySelectorAll('.star').forEach((s,i)=>s.style.opacity=i<n?'1':'.35');
-  });
-  star.addEventListener('mouseleave',()=>{
-    document.querySelectorAll('.star').forEach((s,i)=>{
-      s.style.filter='';s.style.opacity='';
-    });
-  });
-});
-
-/* 피드백 태그 */
-document.querySelectorAll('.fbtag').forEach(tag=>{
-  tag.addEventListener('click',function(){
-    const f=this.dataset.f;
-    if(fbTags.has(f)){fbTags.delete(f);this.classList.remove('on');}
-    else{fbTags.add(f);this.classList.add('on');}
-  });
-});
-
-/* 재작곡 */
-$('fb-remix-btn').addEventListener('click',async()=>{
-  if(!lastGenerateParams)return;
-  $('feedback-card').style.display='none';
-  const fbText=$('fb-text').value.trim();
-  const tags=[...fbTags];
-
-  /* 피드백 기반으로 파라미터 수정 */
-  let overrideParams={...lastGenerateParams};
-
-  if(tags.includes('tempo_fast'))overrideParams.styleStr=(overrideParams.styleStr||'')+', slow tempo, 70bpm';
-  if(tags.includes('tempo_slow'))overrideParams.styleStr=(overrideParams.styleStr||'')+', fast tempo, 140bpm';
-  if(tags.includes('more_energy'))overrideParams.styleStr=(overrideParams.styleStr||'')+', energetic, high energy, powerful';
-  if(tags.includes('softer'))overrideParams.styleStr=(overrideParams.styleStr||'')+', soft, gentle, mellow';
-  if(tags.includes('more_vocal'))overrideParams.styleStr=(overrideParams.styleStr||'')+', prominent vocals, clear singing';
-  if(tags.includes('instrumental'))overrideParams.styleStr=(overrideParams.styleStr||'')+', instrumental, no vocals';
-  if(fbText)overrideParams.styleStr=(overrideParams.styleStr||'')+', '+fbText;
-  if(tags.includes('keep_vibe'))overrideParams.styleStr=(overrideParams.styleStr||'')+', same vibe, similar mood';
-
-  toast('🔄 피드백 기반으로 재작곡 중...','',60000);
-  await generate(overrideParams);
-});
-
-$('fb-skip-btn').addEventListener('click',()=>{$('feedback-card').style.display='none';});
-
-/* ── 히스토리 배지 ── */
-function updateHistBadge(){
-  const badge=$('hist-badge');
-  if(!badge)return;
-  if(historyData.length>0){
-    badge.style.display='inline';
-    badge.textContent=historyData.length>99?'99+':historyData.length;
-  }else{
-    badge.style.display='none';
-  }
-}
-
-/* ── HISTORY VIEW ── */
-function renderHistoryView(){
-  const grid=$('history-view-grid');
-  const count=$('hist-view-count');
-  if(!grid)return;
-  if(count)count.textContent=`${historyData.length}곡 저장됨`;
-  if(!historyData.length){
-    grid.innerHTML=`<div class="hist-empty"><div class="he-icon">🎵</div><div class="he-txt">아직 생성된 음악이 없어요</div><div class="he-sub">음악 만들기 탭에서 첫 곡을 만들어보세요!</div></div>`;
-    return;
-  }
-  grid.innerHTML=`<div class="hist-view-grid">${historyData.map((h,idx)=>{
+function renderHistory(){
+  if(!historyData.length){$('history-section').style.display='none';return;}
+  $('history-section').style.display='block';
+  $('history-grid').innerHTML=historyData.slice(0,12).map((h,idx)=>{
     const hasVideo=!!h.video_url;
     const thumbContent=hasVideo
       ?`<video src="${esc(h.video_url)}" muted playsinline preload="none"></video>`
       :h.image_url?`<img src="${esc(h.image_url)}" alt="">`:'🎵';
-    const timeAgo=formatTimeAgo(h.created);
     return`
     <div class="hist-card">
-      <div class="hist-thumb"
+      <div class="hist-thumb" 
         data-audio="${esc(h.audio_url)}"
         data-video="${esc(h.video_url||'')}"
         data-title="${esc(h.title)}"
-        onclick="playFromHistory(this.dataset.audio,this.dataset.video,this.dataset.title)">
+        onclick="playFromHistory(this.dataset.audio,this.dataset.video,this.dataset.title)">>
         ${thumbContent}
         ${hasVideo?`<div class="hist-type-badge">🎬 VIDEO</div>`:''}
         <div class="hist-play-overlay"><div class="hist-play-icon">▶</div></div>
       </div>
       <div class="hist-info">
         <div class="hist-title">${esc(h.title)}</div>
-        <div class="hist-sub">${esc(h.tags?.split(',')[0]?.trim()||'')} · ${timeAgo}</div>
+        <div class="hist-sub">${h.tags?.split(',')[0]?.trim()||''}</div>
       </div>
       <button class="hist-del" title="삭제" onclick="deleteHistory(${idx},event)">✕</button>
     </div>`;
-  }).join('')}</div>`;
+  }).join('');
 }
-
-function formatTimeAgo(ts){
-  if(!ts)return'';
-  const diff=Date.now()-ts;
-  const m=Math.floor(diff/60000);
-  const h=Math.floor(m/60);
-  const d=Math.floor(h/24);
-  if(m<1)return'방금';if(m<60)return`${m}분 전`;if(h<24)return`${h}시간 전`;return`${d}일 전`;
-}
-
-function renderHistory(){updateHistBadge();}
-
-/* ── HISTORY SAVE ── */
-function saveHistory(){localStorage.setItem('kms_history',JSON.stringify(historyData));}
 
 function playFromHistory(audioUrl,videoUrl,title){
   if(videoUrl){
+    /* 비디오 있으면 모달로 표시 */
     const backdrop=document.createElement('div');
     backdrop.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;';
     backdrop.innerHTML=`
@@ -1625,13 +1220,13 @@ function playFromHistory(audioUrl,videoUrl,title){
 function deleteHistory(idx,e){
   e.stopPropagation();
   historyData.splice(idx,1);
-  saveHistory();updateHistBadge();renderHistoryView();
+  saveHistory();renderHistory();
   toast('🗑 삭제되었습니다');
 }
 
 $('clear-all-btn').addEventListener('click',()=>{
   if(!confirm('최근 생성 내역을 모두 삭제할까요?'))return;
-  historyData=[];saveHistory();updateHistBadge();renderHistoryView();
+  historyData=[];saveHistory();renderHistory();
   toast('🗑 전체 삭제되었습니다');
 });
 
@@ -1639,7 +1234,7 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 
 /* ── INIT ── */
 renderPresets();
-updateHistBadge();
+renderHistory();
 updateLoginUI();
 </script>
 </body>
