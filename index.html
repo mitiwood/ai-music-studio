@@ -874,15 +874,12 @@ input[type=range]:not(.bpm-slider)::-webkit-slider-thumb{
 /* ══════════════════════════════
    BOTTOM NAV
 ══════════════════════════════ */
- <nav id="bottom-nav">
-  <button class="bnav-item" data-view="community-view" onclick="switchTab('community-view')">
- 
-  <button class="bnav-item on bnav-center" data-view="create-view" onclick="switchTab('create-view')">
- 
-  <button class="bnav-item" data-view="history-view" onclick="switchTab('history-view')">
- 
-  <button class="bnav-item" data-view="settings-view" onclick="switchTab('settings-view')">  
-
+<nav id="bottom-nav">
+<button class="bnav-item" data-view="community-view" onclick="switchTab('community-view')">커뮤니티</button>
+<button class="bnav-item on bnav-center" data-view="create-view" onclick="switchTab('create-view')">생성</button>
+<button class="bnav-item" data-view="history-view" onclick="switchTab('history-view')">히스토리</button>
+<button class="bnav-item" data-view="settings-view" onclick="switchTab('settings-view')">설정</button>
+</nav> 
    
 #bottom-nav{
   position:fixed;bottom:0;left:50%;transform:translateX(-50%);
