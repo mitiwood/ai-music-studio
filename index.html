@@ -1494,7 +1494,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
   border:1px solid rgba(168,85,247,.2);
   border-radius:16px;
   box-shadow:0 -4px 32px rgba(0,0,0,.6),0 0 0 1px rgba(124,58,237,.1);
-  z-index:190;
+  z-index:210;
   transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .3s;
   opacity:0;
   overflow:hidden;
@@ -2491,7 +2491,7 @@ body.mp-on .view{padding-bottom:100px;}
         <!-- 오른쪽 세로 액션 버튼 -->
         <div class="fp-side-actions">
           <button class="fp-side-btn" id="fp-like-btn" onclick="fpToggleLike()" title="좋아요">
-            <span>🤍</span><span class="fp-side-lbl" id="fp-like-label">좋아요</span>
+            <span id="fp-like-icon">🤍</span><span class="fp-side-lbl" id="fp-like-label">좋아요</span>
           </button>
           <button class="fp-side-btn" id="fp-dislike-btn" onclick="fpToggleDislike()" title="싫어요">
             <span>👎</span><span class="fp-side-lbl">싫어요</span>
@@ -4937,48 +4937,75 @@ function hideMiniPlayer(){
 
 /* 미니 → 풀 확장 */
 function expandToFullPlayer(){
+  /* ── 가드: fpCurrentIdx 유효성 확인 ── */
   const h = historyData[fpCurrentIdx];
-  if(!h) return;
-  /* 배경 */
-  const bg = $('fp-bg');
-  if(h.image_url){
-    bg.style.backgroundImage = `url(${h.image_url})`;
-    bg.style.backgroundSize = 'cover';
-    bg.style.backgroundPosition = 'center';
-    bg.style.background = '';
-  } else {
-    bg.style.backgroundImage = 'none';
-    bg.style.background = 'linear-gradient(135deg,#3A0078 0%,#0d001a 100%)';
+  if(!h){ console.warn('[expandToFP] fpCurrentIdx invalid:', fpCurrentIdx); return; }
+
+  try {
+    /* 배경 */
+    const bg = $('fp-bg');
+    if(bg){
+      if(h.image_url){
+        bg.style.backgroundImage = `url(${esc(h.image_url)})`;
+        bg.style.backgroundSize = 'cover';
+        bg.style.backgroundPosition = 'center';
+        bg.style.background = '';
+      } else {
+        bg.style.backgroundImage = 'none';
+        bg.style.background = 'linear-gradient(135deg,#3A0078 0%,#0d001a 100%)';
+      }
+    }
+
+    /* 커버 */
+    const cov = $('fp-cover');
+    if(cov) cov.innerHTML = h.image_url
+      ? `<img src="${esc(h.image_url)}" alt="" onerror="this.style.display='none'">`
+      : '<span style="font-size:72px">🎵</span>';
+
+    /* 정보 */
+    const titleEl=$('fp-title'); if(titleEl) titleEl.textContent = h.title || '무제';
+    const tagsEl=$('fp-tags');   if(tagsEl)  tagsEl.textContent  = (h.tags||'').split(',')[0]?.trim() || '';
+
+    /* 좋아요 상태 (null-safe) */
+    fpLiked    = h._liked    || false;
+    fpDisliked = h._disliked || false;
+    fpUpdateLikeUI();
+
+    /* 진행 상태 반영 */
+    if(fpAudio && fpAudio.duration){
+      const pct = (fpAudio.currentTime / fpAudio.duration) * 100;
+      const fill=$('fp-prog-fill'), thumb=$('fp-prog-thumb');
+      if(fill)  fill.style.width  = pct + '%';
+      if(thumb) thumb.style.left  = pct + '%';
+      const cur=$('fp-cur'), dur=$('fp-dur');
+      if(cur) cur.textContent = formatTime(fpAudio.currentTime);
+      if(dur) dur.textContent = formatTime(fpAudio.duration);
+    }
+
+    /* 재생 버튼 */
+    const pb=$('fp-play-btn');
+    if(pb) pb.textContent = fpAudio && !fpAudio.paused ? '⏸' : '▶';
+
+    /* 가사 렌더 */
+    fpTimestampLines = [];
+    fpRenderLyrics(h);
+
+  } catch(e){
+    console.error('[expandToFP] render error:', e);
   }
-  /* 커버 */
-  $('fp-cover').innerHTML = h.image_url
-    ? `<img src="${esc(h.image_url)}" alt="" onerror="this.style.display='none'">`
-    : '<span style="font-size:72px">🎵</span>';
-  $('fp-title').textContent = h.title || '무제';
-  $('fp-tags').textContent = (h.tags||'').split(',')[0]?.trim() || '';
-  fpLiked = h._liked || false;
-  fpDisliked = h._disliked || false;
-  fpUpdateLikeUI();
-  /* 진행 상태 반영 */
-  if(fpAudio?.duration){
-    const pct = (fpAudio.currentTime / fpAudio.duration) * 100;
-    $('fp-prog-fill').style.width = pct + '%';
-    $('fp-prog-thumb').style.left = pct + '%';
-    $('fp-cur').textContent = formatTime(fpAudio.currentTime);
-    $('fp-dur').textContent = formatTime(fpAudio.duration);
-  }
-  /* 재생 버튼 상태 */
-  $('fp-play-btn').textContent = fpAudio && !fpAudio.paused ? '⏸' : '▶';
-  fpTimestampLines = [];
-  fpRenderLyrics(h);
+
+  /* ── 풀플레이어 열기 (렌더 오류와 무관하게 반드시 실행) ── */
   $('fullplayer').classList.add('on');
   document.body.style.overflow = 'hidden';
+
   /* viz */
   if(fpAudio && !fpAudio.paused) fpStartViz();
+
   /* fp 시크바 연결 */
-  $('fp-prog-wrap').onclick = e => {
+  const pw=$('fp-prog-wrap');
+  if(pw) pw.onclick = e => {
     if(!fpAudio?.duration) return;
-    const r = $('fp-prog-wrap').getBoundingClientRect();
+    const r = pw.getBoundingClientRect();
     fpAudio.currentTime = fpAudio.duration * Math.max(0, Math.min(1,(e.clientX-r.left)/r.width));
   };
 }
@@ -4987,7 +5014,10 @@ function expandToFullPlayer(){
 /* mp-body 전체 + 진행바 클릭 → 풀플레이어 확장
    단, 버튼(mp-play-btn, mp-next-btn, mp-close-btn)은 제외 */
 document.getElementById('mini-player').addEventListener('click', e=>{
-  if(e.target.closest('.mp-play-btn,.mp-next-btn,.mp-close-btn')) return;
+  e.stopPropagation();
+  /* 컨트롤 버튼 클릭 시 풀플레이어 전환 안 함 */
+  if(e.target.closest('#mp-play-btn,#mp-next-btn,#mp-close-btn')) return;
+  if(!$('mini-player').classList.contains('on')) return;
   expandToFullPlayer();
 });
 
@@ -5240,10 +5270,15 @@ function fpStopViz(){
 /* 좋아요/싫어요 */
 function fpUpdateLikeUI(){
   const lb=$('fp-like-btn'),db=$('fp-dislike-btn');
-  lb?.classList.toggle('liked',!!fpLiked);
-  db?.classList.toggle('disliked',!!fpDisliked);
-  if(lb){lb.classList.toggle('liked',fpLiked);lb.querySelector('.fp-act-icon').textContent=fpLiked?'❤️':'🤍';}
-  if(db){db.classList.toggle('disliked',fpDisliked);}
+  if(lb){
+    lb.classList.toggle('liked',!!fpLiked);
+    /* fp-side-btn 구조: 첫번째 span이 아이콘 */
+    const icon=$('fp-like-icon')||lb.querySelector('span:first-child');
+    if(icon) icon.textContent=fpLiked?'❤️':'🤍';
+  }
+  if(db){
+    db.classList.toggle('disliked',!!fpDisliked);
+  }
 }
 function fpToggleLike(){
   fpLiked=!fpLiked;if(fpLiked)fpDisliked=false;
