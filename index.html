@@ -3066,8 +3066,6 @@ function guestLogin(){
 }
 /* ── 소셜 로그인 ── */
 function socialLogin(provider){
-  const names={google:'Google',kakao:'카카오',naver:'네이버',guest:'게스트'};
-  const avatars={google:'🔵',kakao:'💬',naver:'🟢',guest:'👤'};
   if(provider==='guest'){
     const mockUser={provider:'guest',name:'게스트',avatar:'👤',at:Date.now()};
     currentUser=mockUser;
@@ -3077,13 +3075,12 @@ function socialLogin(provider){
     toast('👤 게스트 모드로 시작합니다','',2500);
     return;
   }
-  /* TODO: 실제 OAuth redirect → /api/auth/${provider} */
-  const mockUser={provider,name:`${names[provider]} 사용자`,avatar:avatars[provider]||'🎵',at:Date.now()};
-  currentUser=mockUser;
-  localStorage.setItem('kms_user',JSON.stringify(mockUser));
-  closeLoginSheet();
-  updateLoginUI();
-  toast(`✅ ${names[provider]}로 로그인 (데모 모드)`,'ok');
+  if(provider==='google'){
+    window.location.href='/api/auth/google';
+    return;
+  }
+  /* kakao, naver — 추후 연동 */
+  toast('준비 중입니다','',1800);
 }
 function logout(){
   currentUser=null;localStorage.removeItem('kms_user');
@@ -3314,6 +3311,30 @@ async function fetchApiKey(){
   }
 }
 fetchApiKey();
+
+/* ── OAuth 콜백 결과 처리 (페이지 로드 시) ── */
+(function handleOAuthCallback(){
+  const p=new URLSearchParams(window.location.search);
+  if(p.get('login')==='ok'){
+    const user={
+      provider: p.get('provider')||'google',
+      name: p.get('name')||'사용자',
+      email: p.get('email')||'',
+      avatar: p.get('avatar')||'',
+      id: p.get('id')||'',
+      at: Date.now(),
+    };
+    currentUser=user;
+    localStorage.setItem('kms_user',JSON.stringify(user));
+    updateLoginUI();
+    toast('✅ Google로 로그인되었습니다','ok',2500);
+    /* URL 파라미터 제거 */
+    window.history.replaceState({},'','/');
+  } else if(p.get('login')==='fail'){
+    toast('로그인에 실패했습니다','err',2500);
+    window.history.replaceState({},'','/');
+  }
+})();
 
 /* ── 인스트루멘탈 ── */
 $('inst-toggle').addEventListener('click',function(){
