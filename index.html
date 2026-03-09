@@ -2894,6 +2894,7 @@ let lastTaskId=''; /* 뮤직비디오 요청용 */
 /* ── 현재 세션에서 생성된 트랙 데이터 (가사 복사용) ── */
 let lastTracks=[];
 let lastLyricsInput='';
+let _lastYtAnalysis=null; /* YouTube 분석 결과 임시 저장 */
 
 const $=id=>document.getElementById(id);
 
@@ -3649,6 +3650,7 @@ $('yt-analyze-btn').addEventListener('click',async()=>{
         <textarea id="yt-lyrics-ta" class="form-input" rows="6" style="font-size:12px;line-height:1.7;">${esc(generatedLyrics||stylePrompt)}</textarea>`;
       /* 가사를 prompt에도 반영 */
       if(generatedLyrics)$('prompt').value=generatedLyrics;
+      _lastYtAnalysis=analysis; /* 나중에 historyData에 저장 */
       toast('✅ 분석 + 가사 생성 완료!','ok',3000);
       const ytGenBtn=$('yt-gen-btn');
       if(ytGenBtn){ytGenBtn.disabled=false;ytGenBtn.style.opacity='1';$('yt-gen-txt').textContent='▶ YouTube 스타일로 생성';}
@@ -3984,6 +3986,8 @@ async function generate(overrideParams){
         lyrics:savedLyrics,
         created:Date.now(),
         type:'audio',
+        genMode:currentMode,  /* 생성 모드 저장 */
+        _ytAnalysis:currentMode==='youtube'?_lastYtAnalysis:null,
       });
     });
     historyData=historyData.slice(0,30);
@@ -4546,6 +4550,8 @@ function updateFbTimeEstimate(){
 }
 
 function showFeedbackCard(){
+  /* 생성한 모드에서만 노출 (MV 제외) */
+  if(!['custom','simple','youtube'].includes(currentMode)){return;}
   fbRating=0;fbTags.clear();
   document.querySelectorAll('.star').forEach(s=>s.classList.remove('on'));
   document.querySelectorAll('.fbtag').forEach(t=>t.classList.remove('on'));
@@ -4978,9 +4984,12 @@ function expandToFullPlayer(){
 }
 
 /* 미니플레이어 이벤트 */
-/* 본문 영역 클릭 → 풀플레이어 */
-$('mp-info-area').addEventListener('click', e=>{ e.stopPropagation(); expandToFullPlayer(); });
-$('mp-thumb').addEventListener('click', e=>{ e.stopPropagation(); expandToFullPlayer(); });
+/* mp-body 전체 + 진행바 클릭 → 풀플레이어 확장
+   단, 버튼(mp-play-btn, mp-next-btn, mp-close-btn)은 제외 */
+document.getElementById('mini-player').addEventListener('click', e=>{
+  if(e.target.closest('.mp-play-btn,.mp-next-btn,.mp-close-btn')) return;
+  expandToFullPlayer();
+});
 
 /* 재생/일시정지 */
 $('mp-play-btn').addEventListener('click', e=>{
@@ -5393,9 +5402,56 @@ async function fpDownload(){
 function openFpEditSheet(){
   const h=historyData[fpCurrentIdx];
   if(!h)return;
+
+  const mode=h.genMode||'custom';
+  const modeLabel={custom:'커스텀 모드',simple:'심플 모드',youtube:'YouTube 모드',mv:'MV 모드'}[mode]||'커스텀 모드';
+
+  /* 모드별 시트 제목 */
+  const sheetTitle=$('fes-title-row')?.querySelector('.fes-title');
+  if(sheetTitle){
+    if(mode==='custom'||mode==='simple'||mode==='youtube'){
+      sheetTitle.textContent='이 음악이 마음에 드셨나요? 🎵';
+    } else {
+      sheetTitle.textContent='🎬 뮤직비디오 정보 편집';
+    }
+  }
+
+  /* 모드 라벨 */
+  const moodLine=$('fes-mood-line');
+  if(moodLine){
+    const genTag=`<span style="display:inline-block;padding:1px 7px;border-radius:20px;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.25);font-size:10px;margin-right:6px;">${modeLabel}</span>`;
+    moodLine.innerHTML=genTag + esc((h.tags||'').split(',')[0]?.trim()||'곡 정보를 확인하고 가사를 수정할 수 있어요');
+  }
+
   $('fes-title-input').value=h.title||'';
   $('fes-lyrics-ta').value=h.lyrics||h._inputLyrics||h.lyric||'';
-  $('fes-mood-line').textContent='🎵 '+(h.tags||'').split(',')[0]?.trim()||'곡 정보를 확인하고 가사를 수정할 수 있어요';
+
+  /* YouTube 모드: 추출된 분석 정보 노출 */
+  let extraHtml='';
+  if(mode==='youtube'&&h._ytAnalysis){
+    const a=h._ytAnalysis;
+    extraHtml=`
+      <div style="margin-bottom:12px;padding:10px 12px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid var(--border);">
+        <div style="font-size:10px;font-weight:800;color:var(--acc3);margin-bottom:6px;letter-spacing:.5px;">📊 YouTube 분석 정보</div>
+        <div style="font-size:11px;color:var(--t2);line-height:1.7;">
+          <div>장르: <span style="color:var(--t1);">${esc(a.genre||'—')}</span></div>
+          <div>BPM: <span style="color:var(--t1);">~${a.bpm_estimate||'?'}</span></div>
+          <div>분위기: <span style="color:var(--t1);">${esc(a.mood||'—')}</span></div>
+          ${a.description?`<div style="margin-top:4px;color:var(--t3);">${esc(a.description)}</div>`:''}
+        </div>
+      </div>`;
+  }
+
+  /* 기존 extra 영역 갱신 */
+  let extraEl=$('fes-extra-info');
+  if(!extraEl){
+    extraEl=document.createElement('div');
+    extraEl.id='fes-extra-info';
+    const lyricsLabel=$('fes-body')?.querySelector('.fes-label');
+    if(lyricsLabel)lyricsLabel.parentNode.insertBefore(extraEl,lyricsLabel);
+  }
+  extraEl.innerHTML=extraHtml;
+
   $('fp-edit-sheet').classList.add('on');
 }
 function closeFpEditSheet(){
