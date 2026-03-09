@@ -3333,7 +3333,9 @@ fetchApiKey();
     currentUser=user;
     localStorage.setItem('kms_user',JSON.stringify(user));
     updateLoginUI();
-    toast('✅ Google로 로그인되었습니다','ok',2500);
+    const providerNames={google:'Google',kakao:'카카오',naver:'네이버'};
+    const pName=providerNames[user.provider]||user.provider;
+    toast('✅ '+pName+'로 로그인되었습니다','ok',2500);
     /* URL 파라미터 제거 */
     window.history.replaceState({},'','/');
   } else if(p.get('login')==='fail'){
