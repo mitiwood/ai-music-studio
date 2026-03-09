@@ -879,7 +879,7 @@ input[type=range]:not(.bpm-slider)::-webkit-slider-thumb{
   width:100%;max-width:480px;
   background:rgba(10,10,15,.97);backdrop-filter:blur(20px);
   border-top:1px solid var(--border);
-  display:flex;z-index:200;
+  display:flex;z-index:9999;
 }
 .bnav-item{
   flex:1;display:flex;flex-direction:column;align-items:center;
@@ -1501,8 +1501,9 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
   opacity:0;
   overflow:hidden;
   cursor:pointer;
+  pointer-events:none;
 }
-#mini-player.on{transform:translateY(0);opacity:1;}
+#mini-player.on{transform:translateY(0);opacity:1;pointer-events:auto;}
 /* 진행바 */
 .mp-prog-bar{height:2px;background:rgba(255,255,255,.07);}
 .mp-prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .4s linear;}
