@@ -951,7 +951,7 @@ input[type=range]:not(.bpm-slider)::-webkit-slider-thumb{
   font-size:48px;box-shadow:0 8px 40px rgba(0,0,0,.6);
 }
 .fp-cover img{width:100%;height:100%;object-fit:cover;}
-.fp-info{text-align:center;margin-bottom:14px;}
+.fp-info{text-align:left;margin-bottom:0;}
 .fp-title{font-size:20px;font-weight:800;margin-bottom:4px;}
 .fp-tags{font-size:12px;color:rgba(255,255,255,.5);}
 .fp-actions{display:flex;justify-content:center;gap:20px;margin-bottom:14px;}
@@ -1618,6 +1618,73 @@ body.mp-on .view{padding-bottom:100px;}
 .glp-modal.done .glp-wave .glp-bar{background:linear-gradient(to top,var(--green),#6ee7b7);}
 .glp-modal.done .glp-ok-btn{background:linear-gradient(135deg,var(--green),#059669);}
 
+
+/* ── 풀플레이어 사이드 액션 (오른쪽 세로) ── */
+.fp-layout{display:flex;align-items:flex-start;gap:12px;margin-bottom:4px;}
+.fp-center{flex:1;min-width:0;}
+.fp-side-actions{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding-top:4px;flex-shrink:0;
+}
+.fp-side-btn{
+  width:40px;height:40px;border-radius:12px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);
+  color:var(--t2);font-size:17px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;transition:all .15s;
+}
+.fp-side-btn:hover{background:rgba(124,58,237,.2);color:var(--acc3);}
+.fp-side-btn.liked{color:#ff6482;}
+.fp-side-btn.disliked{color:var(--red);}
+.fp-side-btn.edit{background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(168,85,247,.15));border-color:rgba(124,58,237,.3);color:var(--acc3);}
+.fp-side-lbl{font-size:9px;font-weight:700;color:inherit;line-height:1;}
+
+/* ── 편집 바텀시트 ── */
+#fp-edit-sheet{position:fixed;inset:0;z-index:700;pointer-events:none;opacity:0;transition:opacity .22s;}
+#fp-edit-sheet.on{pointer-events:auto;opacity:1;}
+.fes-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55);}
+.fes-panel{
+  position:absolute;bottom:0;left:50%;transform:translate(-50%,100%);
+  width:100%;max-width:480px;
+  background:var(--card2);border-radius:20px 20px 0 0;
+  border-top:1px solid var(--border2);
+  padding:0 0 env(safe-area-inset-bottom,16px);
+  transition:transform .32s cubic-bezier(.4,0,.2,1);
+  max-height:85vh;display:flex;flex-direction:column;
+}
+#fp-edit-sheet.on .fes-panel{transform:translate(-50%,0);}
+.fes-handle{width:36px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin:10px auto 0;}
+.fes-title-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px 10px;
+}
+.fes-title{font-size:16px;font-weight:800;color:var(--t1);}
+.fes-close{background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer;padding:4px;}
+.fes-mood-line{font-size:12px;color:var(--acc3);padding:0 18px 12px;font-weight:600;}
+.fes-body{flex:1;overflow-y:auto;padding:0 18px 16px;}
+.fes-label{font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px;letter-spacing:.3px;text-transform:uppercase;}
+.fes-lyrics-ta{
+  width:100%;background:var(--bg2);border:1px solid var(--border2);
+  border-radius:12px;color:var(--t1);font-size:13px;font-family:inherit;
+  line-height:1.8;padding:12px 14px;resize:none;min-height:200px;
+  transition:border-color .15s;
+}
+.fes-lyrics-ta:focus{outline:none;border-color:var(--acc);}
+.fes-save-btn{
+  width:100%;padding:14px;margin-top:12px;
+  background:linear-gradient(135deg,var(--acc),var(--acc2));
+  border:none;border-radius:14px;color:#fff;
+  font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;
+  transition:all .15s;
+}
+.fes-save-btn:hover{filter:brightness(1.1);}
+.fes-title-input{
+  width:100%;background:var(--bg2);border:1px solid var(--border2);
+  border-radius:10px;color:var(--t1);font-size:14px;font-family:inherit;
+  padding:10px 12px;margin-bottom:12px;
+}
+.fes-title-input:focus{outline:none;border-color:var(--acc);}
+
 </style>
 </head>
 <body>
@@ -1712,6 +1779,11 @@ body.mp-on .view{padding-bottom:100px;}
               <option value="romantic, dreamy">로맨틱하고 몽환적인</option>
               <option value="epic, cinematic">웅장하고 영화적인</option>
               <option value="energetic, hype">에너지 넘치는</option>
+              <option value="nostalgic, retro">노스탤직하고 레트로</option>
+              <option value="aggressive, powerful">강렬하고 파워풀</option>
+              <option value="chill, lofi">칠하고 로파이</option>
+              <option value="hopeful, inspiring">희망차고 영감주는</option>
+              <option value="mysterious, ethereal">신비롭고 몽환적</option>
             </select>
           </div>
           <div class="opt-group">
@@ -1889,8 +1961,8 @@ body.mp-on .view{padding-bottom:100px;}
       <div class="mode-panel" id="panel-simple">
         <div class="form-grp">
           <div class="form-label">
-            <span class="form-label-icon">🎨</span> 곡 설명 / 분위기
-            <span class="form-label-hint">장르, 분위기, 스타일 자유롭게</span>
+            <span class="form-label-icon">🎨</span> 곡 설명
+            <span class="form-label-hint">장르, 스타일 자유롭게</span>
           </div>
           <textarea class="form-input" id="simple-prompt" rows="3"
             placeholder="예: upbeat K-pop with bright synths, female vocals&#10;예: 비 오는 날 카페에 어울리는 잔잔한 재즈"></textarea>
@@ -1919,6 +1991,11 @@ body.mp-on .view{padding-bottom:100px;}
               <option value="dark, intense">어둡고 강렬한</option>
               <option value="romantic, dreamy">로맨틱하고 몽환적인</option>
               <option value="energetic, hype">에너지 넘치는</option>
+              <option value="nostalgic, retro">노스탤직하고 레트로</option>
+              <option value="aggressive, powerful">강렬하고 파워풀</option>
+              <option value="chill, lofi">칠하고 로파이</option>
+              <option value="hopeful, inspiring">희망차고 영감주는</option>
+              <option value="mysterious, ethereal">신비롭고 몽환적</option>
             </select>
           </div>
           <div class="opt-group">
@@ -1960,6 +2037,11 @@ body.mp-on .view{padding-bottom:100px;}
               <option value="sad, emotional">슬프고 감성적인</option>
               <option value="calm, relaxing">잔잔하고 편안한</option>
               <option value="energetic, hype">에너지 넘치는</option>
+              <option value="nostalgic, retro">노스탤직하고 레트로</option>
+              <option value="aggressive, powerful">강렬하고 파워풀</option>
+              <option value="chill, lofi">칠하고 로파이</option>
+              <option value="hopeful, inspiring">희망차고 영감주는</option>
+              <option value="mysterious, ethereal">신비롭고 몽환적</option>
             </select>
           </div>
           <div class="opt-group">
@@ -2031,6 +2113,13 @@ body.mp-on .view{padding-bottom:100px;}
             <div class="duration-btns" id="mv-dur-btns">
               <button class="dbtn on" data-mvdur="5">5초</button>
               <button class="dbtn" data-mvdur="10">10초</button>
+              <button class="dbtn" data-mvdur="custom">직접 입력</button>
+            </div>
+            <div id="mv-dur-custom-wrap" style="display:none;margin-top:8px;display:none;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input type="number" id="mv-dur-custom" class="opt-input" min="3" max="60" value="15" style="width:80px;text-align:center;">
+                <span style="font-size:12px;color:var(--t2);">초 (3~60초)</span>
+              </div>
             </div>
             <div style="font-size:10px;color:var(--t3);margin-top:6px;">※ Grok Imagine 모델 기본 지원 길이</div>
           </div>
@@ -2183,7 +2272,7 @@ body.mp-on .view{padding-bottom:100px;}
         <div class="settings-avatar" id="settings-avatar">👤</div>
         <div class="settings-user-info">
           <div class="settings-user-name" id="settings-user-name">AI 작곡가</div>
-          <div class="settings-user-sub" id="settings-user-sub">kenny@aimusic.com</div>
+          <div class="settings-user-sub" id="settings-user-sub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a0cbc5ceced9e0c1c9cdd5d3c9c38ec3cfcd">[email&#160;protected]</a></div>
         </div>
         <button class="settings-login-btn" id="settings-login-btn">로그인</button>
       </div>
@@ -2351,31 +2440,34 @@ body.mp-on .view{padding-bottom:100px;}
           <div class="fp-lyrics-overlay-box" id="fp-lyrics-overlay-box"></div>
         </div>
       </div>
-      <div class="fp-info">
-        <div class="fp-title" id="fp-title">곡 제목</div>
-        <div class="fp-tags" id="fp-tags"></div>
-      </div>
-      <div class="fp-actions">
-        <button class="fp-act-btn" id="fp-like-btn" onclick="fpToggleLike()">
-          <span class="fp-act-icon">🤍</span>
-          <span id="fp-like-label">좋아요</span>
-        </button>
-        <button class="fp-act-btn" id="fp-dislike-btn" onclick="fpToggleDislike()">
-          <span class="fp-act-icon">👎</span>
-          <span>싫어요</span>
-        </button>
-        <button class="fp-act-btn" onclick="fpOpenShare()">
-          <span class="fp-act-icon">↗</span>
-          <span>공유</span>
-        </button>
-        <button class="fp-act-btn" id="fp-dl-btn" onclick="fpDownload()">
-          <span class="fp-act-icon">⬇</span>
-          <span>다운로드</span>
-        </button>
-        <button class="fp-act-btn" onclick="fpDeleteCurrent()" style="color:rgba(255,68,68,.5);">
-          <span class="fp-act-icon">🗑</span>
-          <span>삭제</span>
-        </button>
+      <div class="fp-layout">
+        <div class="fp-center">
+          <div class="fp-info" style="text-align:left;margin-bottom:0;">
+            <div class="fp-title" id="fp-title">곡 제목</div>
+            <div class="fp-tags" id="fp-tags"></div>
+          </div>
+        </div>
+        <!-- 오른쪽 세로 액션 버튼 -->
+        <div class="fp-side-actions">
+          <button class="fp-side-btn" id="fp-like-btn" onclick="fpToggleLike()" title="좋아요">
+            <span>🤍</span><span class="fp-side-lbl" id="fp-like-label">좋아요</span>
+          </button>
+          <button class="fp-side-btn" id="fp-dislike-btn" onclick="fpToggleDislike()" title="싫어요">
+            <span>👎</span><span class="fp-side-lbl">싫어요</span>
+          </button>
+          <button class="fp-side-btn" onclick="fpOpenShare()" title="공유">
+            <span>↗</span><span class="fp-side-lbl">공유</span>
+          </button>
+          <button class="fp-side-btn" id="fp-dl-btn" onclick="fpDownload()" title="다운로드">
+            <span>⬇</span><span class="fp-side-lbl">저장</span>
+          </button>
+          <button class="fp-side-btn edit" onclick="openFpEditSheet()" title="편집">
+            <span>✏️</span><span class="fp-side-lbl">편집</span>
+          </button>
+          <button class="fp-side-btn" onclick="fpDeleteCurrent()" title="삭제" style="color:rgba(255,80,80,.6);">
+            <span>🗑</span><span class="fp-side-lbl">삭제</span>
+          </button>
+        </div>
       </div>
       <div class="fp-prog-section">
         <div class="fp-prog-wrap" id="fp-prog-wrap">
@@ -2410,6 +2502,27 @@ body.mp-on .view{padding-bottom:100px;}
           <div class="fp-lyrics-empty">가사 없음</div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── 풀플레이어 편집 바텀시트 ── -->
+<div id="fp-edit-sheet">
+  <div class="fes-backdrop" onclick="closeFpEditSheet()"></div>
+  <div class="fes-panel">
+    <div class="fes-handle"></div>
+    <div class="fes-title-row">
+      <div class="fes-title">이 음악이 마음에 드셨나요? 🎵</div>
+      <button class="fes-close" onclick="closeFpEditSheet()">✕</button>
+    </div>
+    <div class="fes-mood-line" id="fes-mood-line">곡 정보를 확인하고 가사를 수정할 수 있어요</div>
+    <div class="fes-body">
+      <div class="fes-label">곡 제목</div>
+      <input type="text" class="fes-title-input" id="fes-title-input" placeholder="곡 제목">
+      <div class="fes-label">가사</div>
+      <textarea class="fes-lyrics-ta" id="fes-lyrics-ta" placeholder="가사가 없어요. 직접 입력해보세요!"></textarea>
+      <button class="fes-save-btn" onclick="saveFpEdits()">💾 저장하기</button>
     </div>
   </div>
 </div>
@@ -2647,7 +2760,7 @@ body.mp-on .view{padding-bottom:100px;}
 
 
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 'use strict';
 const KIE_BASE = 'https://api.kie.ai';
 const CALLBACK = 'https://ai-music-studio-bice.vercel.app/api/callback';
@@ -2986,6 +3099,9 @@ document.querySelectorAll('#mv-dur-btns .dbtn').forEach(btn=>{
     document.querySelectorAll('#mv-dur-btns .dbtn').forEach(b=>b.classList.remove('on'));
     this.classList.add('on');
     mvSelectedDuration=this.dataset.mvdur;
+    /* 직접 입력 토글 */
+    const cw=document.getElementById('mv-dur-custom-wrap');
+    if(cw)cw.style.display=mvSelectedDuration==='custom'?'block':'none';
   });
 });
 
@@ -3086,7 +3202,7 @@ async function generateMV(){
         prompt:prompt,
         aspect_ratio:mvSelectedRatio,
         mode:mvSelectedMode,
-        ...(mvSelectedDuration?{duration:String(mvSelectedDuration)}:{})
+        ...(mvSelectedDuration&&mvSelectedDuration!=='custom'?{duration:String(mvSelectedDuration)}:mvSelectedDuration==='custom'&&$('mv-dur-custom')?.value?{duration:String(Math.max(3,Math.min(60,parseInt($('mv-dur-custom').value)||5)))}:{})
       }
     });
 
@@ -3216,13 +3332,6 @@ function _ytUrlCheck(){
   const btn=$('yt-analyze-btn');
   const isValid=!!(val&&(val.includes('youtube.com')||val.includes('youtu.be')));
   if(btn){btn.disabled=!isValid;btn.style.opacity=isValid?'1':'0.4';}
-  clearTimeout(_ytDebounce);
-  if(isValid){
-    _ytDebounce=setTimeout(()=>{
-      if($('yt-spinner')&&$('yt-spinner').style.display==='inline-block')return;
-      if(!$('yt-analyze-btn').disabled)$('yt-analyze-btn').click();
-    },900);
-  }
 }
 /* input / paste / keyup / change 모두 처리 */
 ['input','keyup','change'].forEach(ev=>$('yt-url').addEventListener(ev,_ytUrlCheck));
@@ -3282,14 +3391,33 @@ $('yt-analyze-btn').addEventListener('click',async()=>{
         if($('bpm-slider'))$('bpm-slider').value=selectedBpm;
         updateBpmDisplay();
       }
+      /* AI로 가사 생성 */
+      let generatedLyrics='';
+      try{
+        const lyricsPrompt=analysis.mood_tags||analysis.mood||'';
+        const lyricsBase=(analysis.description||title).slice(0,120);
+        const ld=await kieRequest(apiKey,'POST','/api/v1/lyrics',{prompt:`${lyricsBase}, ${lyricsPrompt}`,callBackUrl:CALLBACK});
+        const ltid=ld?.data?.taskId||ld?.taskId;
+        if(ltid){
+          for(let li=0;li<30;li++){
+            await sleep(3000);
+            const lr=await kieRequest(apiKey,'GET',`/api/v1/lyrics/record-info?taskId=${ltid}`);
+            if((lr?.data?.status||'').toUpperCase()==='SUCCESS'){generatedLyrics=lr?.data?.response?.text||lr?.data?.text||'';break;}
+          }
+        }
+      }catch(le){console.warn('YT 가사 생성 실패',le);}
+
       resultEl.style.display='block';
       resultEl.innerHTML=`
         <div style="font-size:11px;font-weight:700;color:var(--acc);margin-bottom:6px;">✅ 분석 완료: ${esc(title)}</div>
-        <div style="margin-bottom:4px;">${esc(analysis.description||'')}</div>
-        <div style="color:var(--t3);font-size:10px;font-family:inherit;">
+        <div style="color:var(--t3);font-size:10px;margin-bottom:8px;">
           장르: ${esc(analysis.genre||'—')} · BPM: ~${analysis.bpm_estimate||'?'} · 분위기: ${esc(analysis.mood||'—')}
-        </div>`;
-      toast('✅ 분석 완료! 스타일이 자동 입력되었습니다.','ok',3000);
+        </div>
+        <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:4px;">🎤 생성된 가사 (수정 가능)</div>
+        <textarea id="yt-lyrics-ta" class="form-input" rows="6" style="font-size:12px;line-height:1.7;">${esc(generatedLyrics||stylePrompt)}</textarea>`;
+      /* 가사를 prompt에도 반영 */
+      if(generatedLyrics)$('prompt').value=generatedLyrics;
+      toast('✅ 분석 + 가사 생성 완료!','ok',3000);
       const ytGenBtn=$('yt-gen-btn');
       if(ytGenBtn){ytGenBtn.disabled=false;ytGenBtn.style.opacity='1';$('yt-gen-txt').textContent='▶ YouTube 스타일로 생성';}
     }else{
@@ -3397,7 +3525,9 @@ $('lyrics-btn').addEventListener('click',async()=>{
           setTimeout(()=>promptEl.classList.remove('flash'),2000);
           renderLyricsPreview(text);
           $('lyrics-preview-wrap')?.scrollIntoView({behavior:'smooth',block:'nearest'});
-          toast('✅ 가사 생성 완료! 확인 후 음악 생성하기를 눌러주세요','ok',3500);
+          toast('✅ 가사 생성 완료! 잠시 후 음악을 생성합니다...','ok',2500);
+          /* 1.5초 후 자동 생성 */
+          setTimeout(()=>generate({_afterLyrics:true}),1500);
           return;
         }
       }
@@ -3459,6 +3589,55 @@ $('prompt').addEventListener('input',function(){
   }
 });
 
+
+/* ── 커스텀: AI 작사 → 자동 생성 ── */
+async function _autoLyricsAndGenerate(){
+  if(_genLocked){showGenLockedPopup();return;}
+  const apiKey=kieApiKey;
+  if(!apiKey){toast('API 키 로딩 중...','err');return;}
+  const sub=$('genre-sub').value||'';
+  const mood=$('mood').value||'';
+  const desc=($('song-desc')?.value||'').trim();
+  const titleVal=($('song-title')?.value||'').trim();
+  const base=desc||[sub,mood].filter(Boolean).join(', ')||'감성적인 노래';
+  const lyricsPrompt=titleVal?`${titleVal}: ${base}`:base;
+
+  /* 버튼 로딩 상태 */
+  const btn=$('gen-btn'),sp=$('gen-spinner'),txt=$('gen-txt');
+  btn.disabled=true;sp.style.display='inline-block';txt.textContent='작사 중...';
+
+  let elapsed=0;
+  const ti=setInterval(()=>{elapsed++;toast(`✍️ AI 작사 중... ${elapsed}초`,'',1500);},1000);
+  try{
+    const data=await kieRequest(apiKey,'POST','/api/v1/lyrics',{prompt:lyricsPrompt,callBackUrl:CALLBACK});
+    const taskId=data?.data?.taskId||data?.taskId;
+    if(!taskId)throw new Error('가사 생성 taskId 없음');
+    for(let i=0;i<60;i++){
+      await sleep(3000);
+      const res=await kieRequest(apiKey,'GET',`/api/v1/lyrics/record-info?taskId=${taskId}`);
+      const d=res?.data;if(!d)continue;
+      if((d.status||'').toUpperCase()==='SUCCESS'){
+        const text=d.response?.text||d.text||'';
+        if(text){
+          clearInterval(ti);
+          $('prompt').value=text;
+          renderLyricsPreview(text);
+          toast('✅ 가사 생성 완료! 음악을 생성합니다...','ok',2500);
+          /* 바로 생성 */
+          setTimeout(()=>generate({_afterLyrics:true}),800);
+          return;
+        }
+      }
+      if(['FAILED','ERROR'].includes((d.status||'').toUpperCase()))throw new Error('가사 생성 실패');
+    }
+    throw new Error('가사 생성 시간 초과');
+  }catch(e){
+    clearInterval(ti);
+    toast('❌ 자동 작사 실패: '+e.message,'err',4000);
+  }finally{
+    btn.disabled=false;sp.style.display='none';txt.textContent='✦ 음악 생성하기';
+  }
+}
 /* ── 음악 생성 ── */
 $('gen-btn').addEventListener('click',generate);
 $('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.ctrlKey)generate();});
@@ -3479,7 +3658,7 @@ async function generate(overrideParams){
     moodVal=overrideParams?.mood||$('simple-mood').value;
     subGenre='';
   } else if(isYT){
-    lyricsText=overrideParams?.prompt||$('prompt').value.trim();
+    lyricsText=overrideParams?.prompt||$('yt-lyrics-ta')?.value.trim()||$('prompt').value.trim();
     moodVal=overrideParams?.mood||$('yt-mood').value||$('mood').value;
     subGenre='';
   } else {
@@ -3494,6 +3673,13 @@ async function generate(overrideParams){
   const model=$('model-sel').value;
   const sw=parseFloat($('style-weight').value);
   const wc=parseFloat($('weird-constraint').value);
+  /* 커스텀 모드: 가사 없으면 AI 자동 작사 후 생성 */
+  if(!lyricsText&&isCustom&&!overrideParams?._afterLyrics){
+    genUnlock();
+    toast('✍️ 가사가 없어요. AI 자동 작사 후 음악을 생성할게요!','',2500);
+    await _autoLyricsAndGenerate();
+    return;
+  }
   if(!lyricsText&&!subGenre){toast(isSimple?'음악 설명을 입력해주세요':'가사 또는 장르를 선택해주세요','err');return;}
 
   let styleStr=overrideParams?.styleStr||[subGenre,mood,songDesc||''].filter(Boolean).join(', ');
@@ -3556,7 +3742,7 @@ async function generate(overrideParams){
          커스텀모드: 입력 가사 우선, 없으면 API lyric */
       const apiLyric=t.lyric||t.lyrics||t.lrc||'';
       const isStyleStr=apiLyric&&!apiLyric.includes('\n')&&apiLyric.length<120&&!/\[.+\]/.test(apiLyric);
-      const savedLyrics=lastLyricsInput||(isStyleStr?'':apiLyric);
+      const savedLyrics=lastLyricsInput||(isStyleStr?'':apiLyric)||$('prompt').value.trim()||'';
       historyData.unshift({
         id:t.id,taskId,title:t.title||'무제',
         audio_url:t.audioUrl||t.audio_url||'',
@@ -3583,7 +3769,7 @@ async function generate(overrideParams){
     $('loading-card').classList.remove('on');
     toast('❌ '+e.message,'err',5000);console.error(e);
   }finally{
-    if(activeGenBtn){activeGenBtn.disabled=isYT&&!$('yt-result').style.display!=='none'?false:false;}
+    if(activeGenBtn){activeGenBtn.disabled=false;activeGenBtn.style.opacity='1';}
     if(activeSpinner){activeSpinner.style.display='none';}
     if(activeTxt){activeTxt.textContent=isSimple?'⚡ 음악 생성하기':isYT?'▶ YouTube로 생성':' ✦ 음악 생성하기';}
     $('gen-btn').disabled=false;$('gen-spinner').style.display='none';$('gen-txt').textContent='✦ 음악 생성하기';
@@ -3758,8 +3944,8 @@ $('vc-submit-btn').addEventListener('click',async()=>{
     if(style)body.style=style;
     if(vcGender)body.vocalGender=vcGender;
     const data=await kieRequest(apiKey,'POST','/api/v1/generate/add-vocals',body);
-    const taskId=data?.data?.taskId||data?.taskId;
-    if(!taskId)throw new Error('보컬 변경 taskId 없음');
+    const taskId=data?.data?.taskId||data?.taskId||data?.task_id||data?.id;
+    if(!taskId)throw new Error('보컬 변경 taskId 없음 — '+JSON.stringify(data).slice(0,120));
     let result=null;
     for(let i=0;i<40;i++){
       await sleep(4000);
@@ -4813,6 +4999,8 @@ function fpStopViz(){
 /* 좋아요/싫어요 */
 function fpUpdateLikeUI(){
   const lb=$('fp-like-btn'),db=$('fp-dislike-btn');
+  lb?.classList.toggle('liked',!!fpLiked);
+  db?.classList.toggle('disliked',!!fpDisliked);
   if(lb){lb.classList.toggle('liked',fpLiked);lb.querySelector('.fp-act-icon').textContent=fpLiked?'❤️':'🤍';}
   if(db){db.classList.toggle('disliked',fpDisliked);}
 }
@@ -4966,6 +5154,37 @@ async function fpDownload(){
 }
 
 /* 삭제 */
+
+/* ════════════════════════
+   풀플레이어 편집 바텀시트
+════════════════════════ */
+function openFpEditSheet(){
+  const h=historyData[fpCurrentIdx];
+  if(!h)return;
+  $('fes-title-input').value=h.title||'';
+  $('fes-lyrics-ta').value=h.lyrics||h._inputLyrics||h.lyric||'';
+  $('fes-mood-line').textContent='🎵 '+(h.tags||'').split(',')[0]?.trim()||'곡 정보를 확인하고 가사를 수정할 수 있어요';
+  $('fp-edit-sheet').classList.add('on');
+}
+function closeFpEditSheet(){
+  $('fp-edit-sheet').classList.remove('on');
+}
+function saveFpEdits(){
+  const h=historyData[fpCurrentIdx];
+  if(!h)return;
+  const newTitle=$('fes-title-input').value.trim()||h.title;
+  const newLyrics=$('fes-lyrics-ta').value;
+  historyData[fpCurrentIdx]={...h,title:newTitle,lyrics:newLyrics};
+  saveHistory();
+  /* 플레이어 타이틀 갱신 */
+  $('fp-title').textContent=newTitle;
+  $('mp-title').textContent=newTitle;
+  /* 가사 렌더 갱신 */
+  fpRenderLyrics(historyData[fpCurrentIdx]);
+  closeFpEditSheet();
+  toast('💾 저장 완료!','ok',2000);
+}
+
 function fpDeleteCurrent(){
   if(fpCurrentIdx<0)return;
   if(!confirm(`"${historyData[fpCurrentIdx]?.title||'이 곡'}"을 삭제할까요?`))return;
@@ -5824,13 +6043,4 @@ function cancelLyricsEdit(idx){
       </div>
     </div>
     <div class="rc-sheet-footer">
-      <button class="rc-sheet-cancel-btn" onclick="closeRecomposeSheet()">취소</button>
-      <button class="rc-sheet-submit-btn" onclick="doRecompose()">
-        🔄 다시 작곡하기
-      </button>
-    </div>
-  </div>
-</div>
-
-</body>
-</html>
+      <button class="r
