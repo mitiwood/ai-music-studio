@@ -874,13 +874,6 @@ input[type=range]:not(.bpm-slider)::-webkit-slider-thumb{
 /* ══════════════════════════════
    BOTTOM NAV
 ══════════════════════════════ */
-<nav id="bottom-nav">
-<button class="bnav-item" data-view="community-view" onclick="switchTab('community-view')">커뮤니티</button>
-<button class="bnav-item on bnav-center" data-view="create-view" onclick="switchTab('create-view')">생성</button>
-<button class="bnav-item" data-view="history-view" onclick="switchTab('history-view')">히스토리</button>
-<button class="bnav-item" data-view="settings-view" onclick="switchTab('settings-view')">설정</button>
-</nav> 
-   
 #bottom-nav{
   position:fixed;bottom:0;left:50%;transform:translateX(-50%);
   width:100%;max-width:480px;
@@ -3105,23 +3098,6 @@ function updateLoginUI(){
       area.innerHTML=`<div style='font-size:12px;color:var(--t3);padding:8px 0;'>게스트 모드로 이용 중</div>`;
     }
   }
-}
-function switchTab(viewId){
-  document.querySelectorAll('#bottom-nav .bnav-item').forEach(t=>t.classList.remove('on'));
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
-  const btn=document.querySelector('#bottom-nav .bnav-item[data-view="'+viewId+'"]');
-  if(btn)btn.classList.add('on');
-  const view=document.getElementById(viewId);
-  if(view)view.classList.add('on');
-  if(viewId==='history-view')try{renderHistoryView();}catch(e){}
-  if(viewId==='community-view')try{renderCommunity();}catch(e){}
-  if(viewId==='settings-view')try{renderSettings();}catch(e){}
-  const _mpOn=document.body.classList.contains('mp-on');
-  document.body.className='';
-  if(_mpOn)document.body.classList.add('mp-on');
-  if(viewId==='history-view'||viewId==='community-view')document.body.classList.add('tab-library');
-  if(viewId==='settings-view')document.body.classList.add('tab-settings');
-  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 /* ── 로그인 모달 닫기 (바텀시트로 교체 - 배경 클릭은 HTML onclick 처리) ── */
@@ -6277,31 +6253,29 @@ function renderCommunity(){
   const filterLabel={all:'전체 트랙',kpop:'K-Pop',hiphop:'Hip-Hop',lofi:'Lo-Fi',electronic:'Electronic',ost:'OST'};
   $('comm-section-lbl').textContent=(_commActiveGenre&&_commActiveGenre!=='all'?{'kpop':'K-Pop','hiphop':'Hip-Hop','lofi':'Lo-Fi','electronic':'Electronic','ost':'OST'}[_commActiveGenre]||'필터':'전체 트랙')+' ('+tracks.length+'곡)';
   const EMOJIS_C=['🎵','🎸','🎤','🎷','🎻','🎹','🥁','🎼'];
-  list.innerHTML='<div class="comm-card-grid">'+rest.map((t,i)=>{
-    const thumbHtml=t.img?('<img src="'+esc(t.img)+'" alt="">'):('<span>'+EMOJIS_C[(i+1)%8]+'</span>');
-    const genreHtml=t.tags?('<span class="cs-genre">'+esc(t.tags)+'</span>'):'';
-    const playsHtml=t.plays>0?('<span class="cs-stat">▶ '+t.plays+'</span>'):'';
-    const durHtml=t.dur!=='—'?('<span class="cs-stat">⏱ '+t.dur+'</span>'):'';
-    const newBadge=t.isNew?' <span class="cs-new">NEW</span>':'';
-    const fireBadge=t.likes>=3?' 🔥':'';
-    const likedClass=t.liked?' liked':'';
-    const likedIcon=t.liked?'❤️':'🤍';
-    const likesNum=t.likes>0?(' '+t.likes):'';
-    const rankClass='cs-rank'+(i<3?' top':'');
-    const rankIcon=i<3?['🥇','🥈','🥉'][i]:(i+2);
-    return '<div class="comm-suno-card" id="comm-item-'+i+'">'+
-      '<span class="'+rankClass+'">'+rankIcon+'</span>'+
-      '<div class="cs-thumb">'+thumbHtml+'<div class="cs-over">▶</div></div>'+
-      '<div class="cs-info">'+
-        '<div class="cs-title">'+esc(t.title)+newBadge+fireBadge+'</div>'+
-        '<div class="cs-meta">'+genreHtml+playsHtml+durHtml+'</div>'+
-      '</div>'+
-      '<div class="cs-btns">'+
-        '<button class="cs-like-btn'+likedClass+'" id="comm-like-btn-'+i+'" onclick="event.stopPropagation();commLikeByHIdx('+t._hIdx+')" title="좋아요">'+likedIcon+likesNum+'</button>'+
-        '<button class="cs-play-btn" onclick="event.stopPropagation();commPlayByHIdx('+t._hIdx+')" title="재생">▶</button>'+
-      '</div>'+
-    '</div>';
-  }).join('')+'</div>'||'<div style="text-align:center;padding:32px;color:var(--t3);font-size:13px;">이 장르의 트랙이 없어요</div>';
+  list.innerHTML='<div class="comm-card-grid">'+rest.map((t,i)=>`
+    <div class="comm-suno-card" id="comm-item-${i}">
+      <span class="cs-rank${i<3?' top':''}">${i<3?['🥇','🥈','🥉'][i]:i+2}</span>
+      <div class="cs-thumb">
+        ${t.img?`<img src="${esc(t.img)}" alt="">`:('<span>'+EMOJIS_C[(i+1)%8]+'</span>')}
+        <div class="cs-over">▶</div>
+      </div>
+      <div class="cs-info">
+        <div class="cs-title">${esc(t.title)}${t.isNew?' <span class="cs-new">NEW</span>':''}${t.likes>=3?' 🔥':''}</div>
+        <div class="cs-meta">
+          ${t.tags?`<span class="cs-genre">${esc(t.tags)}</span>`:''}
+          ${t.plays>0?`<span class="cs-stat">▶ ${t.plays}</span>`:''}
+          ${t.dur!=='—'?`<span class="cs-stat">⏱ ${t.dur}</span>`:''}
+        </div>
+      </div>
+      <div class="cs-btns">
+        <button class="cs-like-btn${t.liked?' liked':''}" id="comm-like-btn-${i}" onclick="event.stopPropagation();commLikeByHIdx(${t._hIdx})" title="좋아요">
+          ${t.liked?'❤️':'🤍'} ${t.likes>0?t.likes:''}
+        </button>
+        <button class="cs-play-btn" onclick="event.stopPropagation();commPlayByHIdx(${t._hIdx})" title="재생">▶</button>
+      </div>
+    </div>
+  `).join('')+'</div>'||'<div style="text-align:center;padding:32px;color:var(--t3);font-size:13px;">이 장르의 트랙이 없어요</div>';
 
   /* 리스트 좋아요 버튼 초기화 */
   rest.forEach((t,i)=>{
