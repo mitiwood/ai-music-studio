@@ -1208,42 +1208,53 @@ async function fetchKieLogs(){
 
   /* kie.ai 공식 Suno API 엔드포인트 (docs.kie.ai 기준) */
   const endpoints = [
-    '/api/v1/generate/record-list?pageSize=50&pageNum=1',   // 공식 문서 기준
+    '/api/v1/generate/record-list?pageSize=50&pageNum=1',
+    '/api/v1/generate/record-list?page_size=50&page=1',
     '/api/v1/generate/records?pageSize=50&pageNum=1',
     '/api/v1/generate/list?pageSize=50&pageNum=1',
-    '/api/v1/suno/record-list?pageSize=50&pageNum=1',
-    '/api/v1/music/record-list?pageSize=50&pageNum=1',
   ];
 
   let list = [];
   let foundEndpoint = '';
+  const triedErrors = [];
 
   for(const ep of endpoints){
     try{
       status.textContent = `🔄 시도 중: ${ep.split('?')[0]}`;
       const data = await kieProxyRequest(apiKey, ep);
-      const raw = data?.data?.list || data?.data?.records || data?.list || data?.records || data?.data || [];
-      if(Array.isArray(raw) && raw.length >= 0){
-        list = raw;
+
+      /* kie.ai 응답 구조 다양하게 파싱 */
+      let raw = null;
+      if(Array.isArray(data?.data?.list))       raw = data.data.list;
+      else if(Array.isArray(data?.data?.records)) raw = data.data.records;
+      else if(Array.isArray(data?.data))          raw = data.data;
+      else if(Array.isArray(data?.list))          raw = data.list;
+      else if(Array.isArray(data?.records))       raw = data.records;
+
+      /* code 200 또는 ok 응답이면 성공 (빈 배열도 OK) */
+      const isOk = (data?.code === 200 || data?.code === 0 || data?.success === true || data?.status === 'ok');
+      if(raw !== null || isOk){
+        list = raw || [];
         foundEndpoint = ep;
         break;
       }
     }catch(e){
-      console.warn('[KieLog] endpoint failed:', ep, e.message);
+      triedErrors.push(`${ep.split('?')[0]}: ${e.message}`);
     }
   }
 
   if(!foundEndpoint){
+    const errDetail = triedErrors.length ? '<br><span style="font-size:10px;color:rgba(255,255,255,.3);">'+triedErrors.map(e=>'• '+esc(e)).join('<br>')+'</span>' : '';
     status.innerHTML=`<span style="color:var(--red);">❌ 사용 가능한 엔드포인트를 찾지 못했습니다.<br>
       <span style="font-size:11px;color:var(--t3);">
-        • API Key가 올바른지 확인 (kie.ai → API Key 메뉴)<br>
-        • kie.ai 계정이 활성 상태인지 확인<br>
-        • 크레딧이 남아있는지 확인<br>
-        • Suno API 사용 권한이 있는지 확인
+        • API Key가 올바른지 확인 (kie.ai 대시보드 → API Key 탭)<br>
+        • kie.ai Suno API 플랜이 활성 상태인지 확인<br>
+        • API Key 앞뒤 공백 없는지 확인
       </span>
+      ${errDetail}
       <br><button class="btn" onclick="fetchKieLogs()" style="margin-top:8px;font-size:11px;">🔄 다시 시도</button>
     </span>`;
-    adminToast('❌ kie.ai 연결 실패 — API Key 확인 필요');
+    adminToast('❌ kie.ai 연결 실패 — API Key 및 플랜 확인 필요');
     return;
   }
 
@@ -1800,15 +1811,27 @@ async function sendPush(){
         },
         body: JSON.stringify({ title, body, url, subscriptions: targetSubs })
       });
+
       let d = {};
       try {
-        const text = await r.text();
-        d = text ? JSON.parse(text) : {};
+        const raw = await r.text();
+        /* 빈 응답 또는 HTML(배포 에러) 처리 */
+        if(raw && !raw.trimStart().startsWith('<')) {
+          d = JSON.parse(raw);
+        } else if(!raw) {
+          console.warn('[sendPush] empty response, status:', r.status);
+        } else {
+          console.warn('[sendPush] HTML response (API error?), status:', r.status);
+        }
+        if(!r.ok && !d.sent) {
+          adminToast(`⚠️ push-send API 오류: HTTP ${r.status} — VAPID 키 및 배포 확인`);
+        }
       } catch(e) { console.warn('[sendPush] JSON parse error:', e.message); }
       sent += d.sent||0;
-      failed += d.failed||0;
+      failed += d.failed||(r.ok?0:targetSubs.length);
     }catch(e){
       console.warn('[sendPush] Web Push error:', e.message);
+      adminToast('❌ 발송 오류: ' + e.message);
       failed += subs.length;
     }
   }
