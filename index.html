@@ -2339,8 +2339,8 @@ body.mp-on .view{padding-bottom:118px;}
           <div class="opt-group">
             <div class="opt-label">📐 화면 비율</div>
             <div class="mv-ratio-btns" id="mv-ratio-btns">
-              <button class="mv-opt-btn on" data-ratio="2:3">9:16 세로</button>
-              <button class="mv-opt-btn" data-ratio="3:2">16:9 가로</button>
+              <button class="mv-opt-btn on" data-ratio="9:16">9:16 세로</button>
+              <button class="mv-opt-btn" data-ratio="16:9">16:9 가로</button>
               <button class="mv-opt-btn" data-ratio="1:1">1:1 정사각</button>
             </div>
           </div>
@@ -3788,7 +3788,7 @@ $('adv-toggle').addEventListener('click',()=>{$('adv-panel').classList.toggle('o
 /* ══════════════════════════════════════════════════════
    MV 패널 — 독립 뮤직비디오 생성 (Grok Imagine text-to-video)
 ══════════════════════════════════════════════════════ */
-let mvSelectedRatio='2:3',mvSelectedMode='normal';
+let mvSelectedRatio='9:16',mvSelectedMode='normal';
 
 /* 비율 버튼 */
 /* MV 고급설정 토글 */
@@ -4008,20 +4008,28 @@ async function generateMV(){
 
   try{
     /* Step 1: Grok Imagine text-to-video */
+    /* kie.ai Kling API 허용값: "16:9" | "9:16" | "1:1" */
+    const _mvRatio = (()=>{
+      const allowed = ['16:9','9:16','1:1'];
+      const map = {'2:3':'9:16','3:2':'16:9','16:9':'16:9','9:16':'9:16','1:1':'1:1'};
+      const v = map[mvSelectedRatio]||'16:9';
+      return allowed.includes(v) ? v : '16:9';
+    })();
+    const _mvDur = (()=>{
+      if(mvSelectedDuration==='custom'){
+        const v=parseInt($('mv-dur-custom')?.value||'5');
+        return v<=7?5:10;
+      }
+      const n=parseInt(mvSelectedDuration)||5;
+      return [5,10].includes(n)?n:5;
+    })();
     const genData=await kieRequest(apiKey,'POST','/api/v1/jobs/createTask',{
       model:'kling-2.6/text-to-video',
       input:{
         prompt:prompt,
-        aspect_ratio:mvSelectedRatio||'16:9',
+        aspect_ratio:_mvRatio,
         sound:false,
-        duration:(()=>{
-          if(mvSelectedDuration==='custom'){
-            const v=parseInt($('mv-dur-custom')?.value||'5');
-            return v<=7?5:10;
-          }
-          const n=parseInt(mvSelectedDuration)||5;
-          return [5,10].includes(n)?n:5;
-        })()
+        duration:_mvDur
       }
     });
 
@@ -4579,7 +4587,7 @@ async function generate(overrideParams){
   $('ld-sub').innerHTML='kie.ai에 작곡 요청 중...<br>잠시만 기다려주세요 ☕';
 
   try{
-    const body={prompt,customMode:isCustom,instrumental:instOn,model,styleWeight:sw,weirdnessConstraint:wc};
+    const body={prompt,customMode:isCustom,instrumental:instOn,model,callBackUrl:CALLBACK,styleWeight:sw,weirdnessConstraint:wc};
     if(isCustom&&subGenre)body.style=styleStr;
     if(negTags)body.negativeTags=negTags;
     if(!instOn&&vocalGender)body.vocalGender=vocalGender;
@@ -4694,7 +4702,7 @@ async function requestMusicVideo(apiKey,taskId,audioId,trackIdx){
       input:{
         prompt,
         sound:false,
-        aspect_ratio:'9:16',
+        aspect_ratio:'16:9',
         duration:5,
       }
     });
