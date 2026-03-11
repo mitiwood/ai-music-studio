@@ -137,6 +137,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
       <div class="snav-item" data-sec="community" onclick="switchSec('community')"><span class="snav-icon">🌐</span>커뮤니티</div>
       <div class="snav-item" data-sec="users" onclick="switchSec('users')"><span class="snav-icon">👥</span>사용자</div>
       <div class="snav-item" data-sec="reports" onclick="switchSec('reports')"><span class="snav-icon">🚩</span>신고 관리</div>
+      <div class="snav-item" data-sec="push" onclick="switchSec('push')"><span class="snav-icon">🔔</span>푸시 알림</div>
       <div class="snav-item" data-sec="settings" onclick="switchSec('settings')"><span class="snav-icon">⚙️</span>설정</div>
     </div>
     <div class="sidebar-footer">
@@ -264,6 +265,117 @@ tr:hover td{background:rgba(255,255,255,.02);}
         </div>
       </div>
 
+      <!-- 푸시 알림 -->
+      <div class="admin-section" id="sec-push">
+        <div class="sec-hdr"><h2>푸시 알림 발송</h2></div>
+
+        <!-- VAPID 설정 상태 -->
+        <div class="settings-group" style="margin-bottom:16px;">
+          <div class="settings-row">
+            <div><label>VAPID 설정 상태</label><div class="desc">Vercel 환경변수: VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, ADMIN_SECRET</div></div>
+            <button class="btn btn-acc" onclick="checkVapid()">🔍 상태 확인</button>
+          </div>
+          <div class="settings-row" id="vapid-status-row" style="display:none;">
+            <div><label>상태</label></div>
+            <div id="vapid-status" style="font-size:12px;"></div>
+          </div>
+        </div>
+
+        <!-- 구독자 현황 -->
+        <div class="stats-grid" style="margin-bottom:20px;">
+          <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-val" id="push-sub-count">-</div><div class="stat-label">localStorage 구독자</div></div>
+          <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-val" id="push-sent-total">0</div><div class="stat-label">총 발송 횟수</div></div>
+          <div class="stat-card"><div class="stat-icon">📱</div><div class="stat-val" id="push-last-sent">-</div><div class="stat-label">마지막 발송</div></div>
+        </div>
+
+        <!-- 메시지 작성 -->
+        <div class="admin-table-wrap" style="margin-bottom:16px;">
+          <div class="admin-table-header"><h3>📣 새 푸시 알림 작성</h3></div>
+          <div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
+
+            <!-- 템플릿 빠른선택 -->
+            <div>
+              <div style="font-size:12px;color:var(--t3);margin-bottom:8px;">⚡ 빠른 템플릿</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;" id="push-templates">
+                <button class="btn" onclick="applyTemplate('new_feature')">🆕 신기능 출시</button>
+                <button class="btn" onclick="applyTemplate('challenge')">🔥 챌린지 공지</button>
+                <button class="btn" onclick="applyTemplate('event')">🎉 이벤트 안내</button>
+                <button class="btn" onclick="applyTemplate('maintenance')">🔧 점검 안내</button>
+                <button class="btn" onclick="applyTemplate('update')">⬆️ 업데이트</button>
+              </div>
+            </div>
+
+            <!-- 제목 -->
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;">알림 제목 <span style="color:var(--red);">*</span></div>
+              <input class="settings-input" id="push-title" placeholder="Kenny's Music Studio" style="width:100%;max-width:400px;">
+            </div>
+
+            <!-- 본문 -->
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;">알림 본문 <span style="color:var(--red);">*</span></div>
+              <textarea id="push-body" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--t1);font-family:inherit;font-size:13px;resize:vertical;min-height:80px;" placeholder="사용자에게 전달할 내용을 입력하세요..."></textarea>
+              <div style="font-size:11px;color:var(--t3);margin-top:4px;" id="push-body-counter">0 / 120자</div>
+            </div>
+
+            <!-- 이동 URL -->
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;">클릭 시 이동 URL</div>
+              <input class="settings-input" id="push-url" placeholder="https://ai-music-studio-bice.vercel.app" style="width:100%;max-width:500px;" value="https://ai-music-studio-bice.vercel.app">
+            </div>
+
+            <!-- 미리보기 -->
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px;">👁 알림 미리보기</div>
+              <div id="push-preview" style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;align-items:flex-start;gap:12px;max-width:360px;">
+                <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#a855f7);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🎵</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:13px;font-weight:700;color:var(--t1);" id="prev-title">Kenny's Music Studio</div>
+                  <div style="font-size:12px;color:var(--t2);margin-top:3px;line-height:1.4;" id="prev-body">알림 내용이 여기에 표시됩니다</div>
+                  <div style="font-size:10px;color:var(--t3);margin-top:4px;">지금 · ai-music-studio-bice.vercel.app</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 발송 대상 -->
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px;">발송 대상</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;">
+                  <input type="radio" name="push-target" value="all" checked id="pt-all"> 전체 구독자
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;">
+                  <input type="radio" name="push-target" value="logged"> 로그인 사용자만
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;">
+                  <input type="radio" name="push-target" value="test"> 테스트 (나만)
+                </label>
+              </div>
+            </div>
+
+            <!-- 발송 버튼 -->
+            <div style="display:flex;gap:10px;align-items:center;">
+              <button class="btn btn-acc" onclick="sendPush()" id="push-send-btn" style="padding:12px 28px;font-size:14px;">
+                🔔 푸시 알림 발송
+              </button>
+              <button class="btn" onclick="testLocalPush()">🧪 로컬 테스트</button>
+              <span id="push-result" style="font-size:12px;color:var(--grn);"></span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 발송 히스토리 -->
+        <div class="admin-table-wrap">
+          <div class="admin-table-header"><h3>📋 발송 히스토리</h3></div>
+          <table><thead><tr><th>제목</th><th>내용</th><th>대상</th><th>발송일</th><th>성공/실패</th></tr></thead>
+          <tbody id="push-history-tbody">
+            <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--t3);">발송 내역이 없습니다</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+
+
       <!-- 설정 -->
       <div class="admin-section" id="sec-settings">
         <div class="sec-hdr"><h2>앱 설정</h2></div>
@@ -342,11 +454,12 @@ function switchSec(id){
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('on'));
   const sec=document.getElementById('sec-'+id);
   if(sec)sec.classList.add('on');
-  const titles={dashboard:'대시보드',tracks:'음악 관리',community:'커뮤니티',users:'사용자',reports:'신고 관리',settings:'설정'};
+  const titles={dashboard:'대시보드',tracks:'음악 관리',community:'커뮤니티',users:'사용자',reports:'신고 관리',push:'푸시 알림',settings:'설정'};
   document.getElementById('sec-title').textContent=titles[id]||id;
   if(id==='tracks')renderTracksAdmin();
   if(id==='community')renderCommunityAdmin();
   if(id==='users')renderUsersAdmin();
+  if(id==='push'){loadPushStats();updatePushPreview();}
 }
 
 // ── 데이터 로드 (localStorage에서) ──
@@ -598,6 +711,205 @@ function adminToast(msg){
   t.textContent=msg;t.classList.add('on');
   clearTimeout(_toastTimer);_toastTimer=setTimeout(()=>t.classList.remove('on'),3000);
 }
+
+// ── 푸시 알림 ──
+const PUSH_HISTORY_KEY = 'kms_push_history';
+const ADMIN_APP_URL = 'https://ai-music-studio-bice.vercel.app';
+
+const PUSH_TEMPLATES = {
+  new_feature: {
+    title: "🆕 새 기능 출시!",
+    body:  "Kenny's Music Studio에 새로운 기능이 추가됐어요. 지금 확인해보세요 🎵",
+    url:   ADMIN_APP_URL
+  },
+  challenge: {
+    title: "🔥 이번 주 챌린지 공개!",
+    body:  "이번 주 테마는? 지금 참여해서 TOP 크리에이터에 도전하세요!",
+    url:   ADMIN_APP_URL + '/?tab=community'
+  },
+  event: {
+    title: "🎉 특별 이벤트 진행 중",
+    body:  "지금 참여하면 무료 크레딧 증정! 놓치지 마세요",
+    url:   ADMIN_APP_URL
+  },
+  maintenance: {
+    title: "🔧 서비스 점검 안내",
+    body:  "오늘 새벽 2시~4시 서비스 점검이 진행됩니다. 미리 저장해주세요",
+    url:   ADMIN_APP_URL
+  },
+  update: {
+    title: "⬆️ 업데이트 완료 v3.1",
+    body:  "멀티 생성, 뮤직비디오 개선 등 다양한 업데이트가 적용됐어요!",
+    url:   ADMIN_APP_URL
+  }
+};
+
+function applyTemplate(key){
+  const t = PUSH_TEMPLATES[key];
+  if(!t) return;
+  document.getElementById('push-title').value = t.title;
+  document.getElementById('push-body').value  = t.body;
+  document.getElementById('push-url').value   = t.url;
+  updatePushPreview();
+  adminToast('템플릿 적용됨');
+}
+
+function updatePushPreview(){
+  const title = document.getElementById('push-title')?.value || "Kenny's Music Studio";
+  const body  = document.getElementById('push-body')?.value  || '알림 내용이 여기에 표시됩니다';
+  const cnt   = document.getElementById('push-body-counter');
+  if(document.getElementById('prev-title')) document.getElementById('prev-title').textContent = title;
+  if(document.getElementById('prev-body'))  document.getElementById('prev-body').textContent  = body.slice(0,80);
+  if(cnt) cnt.textContent = body.length + ' / 120자';
+  if(cnt) cnt.style.color = body.length > 120 ? 'var(--red)' : 'var(--t3)';
+}
+
+/* 구독 현황 로드 */
+function loadPushStats(){
+  const subs = getPushSubscriptions();
+  const hist = getPushHistory();
+  if(document.getElementById('push-sub-count'))  document.getElementById('push-sub-count').textContent  = subs.length + '명';
+  if(document.getElementById('push-sent-total')) document.getElementById('push-sent-total').textContent = hist.length;
+  if(document.getElementById('push-last-sent'))  document.getElementById('push-last-sent').textContent  = hist.length ? new Date(hist[0].sentAt).toLocaleDateString('ko-KR') : '없음';
+  renderPushHistory();
+}
+
+function getPushSubscriptions(){
+  /* 실 서비스에서는 서버 DB에서 가져옴. 현재는 로컬에서 수집된 구독 목록 사용 */
+  try{ return JSON.parse(localStorage.getItem('kms_push_subs')||'[]'); }catch{ return []; }
+}
+function getPushHistory(){
+  try{ return JSON.parse(localStorage.getItem(PUSH_HISTORY_KEY)||'[]'); }catch{ return []; }
+}
+
+function renderPushHistory(){
+  const hist = getPushHistory();
+  const tbody = document.getElementById('push-history-tbody');
+  if(!tbody) return;
+  if(!hist.length){
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--t3);">발송 내역이 없습니다</td></tr>';
+    return;
+  }
+  tbody.innerHTML = hist.slice(0,20).map(h=>`
+    <tr>
+      <td style="font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(h.title)}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t2);">${esc(h.body)}</td>
+      <td><span class="badge badge-acc">${h.target==='all'?'전체':h.target==='logged'?'로그인':'테스트'}</span></td>
+      <td style="font-size:11px;color:var(--t3);">${new Date(h.sentAt).toLocaleString('ko-KR')}</td>
+      <td><span class="badge ${h.sent>0?'badge-grn':'badge-red'}">${h.sent||0}/${h.total||0}</span></td>
+    </tr>`).join('');
+}
+
+async function checkVapid(){
+  const row = document.getElementById('vapid-status-row');
+  const status = document.getElementById('vapid-status');
+  if(row) row.style.display = 'flex';
+  if(status) status.textContent = '확인 중...';
+  try{
+    const r = await fetch('/api/vapid-keys');
+    const d = await r.json();
+    if(d.publicKey){
+      if(status) status.innerHTML = '<span style="color:var(--grn);">✅ VAPID 설정됨 — 공개키: '+d.publicKey.slice(0,20)+'...</span>';
+    } else {
+      if(status) status.innerHTML = '<span style="color:var(--red);">❌ VAPID_PUBLIC_KEY 환경변수 없음</span><div style="font-size:11px;color:var(--t3);margin-top:4px;">Vercel Dashboard → Settings → Environment Variables에서 추가하세요</div>';
+    }
+  }catch(e){
+    if(status) status.innerHTML = '<span style="color:var(--red);">❌ API 오류: '+esc(e.message)+'</span>';
+  }
+}
+
+async function sendPush(){
+  const title  = document.getElementById('push-title')?.value.trim();
+  const body   = document.getElementById('push-body')?.value.trim();
+  const url    = document.getElementById('push-url')?.value.trim() || ADMIN_APP_URL;
+  const target = document.querySelector('input[name="push-target"]:checked')?.value || 'all';
+  const btn    = document.getElementById('push-send-btn');
+  const result = document.getElementById('push-result');
+
+  if(!title){ adminToast('⚠️ 제목을 입력하세요'); return; }
+  if(!body){  adminToast('⚠️ 내용을 입력하세요'); return; }
+  if(body.length > 120){ adminToast('⚠️ 내용이 120자를 초과합니다'); return; }
+
+  const subs = getPushSubscriptions();
+  if(!subs.length && target !== 'test'){
+    adminToast('⚠️ 등록된 구독자가 없습니다. 먼저 앱에서 알림을 허용해주세요.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '발송 중...';
+  if(result) result.textContent = '';
+
+  try{
+    const payload = { title, body, url, subscriptions: target === 'test' ? subs.slice(0,1) : subs };
+    const r = await fetch('/api/push-send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + (localStorage.getItem(ADMIN_PW_KEY) || DEFAULT_PW)
+      },
+      body: JSON.stringify(payload)
+    });
+    const d = await r.json();
+
+    /* 히스토리 저장 */
+    const hist = getPushHistory();
+    hist.unshift({ title, body, url, target, sentAt: Date.now(), sent: d.sent||0, failed: d.failed||0, total: d.total||subs.length });
+    localStorage.setItem(PUSH_HISTORY_KEY, JSON.stringify(hist.slice(0,50)));
+
+    if(d.success){
+      if(result) result.textContent = `✅ ${d.sent}명에게 발송 완료 (실패 ${d.failed}명)`;
+      adminToast('✅ 푸시 알림 발송 완료!');
+    } else {
+      if(result) result.innerHTML = `<span style="color:var(--red);">❌ ${esc(d.error||'발송 실패')}</span>`;
+    }
+    renderPushHistory();
+    loadPushStats();
+  }catch(e){
+    if(result) result.innerHTML = `<span style="color:var(--red);">❌ ${esc(e.message)}</span>`;
+    adminToast('❌ 발송 실패: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔔 푸시 알림 발송';
+  }
+}
+
+/* 로컬 테스트 (서버 없이 브라우저 Notification API 직접) */
+async function testLocalPush(){
+  const title = document.getElementById('push-title')?.value || "Kenny's Music Studio";
+  const body  = document.getElementById('push-body')?.value  || '테스트 알림입니다 🎵';
+  if(Notification.permission === 'denied'){ adminToast('⚠️ 알림 권한이 차단됨'); return; }
+  if(Notification.permission !== 'granted'){
+    const p = await Notification.requestPermission();
+    if(p !== 'granted'){ adminToast('알림 권한이 필요합니다'); return; }
+  }
+  new Notification(title, {
+    body,
+    icon: '/icon-192.png',
+    badge: '/icon-72.png'
+  });
+  adminToast('✅ 로컬 테스트 알림 발송됨');
+}
+
+/* 입력 이벤트 바인딩 */
+window.addEventListener('load', ()=>{
+  const ti = document.getElementById('push-title');
+  const bi = document.getElementById('push-body');
+  if(ti) ti.addEventListener('input', updatePushPreview);
+  if(bi) bi.addEventListener('input', updatePushPreview);
+});
+
+/* switchSec 확장 — push 탭 선택 시 통계 로드 */
+const _origSwitchSec = switchSec;
+/* push 섹션 진입 시 통계 갱신 */
+const _pushSwitchObserver = new MutationObserver(()=>{
+  if(document.getElementById('sec-push')?.classList.contains('on')) loadPushStats();
+});
+document.addEventListener('DOMContentLoaded', ()=>{
+  const sec = document.getElementById('sec-push');
+  if(sec) _pushSwitchObserver.observe(sec, {attributes:true, attributeFilter:['class']});
+});
+
 </script>
 </body>
 </html>

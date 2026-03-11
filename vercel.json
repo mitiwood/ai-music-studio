@@ -1,17 +1,8 @@
 {
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "@vercel/node@3"
-    }
-  },
   "routes": [
-    { "src": "/admin", "dest": "/admin.html" },
-    { "src": "/admin.html", "dest": "/admin.html" }
-  ],
-  "rewrites": [
-    {
-      "source": "/((?!api/|admin|admin\\.html).*)",
-      "destination": "/index.html"
-    }
+    { "src": "/admin",      "dest": "/admin.html"  },
+    { "src": "/admin.html", "dest": "/admin.html"  },
+    { "src": "/api/(.*)",   "dest": "/api/$1"      },
+    { "src": "/(.*)",       "dest": "/index.html"  }
   ]
 }
