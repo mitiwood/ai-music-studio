@@ -3659,6 +3659,8 @@ function _saveLoginUser(user){
       email:user.email||'', id:user.id||'',
       lastLogin:Date.now(),
       loginCount: idx>=0 ? (list[idx].loginCount||1)+1 : 1,
+      ua: navigator.userAgent || '',
+      isMobile: /iPhone|iPad|Android|Mobile/i.test(navigator.userAgent),
     };
     if(idx>=0) list[idx]=entry; else list.unshift(entry);
     localStorage.setItem(KEY, JSON.stringify(list.slice(0,200)));
@@ -4265,20 +4267,29 @@ async function kieRequest(apiKey,method,path,body){
 }
 
 async function pollResult(apiKey,taskId){
-  /* Adaptive polling: 처음 10번은 2초, 이후 3초 간격으로 서버 부하 분산 */
+  /* 최적화 폴링: 초기 5회(1초) → 중간 15회(2초) → 이후(3초) */
+  let elapsed = 0;
   for(let i=0;i<MAX_POLLS;i++){
-    const interval = i < 10 ? 2000 : 3000;
+    const interval = i < 5 ? 1000 : i < 20 ? 2000 : 3000;
     await sleep(interval);
+    elapsed += interval;
     try{
       const data=await kieRequest(apiKey,'GET',`/api/v1/generate/record-info?taskId=${taskId}`);
       const st=data?.data;if(!st)continue;
       const status=(st.status||'').toUpperCase();
-      const tracks=st.response?.sunoData||[];
-      const elapsed = Math.round((i * interval) / 1000);
-      $('ld-sub').innerHTML=`상태: <b style="color:var(--acc)">${status||'처리 중'}</b> (${elapsed}초)<br>AI가 멜로디와 편곡을 완성하고 있어요...`;
+      /* sunoData 외 다양한 응답 구조 대응 */
+      const tracks=st.response?.sunoData||st.sunoData||st.tracks||st.response?.tracks||[];
+      const sec = Math.round(elapsed/1000);
+      const dots = '.'.repeat((i%3)+1);
+      $('ld-sub').innerHTML=`상태: <b style="color:var(--acc)">${status||'대기 중'}</b> (${sec}초 경과${dots})<br>
+        ${sec<20?'AI가 작곡 중이에요 🎼':(sec<40?'편곡 & 보컬 녹음 중 🎤':(sec<70?'마스터링 중 🎧':'거의 다 됐어요! ✨'))}`;
       if(status==='SUCCESS'&&tracks.length)return tracks;
-      if(status==='FAILED'||status==='ERROR')throw new Error('생성 실패 — 다시 시도해주세요');
-    }catch(e){if(e.message.includes('생성 실패'))throw e;}
+      if(['FAILED','ERROR','TIMEOUT'].includes(status))throw new Error('생성 실패 ('+status+') — 다시 시도해주세요');
+    }catch(e){
+      if(e.message.includes('생성 실패')||e.message.includes('FAILED'))throw e;
+      /* 일시적 네트워크 오류는 무시 */
+      console.warn('[poll] retry',i,e.message);
+    }
   }
   throw new Error('시간 초과 — 다시 시도해주세요');
 }
@@ -4537,10 +4548,14 @@ async function generate(overrideParams){
   $('loading-card').classList.add('on');$('results').innerHTML='';
   $('feedback-card').style.display='none';
   const fill=$('ld-fill');fill.style.animation='none';void fill.offsetWidth;fill.style.animation='';
+  /* 로딩 팁 순환 */
+  const _tips=['kie.ai에 작곡 요청 중... ☕','AI가 멜로디를 구성하고 있어요 🎼','장르와 분위기를 분석 중... 🔍','보컬 스타일 설정 중... 🎤','편곡 & 믹싱 최적화 중... 🎚'];
+  let _tipIdx=0;
+  const _tipTimer=setInterval(()=>{ if(!$('loading-card')?.classList.contains('on')){clearInterval(_tipTimer);return;} $('ld-sub').innerHTML=_tips[_tipIdx%_tips.length]+'<br><span style="font-size:11px;color:var(--t3);">보통 30~60초 소요됩니다</span>'; _tipIdx++; },8000);
   $('ld-sub').innerHTML='kie.ai에 작곡 요청 중...<br>잠시만 기다려주세요 ☕';
 
   try{
-    const body={prompt,customMode:isCustom,instrumental:instOn,model,callBackUrl:CALLBACK,styleWeight:sw,weirdnessConstraint:wc};
+    const body={prompt,customMode:isCustom,instrumental:instOn,model,styleWeight:sw,weirdnessConstraint:wc};
     if(isCustom&&subGenre)body.style=styleStr;
     if(negTags)body.negativeTags=negTags;
     if(!instOn&&vocalGender)body.vocalGender=vocalGender;
@@ -4597,7 +4612,11 @@ async function generate(overrideParams){
     }
   }catch(e){
     $('loading-card').classList.remove('on');
-    toast('❌ '+e.message,'err',5000);console.error(e);
+    clearInterval(typeof _tipTimer!=='undefined'?_tipTimer:null);
+    /* 간헐적 오류 재시도 안내 */
+    const isRetryable = e.message.includes('taskId') || e.message.includes('네트워크') || e.message.includes('fetch');
+    toast('❌ '+e.message+(isRetryable?' — 잠시 후 다시 시도해주세요':''),'err',5000);
+    console.error('[generateMusic error]',e.message);
   }finally{
     if(activeGenBtn){activeGenBtn.disabled=false;activeGenBtn.style.opacity='1';}
     if(activeSpinner){activeSpinner.style.display='none';}
@@ -5569,8 +5588,18 @@ function showMiniPlayer(idx){
   });
 
   audio.addEventListener('error',(e)=>{
-    console.error('[Audio Error]', e);
-    toast('오디오 재생 오류','err');
+    const code = e.target?.error?.code;
+    const msgs = {1:'로딩 중단됨',2:'네트워크 오류',3:'디코딩 실패',4:'지원하지 않는 형식'};
+    const msg = msgs[code] || '재생 오류';
+    console.error('[Audio Error]', msg, e.target?.src?.slice(0,60));
+    /* 재시도 1회 */
+    if(!audio._retried){
+      audio._retried = true;
+      setTimeout(()=>{ audio.load(); audio.play().catch(()=>{}); }, 1500);
+      toast('🔄 오디오 재연결 중...','',2000);
+    } else {
+      toast('🔇 오디오 '+msg,'err',3000);
+    }
   });
 
   audio.play().then(()=>{
@@ -5579,7 +5608,7 @@ function showMiniPlayer(idx){
     if(fpb) fpb.textContent='⏸';
     mpStartViz(); fpStartViz();
   }).catch(err=>{
-    console.warn('[play() failed]', err.message);
+    if(err.name !== 'AbortError') console.warn('[play() failed]', err.message);
   });
 }
 
@@ -6031,10 +6060,17 @@ function _doOpenFullPlayer(idx){
   audio.addEventListener('ended',()=>{$('fp-play-btn').textContent='▶';fpStopViz();});
   audio.addEventListener('error',(ev)=>{
     const code=ev.target?.error?.code;
-    const msgs={1:'로딩 중단',2:'네트워크 오류',3:'디코딩 실패',4:'지원하지 않는 형식'};
+    const msgs={1:'로딩 중단됨',2:'네트워크 오류',3:'디코딩 실패',4:'지원하지 않는 형식'};
     const msg=msgs[code]||'재생 오류';
     console.error('[FP Audio Error]',code,h.audio_url?.slice(0,80));
-    toast('🔇 오디오 '+msg+' ('+msg+')','err',4000);
+    /* 재시도 1회 */
+    if(!audio._fpRetried){
+      audio._fpRetried = true;
+      setTimeout(()=>{ audio.load(); audio.play().catch(()=>{}); }, 1500);
+      toast('🔄 재연결 중...','',2000);
+    } else {
+      toast('🔇 '+msg+' — URL을 확인하세요','err',4000);
+    }
   });
   audio.play().then(()=>{$('fp-play-btn').textContent='⏸';fpStartViz();}).catch((e)=>{
     if(e.name!=='AbortError')console.warn('[FP play() error]',e.message);
