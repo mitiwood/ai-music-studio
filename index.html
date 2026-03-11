@@ -4009,19 +4009,18 @@ async function generateMV(){
   try{
     /* Step 1: Grok Imagine text-to-video */
     const genData=await kieRequest(apiKey,'POST','/api/v1/jobs/createTask',{
-      model:'grok-imagine/text-to-video',
-      callBackUrl:CALLBACK,
+      model:'kling-2.6/text-to-video',
       input:{
         prompt:prompt,
-        aspect_ratio:mvSelectedRatio,
-        mode:mvSelectedMode,
-        duration: (()=>{
-          const _allowed=['5','10'];
+        aspect_ratio:mvSelectedRatio||'16:9',
+        sound:false,
+        duration:(()=>{
           if(mvSelectedDuration==='custom'){
             const v=parseInt($('mv-dur-custom')?.value||'5');
-            return v<=7?'5':'10';
+            return v<=7?5:10;
           }
-          return _allowed.includes(String(mvSelectedDuration))?String(mvSelectedDuration):'5';
+          const n=parseInt(mvSelectedDuration)||5;
+          return [5,10].includes(n)?n:5;
         })()
       }
     });
@@ -4224,7 +4223,7 @@ $('yt-analyze-btn').addEventListener('click',async()=>{
       try{
         const lyricsPrompt=analysis.mood_tags||analysis.mood||'';
         const lyricsBase=(analysis.description||title).slice(0,120);
-        const ld=await kieRequest(apiKey,'POST','/api/v1/lyrics',{prompt:`${lyricsBase}, ${lyricsPrompt}`,callBackUrl:CALLBACK}); trackUsage('lyrics',{mode:'custom-lyrics'});
+        const ld=await kieRequest(apiKey,'POST','/api/v1/lyrics',{prompt:`${lyricsBase}, ${lyricsPrompt}`}); trackUsage('lyrics',{mode:'custom-lyrics'});
         const ltid=ld?.data?.taskId||ld?.taskId;
         if(ltid){
           for(let li=0;li<30;li++){
@@ -4454,7 +4453,7 @@ async function _autoLyricsAndGenerate(){
   let elapsed=0;
   const ti=setInterval(()=>{elapsed++;toast(`✍️ AI 작사 중... ${elapsed}초`,'',1500);},1000);
   try{
-    const data=await kieRequest(apiKey,'POST','/api/v1/lyrics',{prompt:lyricsPrompt,callBackUrl:CALLBACK});
+    const data=await kieRequest(apiKey,'POST','/api/v1/lyrics',{prompt:lyricsPrompt});
     const taskId=data?.data?.taskId||data?.taskId;
     if(!taskId)throw new Error('가사 생성 taskId 없음');
     for(let i=0;i<60;i++){
@@ -4580,14 +4579,13 @@ async function generate(overrideParams){
   $('ld-sub').innerHTML='kie.ai에 작곡 요청 중...<br>잠시만 기다려주세요 ☕';
 
   try{
-    const body={prompt,customMode:isCustom,instrumental:instOn,model,callBackUrl:CALLBACK,styleWeight:sw,weirdnessConstraint:wc};
+    const body={prompt,customMode:isCustom,instrumental:instOn,model,styleWeight:sw,weirdnessConstraint:wc};
     if(isCustom&&subGenre)body.style=styleStr;
     if(negTags)body.negativeTags=negTags;
     if(!instOn&&vocalGender)body.vocalGender=vocalGender;
     const songTitle=overrideParams?.title||$('song-title').value.trim();
     if(songTitle)body.title=songTitle;
-    /* 곡 시간 (초) → duration 파라미터 */
-    if(selectedDuration)body.duration=selectedDuration;
+    /* kie.ai generate API는 duration을 지원하지 않음 — 제거 */
 
     const genData=await kieRequest(apiKey,'POST','/api/v1/generate',body);
     const taskId=genData?.data?.taskId||genData?.taskId;
@@ -4608,10 +4606,10 @@ async function generate(overrideParams){
       /* 심플모드: lastLyricsInput 없음 → API 응답 lyric 사용
          커스텀모드: 입력 가사 우선, 없으면 API lyric */
       const apiLyric=t.lyric||t.lyrics||t.lrc||'';
-      /* 가사 판별: [Verse] 등 섹션 태그 포함 or 줄바꿈 있으면 진짜 가사 */
-      const isRealLyric = apiLyric && (apiLyric.includes('\n') || /\[.+\]/.test(apiLyric) || apiLyric.length > 120);
-      /* 우선순위: 사용자 입력 > API 응답 가사 > 프롬프트 */
-      const savedLyrics = lastLyricsInput || (isRealLyric ? apiLyric : '') || $('prompt').value.trim() || '';
+      /* 가사 판별: [Verse] 등 섹션태그, 줄바꿈, 120자 초과이면 실제 가사 */
+      const isRealLyric = apiLyric && (apiLyric.includes('\n') || /\[.+?\]/.test(apiLyric) || apiLyric.length > 120);
+      /* 우선순위: 사용자 입력가사 > API 응답 실제가사 > 심플모드프롬프트 */
+      const savedLyrics = lastLyricsInput || (isRealLyric ? apiLyric : '') || (isSimple?$('simple-prompt')?.value:'') || $('prompt').value.trim() || '';
       historyData.unshift({
         id:t.id,taskId,title:t.title||'무제',
         audio_url:t.audioUrl||t.audio_url||'',
@@ -4693,12 +4691,11 @@ async function requestMusicVideo(apiKey,taskId,audioId,trackIdx){
     /* Step 1: Kling Market API로 비디오 생성 */
     const genData=await kieRequest(apiKey,'POST','/api/v1/jobs/createTask',{
       model:'kling-2.6/text-to-video',
-      callBackUrl:CALLBACK,
       input:{
         prompt,
         sound:false,
         aspect_ratio:'9:16',
-        duration:'5',
+        duration:5,
       }
     });
     console.log('[MV Kling] createTask response:', JSON.stringify(genData));
@@ -4977,8 +4974,20 @@ function renderTracks(tracks,prompt,tags,mode){
     /* 가사: 입력 가사(커스텀) → API lyric(심플/유튜브) → 빈값
        단, API lyric이 스타일 문자열이면 제외 */
     const apiLyric=track.lyric||track.lyrics||track.lrc||'';
-    const isStyleStr=apiLyric&&!apiLyric.includes('\n')&&apiLyric.length<120&&!/\[.+\]/.test(apiLyric);
-    const lyricsRaw=track._inputLyrics||(isStyleStr?'':apiLyric);
+    /* API 응답 가사 판별: 섹션태그([Verse]) 또는 줄바꿈 있거나 120자 초과면 실제 가사 */
+    const isRealApiLyric=apiLyric&&(apiLyric.includes('\n')||/\[.+?\]/.test(apiLyric)||apiLyric.length>120);
+    const isStyleStr=apiLyric&&!isRealApiLyric;
+    /* 우선순위: 사용자 입력가사 > API 응답 실제가사 > 빈값 */
+    const lyricsRaw=track._inputLyrics||(isRealApiLyric?apiLyric:'');
+    /* 가사 없으면 AI 자동 생성 예약 (taskId 있을 때) */
+    const _hasNoLyrics = !lyricsRaw && !track._lyricsRequested;
+    if(_hasNoLyrics && (track._taskId||track.id) && kieApiKey){
+      track._lyricsRequested = true;
+      const _lyricTaskId = track._taskId||track.id;
+      const _lyricTitle = track.title||prompt||'';
+      /* 500ms 후 비동기 요청 → 편집기에 채워넣기 */
+      setTimeout(()=> _autoFillLyricsForTrack(i, _lyricTaskId, _lyricTitle, track), 500);
+    }
 
     const card=document.createElement('div');card.className='result-card';
     const trackTaskId=track._taskId||lastTaskId||'';
@@ -7317,6 +7326,8 @@ function renderSettings(){
     if(kieApiKey){skDot.classList.add('ok');skTxt.textContent='연결됨';}
     else{skDot.classList.remove('ok');skTxt.textContent='연결 안 됨';}
   }
+  /* 플랜 UI + 통계 확장 */
+  if(typeof _renderSettingsExtended === 'function') _renderSettingsExtended();
 }
 
 /* ── INIT ── */
@@ -7329,6 +7340,64 @@ setTimeout(renderSettings, 2000);
 
 
 /* ── 가사 편집 (결과 카드) ── */
+/* 가사 없는 트랙에 AI 가사 자동 채우기 */
+async function _autoFillLyricsForTrack(idx, taskId, title, trackObj){
+  const apiKey = kieApiKey;
+  if(!apiKey) return;
+  const plainEl  = document.getElementById('lyrics-plain-'+idx);
+  const editArea = document.getElementById('lrc-edit-area-'+idx);
+
+  /* 1. 먼저 record-info에서 가사 재확인 */
+  try{
+    const rec = await kieRequest(apiKey,'GET','/api/v1/generate/record-info?taskId='+taskId);
+    const tracks = rec?.data?.response?.sunoData||[];
+    const found = tracks[idx]||tracks[0];
+    const existLyric = found?.lyric||found?.lyrics||found?.lrc||'';
+    const isReal = existLyric && (existLyric.includes('\n')||/\[.+\]/.test(existLyric)||existLyric.length>120);
+    if(isReal){
+      if(plainEl) plainEl.innerHTML = parseLyrics(existLyric);
+      if(editArea) editArea.value = existLyric;
+      /* historyData 갱신 */
+      if(trackObj) trackObj.lyrics = existLyric;
+      const histIdx = historyData.findIndex(h=>h.taskId===taskId||h.id===taskId);
+      if(histIdx>=0){ historyData[histIdx].lyrics=existLyric; saveHistory(); }
+      return;
+    }
+  }catch(e){ console.warn('[autoFillLyrics] record-info failed:', e.message); }
+
+  /* 2. 없으면 AI 작사 요청 */
+  const lyricsPrompt = title||'감성적인 노래';
+  try{
+    if(plainEl) plainEl.innerHTML='<div style="text-align:center;padding:20px;color:var(--t3);font-size:12px;">✍️ AI가 가사를 생성하고 있어요...</div>';
+    const ld = await kieRequest(apiKey,'POST','/api/v1/lyrics',{prompt:lyricsPrompt});
+    const lTaskId = ld?.data?.taskId||ld?.taskId;
+    if(!lTaskId) throw new Error('가사 taskId 없음');
+    for(let j=0;j<25;j++){
+      await sleep(j<5?1500:2500);
+      const lr = await kieRequest(apiKey,'GET','/api/v1/lyrics/record-info?taskId='+lTaskId);
+      const ld2 = lr?.data;
+      if(!ld2) continue;
+      if((ld2.status||'').toUpperCase()==='SUCCESS'){
+        const text = ld2.response?.text||ld2.text||'';
+        if(text){
+          if(plainEl) plainEl.innerHTML = parseLyrics(text);
+          if(editArea){ editArea.value = text; }
+          if(trackObj) trackObj.lyrics = text;
+          const histIdx = historyData.findIndex(h=>h.taskId===taskId||h.id===taskId);
+          if(histIdx>=0){ historyData[histIdx].lyrics=text; saveHistory(); }
+          toast('✅ AI 가사 자동 생성 완료','ok',2000);
+          return;
+        }
+      }
+      if(['FAILED','ERROR'].includes((ld2.status||'').toUpperCase())) break;
+    }
+    if(plainEl) plainEl.innerHTML='<div style="text-align:center;padding:20px;color:var(--t3);font-size:12px;">🎵 가사 없음</div>';
+  }catch(e){
+    console.warn('[autoFillLyrics] AI lyrics failed:', e.message);
+    if(plainEl) plainEl.innerHTML='<div style="text-align:center;padding:20px;color:var(--t3);font-size:12px;">🎵 가사 없음</div>';
+  }
+}
+
 function toggleLyricsEdit(idx){
   const wrap=document.getElementById('lrc-edit-wrap-'+idx);
   const plain=document.getElementById('lyrics-plain-'+idx);
@@ -7572,12 +7641,9 @@ function upgradePlan(type){
   }
 }
 
-/* renderSettings 훅 — 기존 renderSettings 가 있으면 확장 */
-const _origRenderSettings = typeof renderSettings === 'function' ? renderSettings : null;
-function renderSettings(){
-  if(_origRenderSettings) _origRenderSettings();
-  renderPlanUI();
-  /* 통계 */
+/* renderSettings 확장 — 플랜 UI + 통계 갱신 (무한루프 방지: function 재정의 금지) */
+function _renderSettingsExtended(){
+  if(typeof renderPlanUI === 'function') renderPlanUI();
   const h = typeof historyData !== 'undefined' ? historyData : [];
   const sc=$('stat-songs'); if(sc) sc.textContent=h.length;
   const sl=$('stat-likes'); if(sl) sl.textContent=h.reduce((a,t)=>a+(t._commLikes||0),0);
@@ -7585,7 +7651,7 @@ function renderSettings(){
 }
 
 /* 앱 시작 시 */
-document.addEventListener('DOMContentLoaded', ()=>{ renderPlanUI(); checkAnnouncement(); });
+document.addEventListener('DOMContentLoaded', ()=>{ if(typeof _renderSettingsExtended==='function') _renderSettingsExtended(); checkAnnouncement(); });
 </script>
 
 <!-- ── 인앱 공지 수신 ── -->
