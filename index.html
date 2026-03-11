@@ -3226,7 +3226,7 @@ body.mp-on .view{padding-bottom:118px;}
           </div>
           <div style="margin-bottom:6px;"><b style="color:#3C1E1E;background:#FEE500;padding:1px 4px;border-radius:3px;">Kakao</b><br>
             1. developers.kakao.com → 내 애플리케이션 → 앱 추가<br>
-            2. 카카오 로그인 → Redirect URI: /api/auth/kakao/callback<br>
+            2. 카카오 로그인 → Redirect URI: https://ai-music-studio-bice.vercel.app/api/auth/kakao/callback<br>
             3. Vercel 환경변수: KAKAO_CLIENT_ID, KAKAO_CLIENT_SECRET
           </div>
           <div><b style="color:#03C75A;">Naver</b><br>
@@ -4555,7 +4555,7 @@ async function generate(overrideParams){
   $('ld-sub').innerHTML='kie.ai에 작곡 요청 중...<br>잠시만 기다려주세요 ☕';
 
   try{
-    const body={prompt,customMode:isCustom,instrumental:instOn,model,styleWeight:sw,weirdnessConstraint:wc};
+    const body={prompt,customMode:isCustom,instrumental:instOn,model,callBackUrl:CALLBACK,styleWeight:sw,weirdnessConstraint:wc};
     if(isCustom&&subGenre)body.style=styleStr;
     if(negTags)body.negativeTags=negTags;
     if(!instOn&&vocalGender)body.vocalGender=vocalGender;
