@@ -685,23 +685,23 @@ input[type=range]:not(.bpm-slider)::-webkit-slider-thumb{
 .comm-hero{
   background:var(--card);border:1px solid var(--border);
   border-radius:var(--r);overflow:hidden;margin-bottom:16px;
+  position:relative;
 }
 .comm-hero-img{
-  width:100%;height:200px;position:relative;overflow:hidden;
+  width:100%;height:240px;position:relative;overflow:hidden;
   background:linear-gradient(135deg,#1a0537,#3d1a5a,#0f2a4a);
   display:flex;align-items:center;justify-content:center;
 }
 .comm-hero-img img{width:100%;height:100%;object-fit:cover;}
 .comm-hero-overlay{
   position:absolute;inset:0;
-  background:linear-gradient(to top,rgba(10,10,15,.97) 25%,rgba(10,10,15,.4) 55%,transparent 75%);
-  pointer-events:none; /* 클릭 투과 — 자식 버튼은 pointer-events:auto */
+  background:linear-gradient(to top,rgba(10,10,15,.97) 30%,rgba(10,10,15,.3) 60%,transparent 80%);
+  pointer-events:none;
 }
 .comm-hero-overlay>*{pointer-events:auto;}
 .comm-hero-controls{
   display:flex;align-items:center;gap:8px;margin-bottom:8px;
 }
-
 .comm-hero-play:hover{transform:scale(1.08);}
 .comm-hero-prog{flex:1;height:3px;background:rgba(255,255,255,.2);border-radius:2px;width:100px;cursor:pointer;}
 .comm-hero-prog-fill{height:100%;background:#fff;border-radius:2px;width:0%;}
@@ -713,7 +713,7 @@ input[type=range]:not(.bpm-slider)::-webkit-slider-thumb{
   padding:5px 9px;border-radius:12px;font-size:11px;
 }
 .comm-hero-info{padding:14px 16px;}
-.comm-hero-title{font-size:18px;font-weight:700;margin-bottom:3px;}
+.comm-hero-title{font-size:20px;font-weight:800;margin-bottom:3px;}
 .comm-hero-desc{font-size:12px;color:var(--t2);margin-bottom:10px;}
 .comm-hero-actions{display:flex;gap:7px;}
 .comm-hero-act{
@@ -725,6 +725,14 @@ input[type=range]:not(.bpm-slider)::-webkit-slider-thumb{
 .comm-hero-act:hover{background:rgba(255,255,255,.15);color:#fff;}
 .comm-hero-act.liked{color:var(--red);border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.1);}
 .comm-hero-act.disliked{color:var(--t3);}
+/* 1위 뱃지 */
+.comm-hero-rank-badge{
+  position:absolute;top:12px;left:12px;
+  background:linear-gradient(135deg,var(--gold),#f97316);
+  color:#fff;font-size:11px;font-weight:800;
+  padding:4px 10px;border-radius:12px;
+  box-shadow:0 2px 8px rgba(245,158,11,.4);
+}
 
 /* 커뮤니티 리스트 */
 .comm-section-label{font-size:14px;font-weight:800;color:var(--t1);margin-bottom:10px;}
@@ -821,6 +829,39 @@ input[type=range]:not(.bpm-slider)::-webkit-slider-thumb{
 /* ══════════════════════════════
    SETTINGS VIEW
 ══════════════════════════════ */
+/* ── Community Featured (첨부 디자인) ── */
+.comm-featured{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:0;}
+.comm-featured-cover{width:100%;height:200px;position:relative;overflow:hidden;}
+.comm-featured-bg{width:100%;height:100%;background:linear-gradient(135deg,#1a0537,#3d1a5a,#0f2a4a);display:flex;align-items:center;justify-content:center;color:var(--acc);opacity:.5;}
+.comm-featured-badge-wrap{position:absolute;top:12px;right:12px;}
+.comm-featured-like-badge{display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);padding:5px 10px;border-radius:12px;font-size:12px;color:#fff;}
+.comm-featured-play-row{position:absolute;bottom:14px;left:14px;display:flex;align-items:center;gap:10px;right:14px;}
+.comm-featured-play-btn{width:44px;height:44px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;box-shadow:0 4px 16px rgba(245,158,11,.5);}
+.comm-featured-play-btn:hover{transform:scale(1.08);}
+.comm-featured-prog{flex:1;height:3px;background:rgba(255,255,255,.2);border-radius:2px;cursor:pointer;}
+.comm-featured-prog-fill{height:100%;background:#fff;border-radius:2px;width:0%;transition:width .1s;}
+.comm-featured-time{font-size:11px;color:rgba(255,255,255,.75);flex-shrink:0;}
+.comm-featured-info{padding:14px 16px;}
+.comm-featured-title{font-size:18px;font-weight:700;margin-bottom:4px;}
+.comm-featured-desc{font-size:13px;color:var(--t2);margin-bottom:12px;}
+.comm-featured-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.comm-reaction-btn{display:flex;align-items:center;gap:5px;padding:7px 13px;border-radius:20px;border:1px solid var(--border);background:var(--bg);color:var(--t2);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit;}
+.comm-reaction-btn:hover{border-color:var(--acc3);color:var(--acc3);}
+.comm-reaction-btn.liked{color:#ff6482;border-color:rgba(255,100,130,.35);background:rgba(255,100,130,.08);}
+.comm-reaction-btn.disliked{color:var(--t3);}
+/* Community List Items */
+.comm-list-item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:12px;cursor:pointer;transition:all .2s;margin-bottom:8px;}
+.comm-list-item:hover{border-color:rgba(168,85,247,.3);transform:translateX(3px);}
+.comm-list-num{font-size:13px;color:var(--t3);font-weight:700;width:20px;flex-shrink:0;text-align:center;}
+.comm-list-num.top{color:var(--gold);}
+.comm-list-img{width:48px;height:48px;border-radius:8px;background:var(--card2);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.comm-list-info{flex:1;min-width:0;}
+.comm-list-title{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
+.comm-list-meta{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden;}
+.comm-list-actions{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.comm-reaction-sm{display:flex;align-items:center;gap:3px;padding:5px 8px;border-radius:16px;border:1px solid var(--border);background:var(--bg);color:var(--t3);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;}
+.comm-reaction-sm:hover{border-color:var(--acc3);color:var(--acc3);}
+.comm-reaction-sm.liked{color:#ff6482;border-color:rgba(255,100,130,.3);}
 .settings-banner{
   background:linear-gradient(135deg,#1a0537,#3d1a5a);
   border-radius:var(--r);padding:20px;margin-bottom:16px;
@@ -4118,11 +4159,12 @@ async function _autoLyricsAndGenerate(){
 $('gen-btn').addEventListener('click',generate);
 $('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.ctrlKey)generate();});
 
+const _modeLocked={custom:false,simple:false,youtube:false,mv:false};
 async function generate(overrideParams){
-  if(_genLocked){showGenLockedPopup();return;}
+  const _modeKey=currentMode||'custom';
   const apiKey=kieApiKey;
   if(!apiKey){toast('API 키 로딩 중... 잠시 후 다시 시도해주세요','err');return;}
-  genLock();
+  /* 멀티 생성 허용: 각 모드 독립적으로 동시 실행 가능 */
   /* 모드별 입력값 수집 */
   const isSimple=currentMode==='simple';
   const isYT=currentMode==='youtube';
@@ -4151,7 +4193,6 @@ async function generate(overrideParams){
   const wc=parseFloat($('weird-constraint').value);
   /* 커스텀 모드: 가사 없으면 AI 자동 작사 후 생성 */
   if(!lyricsText&&isCustom&&!overrideParams?._afterLyrics){
-    genUnlock();
     toast('✍️ 가사가 없어요. AI 자동 작사 후 음악을 생성할게요!','',2500);
     await _autoLyricsAndGenerate();
     return;
@@ -4235,7 +4276,7 @@ async function generate(overrideParams){
     });
     historyData=historyData.slice(0,30);
     saveHistory();updateHistBadge();
-    toast('🎵 음악 생성 완료! 최근생성 탭에서 확인하세요','ok',3000);
+    showCompletionPopup();
     setTimeout(gotoHistoryTab,600);
 
     if(makeMV){
@@ -4252,7 +4293,6 @@ async function generate(overrideParams){
     if(activeSpinner){activeSpinner.style.display='none';}
     if(activeTxt){activeTxt.textContent=isSimple?'⚡ 음악 생성하기':isYT?'▶ YouTube로 생성':' ✦ 음악 생성하기';}
     $('gen-btn').disabled=false;$('gen-spinner').style.display='none';$('gen-txt').textContent='✦ 음악 생성하기';
-    genUnlock();
   }
 }
 
@@ -5402,6 +5442,9 @@ function expandToFullPlayer(){
   /* ── 풀플레이어 열기 (렌더 오류와 무관하게 반드시 실행) ── */
   $('fullplayer').classList.add('on');
   document.body.style.overflow = 'hidden';
+  /* 미니플레이어 완전 숨기기 */
+  const _mp = $('mini-player');
+  if(_mp){ _mp.style.cssText += ';opacity:0!important;transform:translateY(110%)!important;pointer-events:none!important;visibility:hidden!important;'; _mp.classList.remove('on'); }
 
   /* viz */
   if(fpAudio && !fpAudio.paused) fpStartViz();
@@ -5486,29 +5529,23 @@ let _genLocked = false;  /* true = 생성 중 */
 function genLock(){ _genLocked = true; }
 function genUnlock(){
   _genLocked = false;
-  /* 완료 팝업 표시 */
+  /* 완료 팝업은 generate() 완료 시점에 직접 호출 */
+}
+function showCompletionPopup(){
   const modal = $('glp-modal');
   const title = $('glp-title');
   const desc  = $('glp-desc');
   if(modal && title && desc){
     modal.classList.add('done');
-    title.textContent = '✅ 작곡이 완료됐어요!';
-    desc.textContent  = '이제 새로운 음악을 작곡할 수 있어요.';
+    title.textContent = '✅ 음악 생성 완료!';
+    desc.textContent  = '최근생성 탭에서 확인하세요 🎵';
     $('gen-lock-popup').classList.add('on');
-    /* 3초 후 자동 닫기 */
     setTimeout(closeGenLockPopup, 3000);
   }
 }
 function showGenLockedPopup(){
-  const modal = $('glp-modal');
-  const title = $('glp-title');
-  const desc  = $('glp-desc');
-  if(!modal) return;
-  modal.classList.remove('done');
-  title.textContent = "Kenny's AI가 음악을 작곡하고 있어요 🎵";
-  desc.textContent  = '현재 다른 곡을 작곡 중이에요.\n작곡이 끝나고 다시 시도해주세요.';
-  desc.innerHTML    = '현재 다른 곡을 작곡 중이에요.<br>작곡이 끝나고 다시 시도해주세요.';
-  $('gen-lock-popup').classList.add('on');
+  /* 팝업 대신 toast만 사용 — 완료 팝업은 생성 완료 시에만 노출 */
+  toast('⏳ 이 모드에서 생성 중이에요. 잠시 후 다시 시도해주세요.','',2500);
 }
 function closeGenLockPopup(){
   $('gen-lock-popup').classList.remove('on');
@@ -5595,11 +5632,15 @@ function _doOpenFullPlayer(idx){
   /* 가사 렌더 */
   fpRenderLyrics(h);
 
-  /* 풀플레이어 열기 — 미니플레이어 숨기기 */
+  /* 풀플레이어 열기 — 미니플레이어 즉시 숨기기 */
   $('fullplayer').classList.add('on');
-  $('mini-player').style.opacity='0';
-  $('mini-player').style.pointerEvents='none';
-  $('mini-player').style.transform='translateY(110%)';
+  const mp=$('mini-player');
+  mp.style.transition='none';
+  mp.classList.remove('on');
+  mp.style.opacity='0';
+  mp.style.pointerEvents='none';
+  mp.style.transform='translateY(110%)';
+  /* body mp-on 유지는 하되 미니플레이어 강제 숨김 — 풀플레이어 닫을 때 복원 */
   document.body.style.overflow='hidden';
 
   /* 오디오 */
@@ -5639,9 +5680,10 @@ $('fp-back').addEventListener('click',()=>{
   fpStopViz();
   /* 미니플레이어 복원 */
   if(document.body.classList.contains('mp-on')){
-    $('mini-player').style.opacity='';
-    $('mini-player').style.pointerEvents='';
-    $('mini-player').style.transform='';
+    const mp=$('mini-player');
+    /* !important 인라인 스타일 완전 초기화 */
+    mp.style.cssText='';
+    mp.classList.add('on');
   }
   /* 음악은 계속 재생 */
   if(fpAudio && !fpAudio.paused){
@@ -6298,8 +6340,7 @@ const _GENRE_KEYS={
   ost:['ost','cinematic','epic','film','오에스티','영화'],
 };
 function getCommTracks(){
-  /* 소셜 로그인 사용자가 만든 곡만 (guest 제외), audio_url 있는 것만 */
-  const isLoggedIn=currentUser&&currentUser.provider!=='guest';
+  /* audio_url 있는 곡 전부 커뮤니티 노출 (로그인 여부 무관) */
   let all=historyData
     .map((h,i)=>({
       _hIdx:i, title:h.title||'무제',
@@ -6314,7 +6355,7 @@ function getCommTracks(){
       plays:h._commPlays||0,
       _owner: h._owner||null,
     }))
-    .filter(t=>t.audioUrl&&(isLoggedIn||t._owner)); /* 로그인 시 내 곡 포함, 비로그인은 owner 있는 곡만 */
+    .filter(t=>t.audioUrl);
   if(_commActiveGenre&&_commActiveGenre!=='all'){
     const kws=_GENRE_KEYS[_commActiveGenre]||[_commActiveGenre];
     all=all.filter(t=>kws.some(k=>t.allTags.includes(k)||t.title.toLowerCase().includes(k)));
@@ -6333,96 +6374,96 @@ function renderCommunity(){
     const isLoggedIn=currentUser&&currentUser.provider!=='guest';
     list.innerHTML=`<div style="text-align:center;padding:48px 20px;color:var(--t3);">
       <div style="font-size:40px;margin-bottom:12px;">🎵</div>
-      <div style="font-size:14px;font-weight:700;color:var(--t2);margin-bottom:6px;">${isLoggedIn?'아직 생성된 음악이 없어요':'로그인 후 음악을 공유해보세요'}</div>
-      <div style="font-size:12px;">${isLoggedIn?'음악 만들기에서 첫 곡을 만들어보세요!':'소셜 로그인 후 나만의 AI 음악을 커뮤니티에 올릴 수 있어요'}</div>
-      ${!isLoggedIn?`<button onclick="openLoginSheet()" style="margin-top:16px;padding:10px 24px;border-radius:20px;background:linear-gradient(135deg,var(--acc),var(--acc2));border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">로그인하기</button>`:''}
+      <div style="font-size:14px;font-weight:700;color:var(--t2);margin-bottom:6px;">${isLoggedIn?'아직 생성된 음악이 없어요':'아직 생성된 음악이 없어요'}</div>
+      <div style="font-size:12px;">음악 만들기에서 첫 곡을 만들어보세요!</div>
     </div>`;
     return;
   }
 
-  /* 좋아요 많은 순 정렬 — 상위 1개는 히어로, 나머지는 리스트 */
+  /* 좋아요 많은 순 정렬 — 상위 1개는 Featured Hero */
   const sorted=[...tracks].sort((a,b)=>b.likes-a.likes);
   const hero=sorted[0];
   const rest=sorted.slice(1);
 
-  /* ── 히어로 렌더 ── */
+  /* ── Featured Hero (첨부 디자인: featured-track 스타일) ── */
   heroWrap.innerHTML=`
-  <div class="comm-hero" id="comm-hero">
-    ${hero.img
-      ?`<img src="${esc(hero.img)}" alt="" style="width:100%;aspect-ratio:16/7;object-fit:cover;display:block;">`
-      :`<div class="comm-hero-placeholder">🎵</div>`}
-    <!-- 중앙 재생 버튼 -->
-    <div class="comm-hero-center-play">
-      <button class="comm-hero-play" id="comm-hero-play-btn">▶</button>
-    </div>
-    <div class="comm-hero-overlay">
-      <div class="comm-hero-badge">🏆 좋아요 ${hero.likes > 0 ? hero.likes + '개' : '최신'}</div>
-      <div class="comm-hero-title">${esc(hero.title)}</div>
-      <div class="comm-hero-meta">${esc(hero.tags)}${hero.dur!=='—'?' · '+hero.dur:''}</div>
-      <!-- 프로그레스 + 시간 -->
-      <div class="comm-hero-controls">
-        <div class="comm-hero-prog" id="comm-hero-prog" style="flex:1;">
-          <div class="comm-hero-prog-fill" id="comm-hero-prog-fill"></div>
-        </div>
-        <span class="comm-hero-time" id="comm-hero-time">0:00</span>
+  <div class="comm-featured" id="comm-hero">
+    <div class="comm-featured-cover">
+      ${hero.img
+        ?`<img src="${esc(hero.img)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">`
+        :`<div class="comm-featured-bg">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>`}
+      <!-- 상단 우측: 좋아요 뱃지 -->
+      <div class="comm-featured-badge-wrap">
+        <div class="comm-featured-like-badge">❤️ 좋아요 ${hero.likes>0?hero.likes:0}</div>
       </div>
-      <div class="comm-hero-actions">
-        <button class="comm-hero-act${hero.liked?' liked':''}" id="comm-hero-like" onclick="commHeroLike()">
+      <!-- 하단: 재생버튼 + 시간 -->
+      <div class="comm-featured-play-row">
+        <button class="comm-featured-play-btn" id="comm-hero-play-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <div class="comm-featured-prog" id="comm-hero-prog">
+          <div class="comm-featured-prog-fill" id="comm-hero-prog-fill"></div>
+        </div>
+        <span class="comm-featured-time" id="comm-hero-time">0:00</span>
+      </div>
+    </div>
+    <div class="comm-featured-info">
+      <div class="comm-featured-title">${esc(hero.title)}</div>
+      <div class="comm-featured-desc">${esc(hero.tags)}${hero.dur!=='—'?' · '+hero.dur:''}</div>
+      <div class="comm-featured-actions">
+        <button class="comm-reaction-btn${hero.liked?' liked':''}" id="comm-hero-like" onclick="commHeroLike()">
           ${hero.liked?'❤️':'🤍'} 좋아요 <span id="comm-hero-like-cnt">${hero.likes}</span>
         </button>
-        <button class="comm-hero-act${hero.disliked?' disliked':''}" id="comm-hero-dislike" onclick="commHeroDislike()">
-          👎 싫어요
+        <button class="comm-reaction-btn${hero.disliked?' disliked':''}" id="comm-hero-dislike" onclick="commHeroDislike()">
+          💔 싫어요
         </button>
-        <button class="comm-hero-act" onclick="commOpenDetail(0,true)">
-          📝 가사 · 정보
-        </button>
+        <button class="comm-reaction-btn" onclick="commOpenDetail(0,true)">🎵 가사・정보</button>
       </div>
     </div>
   </div>
-  <div class="comm-detail" id="comm-detail-hero" style="border-radius:0 0 14px 14px;margin-bottom:16px;">
+  <div class="comm-detail" id="comm-detail-hero" style="border-radius:0 0 14px 14px;margin-bottom:20px;">
     ${buildDetailPanel('hero',hero)}
   </div>`;
 
-  /* 히어로 오디오 연결 */
   setupHeroAudio(hero);
 
-  /* ── 리스트 렌더 (Suno 스타일) ── */
-  const filterLabel={all:'전체 트랙',kpop:'K-Pop',hiphop:'Hip-Hop',lofi:'Lo-Fi',electronic:'Electronic',ost:'OST'};
-  $('comm-section-lbl').textContent=(_commActiveGenre&&_commActiveGenre!=='all'?{'kpop':'K-Pop','hiphop':'Hip-Hop','lofi':'Lo-Fi','electronic':'Electronic','ost':'OST'}[_commActiveGenre]||'필터':'전체 트랙')+' ('+tracks.length+'곡)';
-  const EMOJIS_C=['🎵','🎸','🎤','🎷','🎻','🎹','🥁','🎼'];
-  const userName=currentUser?.name||'나';
-  const userAvatar=currentUser?.avatar||'';
-  list.innerHTML='<div class="comm-card-grid">'+rest.map((t,i)=>`
-    <div class="comm-suno-card" id="comm-item-${i}" onclick="commPlayByHIdx(${t._hIdx})">
-      <div class="cs-thumb">
-        ${t.img?`<img src="${esc(t.img)}" alt="">`:('<span>'+EMOJIS_C[(i+1)%8]+'</span>')}
-        <div class="cs-over">▶</div>
-      </div>
-      <div class="cs-info">
-        <div class="cs-title">${esc(t.title)}${t.isNew?' <span class="cs-new">NEW</span>':''}${t.likes>=3?' 🔥':''}</div>
-        <div class="cs-user-row">
-          ${userAvatar?`<img src="${esc(userAvatar)}" class="cs-user-img" onerror="this.style.display='none'">`:''}<span class="cs-user-name">${esc(userName)}</span>
-        </div>
-        <div class="cs-meta">
-          ${t.tags?`<span class="cs-genre">${esc(t.tags)}</span>`:''}
-          ${t.plays>0?`<span class="cs-stat">▶ ${t.plays}</span>`:''}
-        </div>
-      </div>
-      <div class="cs-btns">
-        <button class="cs-act-btn${t.liked?' on':''}" id="comm-like-btn-${i}" onclick="event.stopPropagation();commLikeByHIdx(${t._hIdx})" title="좋아요">${t.liked?'❤️':'🤍'}<span>${t.likes>0?t.likes:''}</span></button>
-        <button class="cs-act-btn${t.disliked?' on':''}" onclick="event.stopPropagation();commDislikeByHIdx(${t._hIdx})" title="싫어요">👎</button>
-        <button class="cs-act-btn" onclick="event.stopPropagation();commShareByHIdx(${t._hIdx})" title="공유">↗</button>
-        <button class="cs-act-btn" onclick="event.stopPropagation();commDeleteByHIdx(${t._hIdx})" title="삭제">🗑</button>
-      </div>
-    </div>
-  `).join('')+'</div>'||'<div style="text-align:center;padding:32px;color:var(--t3);font-size:13px;">이 장르의 트랙이 없어요</div>';
+  /* ── 섹션 라벨 ── */
+  $('comm-section-lbl').textContent=(_commActiveGenre&&_commActiveGenre!=='all'?{'kpop':'K-Pop','hiphop':'Hip-Hop','lofi':'Lo-Fi','electronic':'Electronic','ost':'OST'}[_commActiveGenre]||'필터':'다른 트랙')+' ('+rest.length+'곡)';
 
-  /* 리스트 좋아요 버튼 초기화 */
-  rest.forEach((t,i)=>{
-    const lb=document.getElementById(`comm-like-${i}`);
-    if(lb)lb.textContent=t.liked?'❤️':'🤍';
-  });
+  if(!rest.length){list.innerHTML='';return;}
+
+  /* ── 리스트 (첨부 디자인: community-item 스타일) ── */
+  list.innerHTML=rest.map((t,i)=>{
+    const ownerName=t._owner?.name||currentUser?.name||'익명';
+    const ownerAvatar=t._owner?.avatar||currentUser?.avatar||'';
+    return `<div class="comm-list-item" onclick="commPlayByHIdx(${t._hIdx})">
+      <div class="comm-list-num${i<3?' top':''}">${i+1}</div>
+      <div class="comm-list-img">
+        ${t.img?`<img src="${esc(t.img)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
+          :`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22" style="color:var(--acc);opacity:.6;"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`}
+      </div>
+      <div class="comm-list-info">
+        <div class="comm-list-title">${esc(t.title)}${t.isNew?' <span class="cs-new">NEW</span>':''}</div>
+        <div class="comm-list-meta">
+          ${ownerAvatar?`<img src="${esc(ownerAvatar)}" style="width:13px;height:13px;border-radius:50%;margin-right:3px;vertical-align:middle;" onerror="this.style.display='none'">`:''}<span style="color:var(--t3);font-size:11px;">${esc(ownerName)}</span>
+          ${t.tags?`<span class="cs-genre" style="margin-left:4px;">${esc(t.tags)}</span>`:''}
+        </div>
+      </div>
+      <div class="comm-list-actions">
+        <button class="comm-reaction-sm${t.liked?' liked':''}" id="comm-like-btn-${i}" onclick="event.stopPropagation();commLikeByHIdx(${t._hIdx})" title="좋아요">
+          ${t.liked?'❤️':'🤍'} <span>${t.likes>0?t.likes:''}</span>
+        </button>
+        <button class="comm-reaction-sm" onclick="event.stopPropagation();commShareByHIdx(${t._hIdx})" title="공유">↗</button>
+        <button class="comm-reaction-sm" onclick="event.stopPropagation();commDeleteByHIdx(${t._hIdx})" title="삭제" style="color:rgba(255,80,80,.6);">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
 }
+
 
 /* 상세 패널 HTML 빌더 */
 function buildDetailPanel(id,t){
@@ -6494,19 +6535,27 @@ function setupHeroAudio(hero){
     /* 히어로 가사 싱크 */
     commSyncLyrics('hero',audio.currentTime,audio.duration);
   });
-  audio.addEventListener('ended',()=>{if(playBtn){playBtn.textContent='▶';playBtn.classList.remove('playing');}commHeroPlaying=false;});
+  audio.addEventListener('ended',()=>{
+    if(playBtn){
+      playBtn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+      playBtn.classList.remove('playing');
+    }
+    commHeroPlaying=false;
+  });
   playBtn.onclick=()=>{
-    /* 히어로 일시정지/재생 토글 */
-    if(!audio.paused){audio.pause();playBtn.textContent='▶';playBtn.classList.remove('playing');commHeroPlaying=false;return;}
-    /* 다른 소스 재생 중이면 팝업 */
+    if(!audio.paused){
+      audio.pause();
+      playBtn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+      playBtn.classList.remove('playing');commHeroPlaying=false;return;
+    }
     const _hSrc=getPlayingInfo();
     if(_hSrc){
       showAudioSwitchPopup(_hSrc,hero.title||'커뮤니티 트랙',()=>{
-        audio.play().then(()=>{playBtn.textContent='⏸';playBtn.classList.add('playing');commHeroPlaying=true;}).catch(e=>toast('재생 실패: '+e.message,'err'));
+        audio.play().then(()=>{playBtn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';playBtn.classList.add('playing');commHeroPlaying=true;}).catch(e=>toast('재생 실패: '+e.message,'err'));
       });
       return;
     }
-    audio.play().then(()=>{playBtn.textContent='⏸';playBtn.classList.add('playing');commHeroPlaying=true;}).catch(e=>toast('재생 실패: '+e.message,'err'));
+    audio.play().then(()=>{playBtn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';playBtn.classList.add('playing');commHeroPlaying=true;}).catch(e=>toast('재생 실패: '+e.message,'err'));
   };
   const prog=$('comm-hero-prog');
   if(prog)prog.onclick=e=>{
