@@ -3639,7 +3639,7 @@ function _saveLoginUser(user){
 }
 
 /* ── OAuth 콜백 결과 처리 (페이지 로드 시) ── */
-(function handleOAuthCallback(){
+;(function handleOAuthCallback(){
   const p=new URLSearchParams(window.location.search);
   if(p.get('login')==='ok'){
     const user={
