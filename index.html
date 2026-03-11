@@ -3620,6 +3620,24 @@ function updateNavHeight(){
 updateNavHeight();
 window.addEventListener('resize', updateNavHeight);
 
+/* ── 로그인 사용자 목록 저장 (관리자 통계용) ── */
+function _saveLoginUser(user){
+  if(!user?.name) return;
+  try{
+    const KEY='kms_login_users';
+    const list=JSON.parse(localStorage.getItem(KEY)||'[]');
+    const idx=list.findIndex(u=>u.name===user.name&&u.provider===user.provider);
+    const entry={
+      name:user.name, avatar:user.avatar||'', provider:user.provider||'',
+      email:user.email||'', id:user.id||'',
+      lastLogin:Date.now(),
+      loginCount: idx>=0 ? (list[idx].loginCount||1)+1 : 1,
+    };
+    if(idx>=0) list[idx]=entry; else list.unshift(entry);
+    localStorage.setItem(KEY, JSON.stringify(list.slice(0,200)));
+  }catch(e){}
+}
+
 /* ── OAuth 콜백 결과 처리 (페이지 로드 시) ── */
 (function handleOAuthCallback(){
   const p=new URLSearchParams(window.location.search);
@@ -7601,24 +7619,6 @@ function goAnnouncement() {
 <!-- ── Push Notification (Service Worker) ── -->
 <script>
 const KMS_SUB_KEY = 'kms_push_sub';
-
-/* 로그인 사용자 목록 관리자용 저장 */
-function _saveLoginUser(user){
-  if(!user?.name) return;
-  try{
-    const KEY='kms_login_users';
-    const list=JSON.parse(localStorage.getItem(KEY)||'[]');
-    const idx=list.findIndex(u=>u.name===user.name&&u.provider===user.provider);
-    const entry={
-      name:user.name, avatar:user.avatar||'', provider:user.provider||'',
-      email:user.email||'', id:user.id||'',
-      lastLogin:Date.now(),
-      loginCount: idx>=0 ? (list[idx].loginCount||1)+1 : 1,
-    };
-    if(idx>=0) list[idx]=entry; else list.unshift(entry);
-    localStorage.setItem(KEY, JSON.stringify(list.slice(0,200)));
-  }catch(e){}
-}
 
 async function registerPushSW(){
   if(!('serviceWorker' in navigator) || !('PushManager' in window)) return;
