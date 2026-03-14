@@ -853,7 +853,7 @@ input[type=range]:not(.bpm-slider)::-webkit-slider-thumb{
 .comm-featured-bg{width:100%;height:100%;background:linear-gradient(135deg,#1a0537,#3d1a5a,#0f2a4a);display:flex;align-items:center;justify-content:center;color:var(--acc);opacity:.5;}
 .comm-featured-badge-wrap{position:absolute;top:12px;right:12px;}
 .comm-featured-like-badge{display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);padding:5px 10px;border-radius:12px;font-size:12px;color:#fff;}
-.comm-featured-play-row{position:absolute;bottom:14px;left:14px;display:flex;align-items:center;gap:10px;right:14px;}
+.comm-featured-play-row{position:absolute;bottom:14px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:10px;}
 .comm-featured-play-btn{width:44px;height:44px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;box-shadow:0 4px 16px rgba(245,158,11,.5);}
 .comm-featured-play-btn:hover{transform:scale(1.08);}
 .comm-featured-prog{flex:1;height:3px;background:rgba(255,255,255,.2);border-radius:2px;cursor:pointer;}
@@ -1065,13 +1065,13 @@ input[type=range]:not(.bpm-slider)::-webkit-slider-thumb{
 /* ══════════════════════════════
    SHARE SHEET
 ══════════════════════════════ */
-#share-sheet{position:fixed;inset:0;z-index:600;display:none;}
+#share-sheet{position:fixed;inset:0;z-index:10500;display:none;}
 #share-sheet.on{display:block;}
 .share-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);}
 .share-panel{
   position:absolute;bottom:0;left:50%;transform:translateX(-50%);
   width:100%;max-width:480px;
-  background:var(--bg2);border-radius:20px 20px 0 0;padding:20px 16px 36px;
+  background:var(--bg2);border-radius:20px 20px 0 0;padding:20px 16px calc(80px + env(safe-area-inset-bottom,0px));
 }
 .share-handle{width:36px;height:3px;background:var(--t3);border-radius:2px;margin:0 auto 16px;}
 .share-title{font-size:16px;font-weight:800;margin-bottom:16px;text-align:center;}
@@ -2563,7 +2563,7 @@ body.mp-on .view{padding-bottom:118px;}
             <div class="settings-item-label">앱 알림 구독</div>
             <div class="settings-item-desc" id="push-status-desc">새 기능, 이벤트, 챌린지 소식을 알림으로 받아보세요</div>
           </div>
-          <button class="settings-item-action" id="push-toggle-btn" onclick="togglePushSubscription()" style="transition:background .2s;">허용</button>
+          <button class="btn btn-acc" id="push-toggle-btn" onclick="togglePushSubscription()" style="transition:all .2s;min-width:64px;">허용</button>
         </div>
       </div>
     </div>
@@ -2877,8 +2877,8 @@ body.mp-on .view{padding-bottom:118px;}
         <div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div>
         <div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div><div class="fp-vbar"></div>
       </div>
-      <!-- 가사 섹션 (스크롤 가능, 전체 보기) -->
-      <div class="fp-lyrics-section" id="fp-lyrics-section">
+      <!-- 가사 섹션 숨김 (전체모드에서 가사 레이아웃 제거) -->
+      <div class="fp-lyrics-section" id="fp-lyrics-section" style="display:none;">
         <div class="fp-lyrics-header">
           <span>가사 전체</span>
           <button class="fp-lyrics-toggle" id="fp-lyrics-mode-btn" onclick="fpToggleLyricsMode()">싱크 모드</button>
@@ -3252,6 +3252,25 @@ const KIE_BASE = 'https://api.kie.ai';
 
 /* ── 탭 전환 (전역 함수 — onclick에서 직접 호출) ── */
 function switchTab(viewId){
+  /* 전체모드(fullplayer) 재생 중이면 미니플레이어로 전환 */
+  const fp = $('fullplayer');
+  if(fp && fp.classList.contains('on')){
+    fp.classList.remove('on');
+    document.body.style.overflow = '';
+    fpStopViz();
+    /* 재생 중이면 미니플레이어 복원 */
+    if(fpCurrentIdx >= 0 && historyData[fpCurrentIdx]?.audio_url){
+      const mp = $('mini-player');
+      mp.style.cssText = '';
+      mp.classList.add('on');
+      document.body.classList.add('mp-on');
+    }
+    if(fpAudio && !fpAudio.paused){
+      mpStartViz?.();
+      const mpBtn = $('mp-play-btn');
+      if(mpBtn) mpBtn.textContent = '⏸';
+    }
+  }
   document.querySelectorAll('#bottom-nav .bnav-item').forEach(t=>t.classList.remove('on'));
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   const btn=document.querySelector('#bottom-nav .bnav-item[data-view="'+viewId+'"]');
@@ -3259,8 +3278,7 @@ function switchTab(viewId){
   const view=document.getElementById(viewId);
   if(view)view.classList.add('on');
   const _mpOn=document.body.classList.contains('mp-on');
-  document.body.className='';
-  if(_mpOn)document.body.classList.add('mp-on');
+  if(!fp?.classList.contains('on')){document.body.className='';if(_mpOn)document.body.classList.add('mp-on');}
   if(viewId==='history-view'||viewId==='community-view')document.body.classList.add('tab-library');
   if(viewId==='settings-view')document.body.classList.add('tab-settings');
   window.scrollTo({top:0,behavior:'smooth'});
@@ -3342,6 +3360,8 @@ function guestLogin(){
   const mock={provider:'guest',name:'게스트',avatar:'👤',at:Date.now()};
   currentUser=mock;localStorage.setItem('kms_user',JSON.stringify(mock));
   closeLoginSheet();updateLoginUI();toast('👤 게스트로 시작합니다','ok');
+  /* 게스트도 커뮤니티 볼 수 있도록 커뮤니티 탭으로 이동 */
+  setTimeout(()=>switchTab('community-view'),300);
 }
 /* ── 소셜 로그인 ── */
 function socialLogin(provider){
@@ -3612,6 +3632,20 @@ $('simple-gen-btn').addEventListener('click',async()=>{
 /* ── YouTube 생성 버튼 ── */
 /* ── YouTube 생성 버튼 ── */
 $('yt-gen-btn').addEventListener('click',()=>{
+  /* URL 없이 생성 버튼 누르면 URL 입력 안내 */
+  const ytUrl = $('yt-url')?.value.trim();
+  if(!ytUrl){
+    const urlInput = $('yt-url');
+    if(urlInput){ urlInput.focus(); urlInput.style.borderColor='rgba(239,68,68,.6)'; setTimeout(()=>{urlInput.style.borderColor='';},2000); }
+    toast('⚠️ YouTube URL을 먼저 입력하고 분석해주세요','err',2500);
+    return;
+  }
+  /* 분석이 안 됐으면 먼저 분석 실행 */
+  if(!_lastYtAnalysis){
+    toast('🔍 YouTube 분석 후 생성할게요...','',2000);
+    $('yt-analyze-btn').click();
+    return;
+  }
   currentMode='youtube';
   const origInst=instOn;instOn=ytInstOn;
   generate();
@@ -3739,7 +3773,7 @@ function _showSharedPlayer(title, audioUrl, imgUrl){
 
   const wrap = document.createElement('div');
   wrap.id = 'shared-player-wrap';
-  wrap.style.cssText='position:fixed;inset:0;z-index:9000;display:flex;align-items:flex-end;background:rgba(0,0,0,.7);';
+  wrap.style.cssText='position:fixed;inset:0;z-index:10500;display:flex;align-items:flex-end;background:rgba(0,0,0,.7);';
   wrap.innerHTML=`
   <div style="width:100%;background:linear-gradient(180deg,#1a1030 0%,#0d0d1a 100%);border-radius:20px 20px 0 0;padding:24px 20px 40px;animation:slideUp .35s cubic-bezier(.22,1,.36,1);">
     <div style="width:36px;height:3px;background:#555;border-radius:2px;margin:0 auto 20px;"></div>
@@ -3982,8 +4016,9 @@ $('mv-gen-btn')?.addEventListener('click',generateMV);
 async function generateMV(){
   const apiKey=kieApiKey;
   if(!apiKey){toast('API 키 로딩 중... 잠시 후 다시 시도해주세요','err');return;}
+  if(_globalGenerating){_showGeneratingPopup();return;}
+  _globalGenerating = true;
   const prompt=($('mv-prompt')?.value||'').trim();
-  if(!prompt){toast('영상 프롬프트를 입력해주세요','err');return;}
   genLock();
   const btn=$('mv-gen-btn'),spinner=$('mv-gen-spinner'),txt=$('mv-gen-txt');
   btn.disabled=true;if(spinner)spinner.classList.add('on');if(txt)txt.textContent='생성 중...';
@@ -4018,10 +4053,10 @@ async function generateMV(){
     const _mvDur = (()=>{
       if(mvSelectedDuration==='custom'){
         const v=parseInt($('mv-dur-custom')?.value||'5');
-        return v<=7?5:10;
+        return String(v<=7?5:10);
       }
       const n=parseInt(mvSelectedDuration)||5;
-      return [5,10].includes(n)?n:5;
+      return String([5,10].includes(n)?n:5);
     })();
     const genData=await kieRequest(apiKey,'POST','/api/v1/jobs/createTask',{
       model:'kling-2.6/text-to-video',
@@ -4127,6 +4162,7 @@ async function generateMV(){
     else if(/403|permission|plan/i.test(e.message))msg='❌ 유료 플랜에서 지원됩니다';
     resultArea.innerHTML=`<div class="mv-result-card"><div style="color:var(--red);font-size:12px;">${esc(msg)}</div></div>`;
   }finally{
+    _globalGenerating = false;
     btn.disabled=false;
     if(spinner)spinner.classList.remove('on');
     if(txt)txt.textContent='🎬 뮤직비디오 생성하기';
@@ -4483,8 +4519,8 @@ async function _autoLyricsAndGenerate(){
           } else {
             toast('✅ 가사 생성 완료! 음악을 생성합니다...','ok',2500);
           }
-          /* 바로 생성 */
-          setTimeout(()=>generate({_afterLyrics:true}),800);
+          /* 바로 생성 — _afterLyrics 플래그로 잠금 우회 */
+          setTimeout(()=>{ _globalGenerating=false; generate({_afterLyrics:true}); },800);
           return;
         }
       }
@@ -4493,6 +4529,7 @@ async function _autoLyricsAndGenerate(){
     throw new Error('가사 생성 시간 초과');
   }catch(e){
     clearInterval(ti);
+    _globalGenerating = false;
     toast('❌ 자동 작사 실패: '+e.message,'err',4000);
   }finally{
     btn.disabled=false;sp.style.display='none';txt.textContent='✦ 음악 생성하기';
@@ -4503,11 +4540,35 @@ $('gen-btn').addEventListener('click',generate);
 $('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.ctrlKey)generate();});
 
 const _modeLocked={custom:false,simple:false,youtube:false,mv:false};
+let _globalGenerating = false; /* 전역 생성 잠금 */
 async function generate(overrideParams){
   const _modeKey=currentMode||'custom';
   const apiKey=kieApiKey;
   if(!apiKey){toast('API 키 로딩 중... 잠시 후 다시 시도해주세요','err');return;}
-  /* 멀티 생성 허용: 각 모드 독립적으로 동시 실행 가능 */
+  /* 전역 생성 중 차단 — 어떤 모드든 한 번에 하나만 */
+  if(_globalGenerating && !overrideParams?._afterLyrics){
+    _showGeneratingPopup();
+    return;
+  }
+  /* 게스트 3곡 제한 */
+  if(currentUser?.provider==='guest' && !overrideParams?._afterLyrics){
+    const usage = getUsage();
+    if((usage.songs||0) >= 3){
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:20px;';
+      overlay.innerHTML = `<div style="background:#1e1e2a;border-radius:20px;padding:28px 24px;max-width:320px;width:100%;text-align:center;border:1px solid rgba(239,68,68,.3);">
+        <div style="font-size:32px;margin-bottom:12px;">🔒</div>
+        <div style="font-size:17px;font-weight:800;color:#f1f0f5;margin-bottom:8px;">게스트 생성 한도 초과</div>
+        <div style="font-size:13px;color:#a09ab8;margin-bottom:20px;line-height:1.6;">게스트 회원은 <b style="color:#f87171;">3곡</b>까지만 생성할 수 있어요.<br>소셜 로그인하면 더 많은 곡을 만들 수 있어요!</div>
+        <button onclick="this.closest('[style*=fixed]').remove();openLoginSheet();" style="width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;">소셜 로그인하기</button>
+        <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#a09ab8;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">닫기</button>
+      </div>`;
+      overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
+      document.body.appendChild(overlay);
+      return;
+    }
+  }
+  _globalGenerating = true;
   /* 모드별 입력값 수집 */
   const isSimple=currentMode==='simple';
   const isYT=currentMode==='youtube';
@@ -4534,23 +4595,38 @@ async function generate(overrideParams){
   const model=$('model-sel').value;
   const sw=parseFloat($('style-weight').value);
   const wc=parseFloat($('weird-constraint').value);
-  /* 가사 없으면 AI 자동 작사 후 생성 (커스텀/심플 공통) */
+  /* 가사 없으면 AI 자동 작사 후 생성 (커스텀 모드) */
   if(!lyricsText && !overrideParams?._afterLyrics){
     if(isCustom){
-      /* 커스텀: 장르/무드 기반 가사 자동 생성 */
       toast('✍️ 가사가 없어요. AI가 자동으로 작사 후 음악을 생성할게요!','',2500);
+      _globalGenerating = false;
       await _autoLyricsAndGenerate();
       return;
     } else if(isSimple){
-      /* 심플: 설명 없으면 기본값으로 생성 */
-      const simplePrompt = $('simple-prompt')?.value.trim();
+      /* 심플: 설명 없으면 안내 팝업 + 인풋 포커스 */
+      const simpleInput = $('simple-prompt');
+      const simplePrompt = simpleInput?.value.trim();
       if(!simplePrompt){
-        toast('✍️ 음악 설명을 입력하거나 AI 자동 생성을 이용하세요','err',2500);
+        _globalGenerating = false;
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px;';
+        overlay.innerHTML = `<div style="background:#1e1e2a;border-radius:20px;padding:28px 24px;max-width:320px;width:100%;text-align:center;border:1px solid rgba(124,58,237,.2);">
+          <div style="font-size:32px;margin-bottom:12px;">✍️</div>
+          <div style="font-size:17px;font-weight:800;color:#f1f0f5;margin-bottom:8px;">곡 설명을 입력해주세요</div>
+          <div style="font-size:13px;color:#a09ab8;margin-bottom:20px;line-height:1.6;">어떤 느낌의 음악을 원하는지<br>간단히 설명해주세요!</div>
+          <button id="_simple_desc_ok" style="width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">확인</button>
+        </div>`;
+        overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
+        overlay.querySelector('#_simple_desc_ok').addEventListener('click', () => {
+          overlay.remove();
+          simpleInput?.focus();
+        });
+        document.body.appendChild(overlay);
         return;
       }
     }
   }
-  if(!lyricsText&&!subGenre&&!isSimple&&!isYT){toast('가사 또는 장르를 선택해주세요','err');return;}
+  if(!lyricsText&&!subGenre&&!isSimple&&!isYT&&!isCustom){toast('입력값을 확인해주세요','err');return;}
 
   let styleStr=overrideParams?.styleStr||[subGenre,mood,songDesc||''].filter(Boolean).join(', ');
 
@@ -4651,11 +4727,29 @@ async function generate(overrideParams){
     toast('❌ '+e.message+(isRetryable?' — 잠시 후 다시 시도해주세요':''),'err',5000);
     console.error('[generateMusic error]',e.message);
   }finally{
+    _globalGenerating = false;
     if(activeGenBtn){activeGenBtn.disabled=false;activeGenBtn.style.opacity='1';}
     if(activeSpinner){activeSpinner.style.display='none';}
     if(activeTxt){activeTxt.textContent=isSimple?'⚡ 음악 생성하기':isYT?'▶ YouTube로 생성':' ✦ 음악 생성하기';}
     $('gen-btn').disabled=false;$('gen-spinner').style.display='none';$('gen-txt').textContent='✦ 음악 생성하기';
   }
+}
+
+/* 생성 중 안내 팝업 */
+function _showGeneratingPopup(){
+  const existing = document.getElementById('_gen_alert_overlay');
+  if(existing) return;
+  const overlay = document.createElement('div');
+  overlay.id = '_gen_alert_overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.innerHTML = `<div style="background:#1e1e2a;border-radius:20px;padding:28px 24px;max-width:320px;width:100%;text-align:center;border:1px solid rgba(124,58,237,.3);">
+    <div style="font-size:32px;margin-bottom:12px;">⏳</div>
+    <div style="font-size:17px;font-weight:800;color:#f1f0f5;margin-bottom:8px;">음악 생성 중이에요</div>
+    <div style="font-size:13px;color:#a09ab8;margin-bottom:20px;line-height:1.6;">현재 음악을 생성하고 있어요.<br>한 곡이 완성되면 다시 시도해주세요!</div>
+    <button onclick="document.getElementById('_gen_alert_overlay').remove()" style="width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">확인</button>
+  </div>`;
+  overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
 }
 
 /* ── 뮤직비디오 (Kling 2.6 Text-to-Video via Market API) ── */
@@ -4703,7 +4797,7 @@ async function requestMusicVideo(apiKey,taskId,audioId,trackIdx){
         prompt,
         sound:false,
         aspect_ratio:'16:9',
-        duration:5,
+        duration:'5',
       }
     });
     console.log('[MV Kling] createTask response:', JSON.stringify(genData));
@@ -6461,14 +6555,31 @@ function fpOpenShare(){
   const audioUrl=h.audio_url||h.song_path||'';
   const imgUrl=h.image_url||h.cover_image_url||'';
   const text='🎵 AI로 만든 노래를 들어봐!\n\"'+title+'\"\nKenny\'s Music Studio에서 만들었어요 🎸';
-  /* 공유 URL — audio_url 포함해 웹에서 바로 재생 가능 */
   const params=new URLSearchParams({t:title});
   if(audioUrl) params.set('play', audioUrl);
   if(imgUrl)   params.set('img',  imgUrl);
   const url=window.location.origin+'/?'+params.toString();
   _updateOgTags(title, imgUrl, url);
+  /* 공유 이미지 미리보기 업데이트 */
+  const prevImg = document.getElementById('share-preview-img');
+  if(prevImg){ prevImg.src = imgUrl||''; prevImg.style.display = imgUrl?'block':'none'; }
   if(navigator.share){
-    navigator.share({title, text, url}).catch(()=>{});
+    /* Web Share API - 이미지 포함 */
+    const shareData = {title, text, url};
+    if(imgUrl && navigator.canShare){
+      try{
+        fetch(imgUrl).then(r=>r.blob()).then(blob=>{
+          const file = new File([blob],'cover.jpg',{type:'image/jpeg'});
+          if(navigator.canShare({files:[file]})){
+            navigator.share({title,text,url,files:[file]}).catch(()=>navigator.share({title,text,url}).catch(()=>{}));
+          } else {
+            navigator.share(shareData).catch(()=>{});
+          }
+        }).catch(()=>navigator.share(shareData).catch(()=>{}));
+      }catch(e){ navigator.share(shareData).catch(()=>{}); }
+    } else {
+      navigator.share(shareData).catch(()=>{});
+    }
   } else {
     $('share-url-input').value=url;
     $('share-title').textContent='\"'+title+'\" 공유하기';
@@ -7829,7 +7940,9 @@ async function streamLyricsGenerate(){
       textarea.value = partial;
       textarea.scrollTop = textarea.scrollHeight;
     });
-    toast('✅ 가사 생성 완료!', 'ok', 2000);
+    /* 가사 인풋 미리보기 업데이트 */
+    try{ renderLyricsPreview(textarea.value); }catch(e){}
+    toast('✅ 가사 생성 완료! 이제 음악을 생성할 수 있어요 🎵', 'ok', 2500);
     trackUsage('lyrics', {mode:'stream-claude'});
   }catch(e){
     toast('❌ '+e.message, 'err', 4000);
@@ -8059,10 +8172,12 @@ function _updatePushSettingsUI(){
   const sub=localStorage.getItem('kms_push_sub');
   if(sub&&Notification.permission==='granted'){
     btn.textContent='구독 중';
+    btn.className='btn btn-acc';
     btn.style.background='var(--grn)';
     desc.textContent='✅ 푸시 알림 구독 중 — 새 소식을 놓치지 않아요';
   } else {
     btn.textContent='허용';
+    btn.className='btn btn-acc';
     btn.style.background='';
     desc.textContent='새 기능, 이벤트, 챌린지 소식을 알림으로 받아보세요';
   }
