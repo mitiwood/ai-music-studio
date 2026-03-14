@@ -161,7 +161,8 @@ tr:hover td{background:rgba(255,255,255,.02);}
       <h1 id="sec-title">대시보드</h1>
       <div class="header-right">
         <span class="admin-badge">Admin</span>
-        <button class="btn" onclick="loadData()">🔄 새로고침</button>
+        <span id="auto-refresh-label" style="font-size:11px;color:var(--t3);">10초 후 갱신</span>
+        <button class="btn" onclick="loadData();renderUsersAdmin();const _k=localStorage.getItem('kms_kie_key')||document.getElementById('kie-api-input')?.value.trim();if(_k)fetchKieUsageForStats(_k);adminToast('✅ 갱신됨');">🔄 즉시 갱신</button>
       </div>
     </div>
     <div class="admin-content">
@@ -188,6 +189,32 @@ tr:hover td{background:rgba(255,255,255,.02);}
             <div class="bar-chart" id="top-chart"></div>
           </div>
         </div>
+        <!-- 자동 갱신 상태 바 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:8px 14px;background:var(--bg2);border-radius:10px;font-size:11px;color:var(--t3);">
+          <span>🔄 10초마다 자동 갱신</span>
+          <span>마지막: <b id="dash-last-sync" style="color:var(--t2);">-</b></span>
+          <button class="btn" onclick="loadData();adminToast('✅ 갱신됨')" style="font-size:11px;padding:3px 10px;">수동 갱신</button>
+        </div>
+
+        <!-- kie.ai 외부 링크 카드 -->
+        <div class="chart-card" style="margin-bottom:16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <h4>🔗 kie.ai 대시보드 바로가기</h4>
+            <span style="font-size:10px;color:var(--t3);">로그인 필요</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="https://kie.ai/usage" target="_blank" class="btn btn-acc" style="font-size:12px;padding:8px 14px;text-decoration:none;">📊 사용량 현황</a>
+            <a href="https://kie.ai/logs" target="_blank" class="btn" style="font-size:12px;padding:8px 14px;text-decoration:none;">📋 생성 로그</a>
+            <a href="https://kie.ai/billing" target="_blank" class="btn" style="font-size:12px;padding:8px 14px;text-decoration:none;">💳 결제 현황</a>
+            <a href="https://kie.ai/pricing" target="_blank" class="btn" style="font-size:12px;padding:8px 14px;text-decoration:none;">💰 요금 안내</a>
+            <a href="https://kie.ai/api-key" target="_blank" class="btn" style="font-size:12px;padding:8px 14px;text-decoration:none;">🔑 API Key 관리</a>
+          </div>
+          <div id="kie-balance-row" style="background:var(--bg3);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--t2);margin-top:10px;display:none;">
+            💳 잔여 크레딧: <strong id="kie-balance" style="color:var(--grn);">-</strong>
+            <span style="color:var(--t3);font-size:10px;margin-left:8px;">(API Key 입력 후 자동 조회)</span>
+          </div>
+        </div>
+
         <!-- API 사용량 & 비용 분석 -->
         <div class="chart-card" style="margin-bottom:20px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
@@ -211,8 +238,8 @@ tr:hover td{background:rgba(255,255,255,.02);}
               <div style="font-size:9px;color:var(--t3);" id="cost-note">크레딧 기준 추산</div>
             </div>
           </div>
-          <div id="kie-balance-row" style="background:var(--bg3);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--t2);display:none;">
-            <span>💳 kie.ai 잔여 크레딧: </span><strong id="kie-balance" style="color:var(--grn);">-</strong>
+          <div id="kie-balance-row2" style="background:var(--bg3);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--t2);display:none;">
+            <span>💳 kie.ai 잔여 크레딧: </span><strong id="kie-balance2" style="color:var(--grn);">-</strong>
             <span style="margin-left:12px;">📊 이번 달 사용: </span><strong id="kie-used">-</strong>
           </div>
         </div>
@@ -389,6 +416,14 @@ tr:hover td{background:rgba(255,255,255,.02);}
             <button class="btn" onclick="promptKieKeyAndFetch()" style="font-size:11px;">💳 kie.ai 잔액 조회</button>
             <button class="btn" onclick="exportUsageCsv()" style="font-size:11px;">📥 CSV 내보내기</button>
           </div>
+        </div>
+        <!-- kie.ai 외부 링크 -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 0 16px;border-bottom:1px solid var(--border);margin-bottom:16px;">
+          <a href="https://kie.ai/usage" target="_blank" class="btn" style="font-size:11px;text-decoration:none;">📊 kie.ai 사용량 ↗</a>
+          <a href="https://kie.ai/logs" target="_blank" class="btn" style="font-size:11px;text-decoration:none;">📋 생성 로그 ↗</a>
+          <a href="https://kie.ai/billing" target="_blank" class="btn" style="font-size:11px;text-decoration:none;">💳 결제 현황 ↗</a>
+          <a href="https://kie.ai/pricing" target="_blank" class="btn" style="font-size:11px;text-decoration:none;">💰 요금표 ↗</a>
+          <span style="font-size:10px;color:var(--t3);align-self:center;">kie.ai 로그인 필요</span>
         </div>
 
         <!-- 요약 카드 -->
@@ -952,6 +987,12 @@ function getUser(){
 function loadData(){
   const h=getHistory();
   const today=new Date();today.setHours(0,0,0,0);
+  /* kie.ai 크레딧 자동 조회 (저장된 키 있고 kie-balance가 표시 중이면) */
+  const _kieKey = localStorage.getItem('kms_kie_key') || document.getElementById('kie-api-input')?.value.trim();
+  const _kbRow = document.getElementById('kie-balance-row');
+  if(_kieKey && _kbRow) {
+    fetchKieUsageForStats(_kieKey).catch(()=>{});
+  }
   const totalLikes=h.reduce((a,t)=>a+(t._commLikes||0),0);
   const mvCount=h.filter(t=>t.video_url).length;
   const todayCount=h.filter(t=>t.created&&new Date(t.created)>=today).length;
@@ -1199,99 +1240,107 @@ async function kieProxyRequest(apiKey, path, method='GET', body=null){
 }
 
 async function fetchKieLogs(){
-  const apiKey=document.getElementById('kie-api-input')?.value.trim();
-  if(!apiKey){adminToast('⚠️ API Key를 입력하세요');return;}
-  const statusRow=document.getElementById('kie-status-row');
-  const status=document.getElementById('kie-status');
-  statusRow.style.display='flex';
-  status.textContent='🔄 로딩 중...';
+  const apiKey = document.getElementById('kie-api-input')?.value.trim();
+  if(!apiKey){ adminToast('⚠️ API Key를 입력하세요'); return; }
+  const statusRow = document.getElementById('kie-status-row');
+  const status    = document.getElementById('kie-status');
+  statusRow.style.display = 'flex';
+  status.textContent = '🔄 kie.ai 연결 확인 중...';
 
-  /* kie.ai 공식 Suno API 엔드포인트 (docs.kie.ai 기준) */
-  const endpoints = [
-    '/api/v1/generate/record-list?pageSize=50&pageNum=1',
-    '/api/v1/generate/record-list?page_size=50&page=1',
-    '/api/v1/generate/records?pageSize=50&pageNum=1',
-    '/api/v1/generate/list?pageSize=50&pageNum=1',
-  ];
-
-  let list = [];
-  let foundEndpoint = '';
-  const triedErrors = [];
-
-  for(const ep of endpoints){
-    try{
-      status.textContent = `🔄 시도 중: ${ep.split('?')[0]}`;
-      const data = await kieProxyRequest(apiKey, ep);
-
-      /* kie.ai 응답 구조 다양하게 파싱 */
-      let raw = null;
-      if(Array.isArray(data?.data?.list))       raw = data.data.list;
-      else if(Array.isArray(data?.data?.records)) raw = data.data.records;
-      else if(Array.isArray(data?.data))          raw = data.data;
-      else if(Array.isArray(data?.list))          raw = data.list;
-      else if(Array.isArray(data?.records))       raw = data.records;
-
-      /* code 200 또는 ok 응답이면 성공 (빈 배열도 OK) */
-      const isOk = (data?.code === 200 || data?.code === 0 || data?.success === true || data?.status === 'ok');
-      if(raw !== null || isOk){
-        list = raw || [];
-        foundEndpoint = ep;
-        break;
-      }
-    }catch(e){
-      triedErrors.push(`${ep.split('?')[0]}: ${e.message}`);
+  /* ── STEP 1: API Key 유효성 확인 (/api/v1/chat/credit) ── */
+  let creditOk = false, credit = null;
+  try {
+    const cd = await kieProxyRequest(apiKey, '/api/v1/chat/credit');
+    /* 응답 구조: { code:200, data:{ totalCredits, usedCredits, availableCredits } } */
+    credit = cd?.data?.availableCredits ?? cd?.data?.totalCredits ?? cd?.data?.balance ?? cd?.balance ?? null;
+    creditOk = (cd?.code === 200 || cd?.code === 0 || credit !== null);
+    if(credit !== null) {
+      const kb = document.getElementById('kie-balance');
+      const kr = document.getElementById('kie-balance-row');
+      if(kb) kb.textContent = Number(credit).toLocaleString() + ' 크레딧';
+      if(kr) kr.style.display = 'block';
+      /* usage 탭 동기화 */
+      const ub = document.getElementById('u-kie-balance');
+      const uk = document.getElementById('u-kie-krw');
+      if(ub) ub.textContent = Number(credit).toLocaleString() + ' cr';
+      if(uk) uk.textContent = '≈ ₩' + Math.round(Number(credit)*13.5).toLocaleString();
     }
+  } catch(e) {
+    console.warn('[KieLogs] credit check:', e.message);
   }
 
-  if(!foundEndpoint){
-    const errDetail = triedErrors.length ? '<br><span style="font-size:10px;color:rgba(255,255,255,.3);">'+triedErrors.map(e=>'• '+esc(e)).join('<br>')+'</span>' : '';
-    status.innerHTML=`<span style="color:var(--red);">❌ 사용 가능한 엔드포인트를 찾지 못했습니다.<br>
+  if(!creditOk) {
+    status.innerHTML = `<span style="color:var(--red);">❌ API Key 인증 실패<br>
       <span style="font-size:11px;color:var(--t3);">
-        • API Key가 올바른지 확인 (kie.ai 대시보드 → API Key 탭)<br>
-        • kie.ai Suno API 플랜이 활성 상태인지 확인<br>
+        • API Key가 올바른지 확인 (kie.ai → <a href="https://kie.ai/api-key" target="_blank" style="color:var(--acc3);">API Key 페이지 ↗</a>)<br>
         • API Key 앞뒤 공백 없는지 확인
       </span>
-      ${errDetail}
       <br><button class="btn" onclick="fetchKieLogs()" style="margin-top:8px;font-size:11px;">🔄 다시 시도</button>
     </span>`;
-    adminToast('❌ kie.ai 연결 실패 — API Key 및 플랜 확인 필요');
+    adminToast('❌ kie.ai API Key 인증 실패');
     return;
   }
 
-  if(!list.length){
-    status.innerHTML='<span style="color:var(--ylw);">⚠️ 생성된 트랙이 없습니다 (엔드포인트: '+foundEndpoint.split('?')[0]+')</span>';
-    adminToast('로그 없음');
+  status.textContent = `✅ API Key 확인됨${credit!==null?' (잔여: '+Number(credit).toLocaleString()+'cr)':''} — taskId로 로그 조회 중...`;
+
+  /* ── STEP 2: localStorage historyData에서 taskId 수집 → record-info 조회 ──
+     kie.ai 공식 문서에 "record-list" 엔드포인트 없음
+     유일한 조회 방법: GET /api/v1/generate/record-info?taskId=xxx (단건)
+  */
+  const h = getHistory();
+  const taskIds = [...new Set(
+    h.filter(t => t.taskId && t.taskId.length > 6 && !t._kieRefreshed)
+     .map(t => t.taskId)
+  )].slice(0, 30); /* 최대 30개 */
+
+  if(!taskIds.length) {
+    status.innerHTML = `<span style="color:var(--grn);">✅ API Key 정상
+      ${credit!==null?'<br>💳 잔여 크레딧: <b>'+Number(credit).toLocaleString()+'</b> cr':''}
+      <br><span style="font-size:11px;color:var(--t3);">앱에서 음악을 생성하면 여기서 상태를 확인할 수 있어요.</span>
+      <br><a href="https://kie.ai/logs" target="_blank" class="btn" style="margin-top:8px;font-size:11px;display:inline-block;">🔗 kie.ai 전체 로그 보기 ↗</a>
+    </span>`;
+    adminToast('✅ API Key 정상 — 앱에서 곡을 생성 후 조회하세요');
     return;
   }
 
-  /* localStorage historyData에 병합 */
-  let h=getHistory();
-  let added=0;
-  list.forEach(item=>{
-    const audioUrl=item.audioUrl||item.audio_url||item.streamAudioUrl||'';
-    if(!audioUrl)return;
-    const taskId=item.taskId||item.id||item.task_id||'';
-    const existing=h.find(t=>t.id===taskId||t.taskId===taskId);
-    if(!existing){
-      h.unshift({
-        id:taskId||('kie-'+Date.now()+Math.random()),
-        taskId:taskId,
-        title:item.title||item.prompt?.slice(0,30)||'kie.ai 트랙',
-        audio_url:audioUrl,
-        video_url:item.videoUrl||item.video_url||'',
-        image_url:item.imageUrl||item.image_url||item.coverUrl||'',
-        tags:item.tags||item.style||item.genre||'',
-        lyrics:item.lyric||item.lyrics||'',
-        created:item.createdAt||item.created_at||item.createTime?new Date(item.createdAt||item.created_at||item.createTime).getTime():Date.now(),
-        type:'audio', genMode:'custom', _kieLog:true,
-        _owner:{name:'kie.ai 사용자',avatar:'',provider:'kie'},
-      });
-      added++;
+  status.textContent = `🔄 ${taskIds.length}개 taskId 상태 조회 중...`;
+
+  let refreshed = 0, failed = 0;
+  for(let i = 0; i < taskIds.length; i++) {
+    const tid = taskIds[i];
+    status.textContent = `🔄 (${i+1}/${taskIds.length}) taskId 조회: ${tid.slice(0,12)}...`;
+    try {
+      const res = await kieProxyRequest(apiKey, `/api/v1/generate/record-info?taskId=${tid}`);
+      const d = res?.data;
+      if(!d) continue;
+      const sunoArr = d.response?.sunoData || d.sunoData || [];
+      const idx = h.findIndex(t => t.taskId === tid);
+      if(idx >= 0 && sunoArr.length) {
+        const s = sunoArr[0];
+        /* 최신 정보로 갱신 */
+        if(s.audioUrl || s.audio_url) h[idx].audio_url = s.audioUrl || s.audio_url || h[idx].audio_url;
+        if(s.imageUrl || s.image_url) h[idx].image_url = s.imageUrl || s.image_url || h[idx].image_url;
+        if(s.title)  h[idx].title  = s.title;
+        if(s.tags)   h[idx].tags   = s.tags;
+        if(s.lyric||s.lyrics) h[idx].lyrics = s.lyric||s.lyrics||h[idx].lyrics;
+        h[idx]._kieStatus   = d.status || 'UNKNOWN';
+        h[idx]._kieRefreshed = Date.now();
+        refreshed++;
+      }
+    } catch(e) {
+      failed++;
+      console.warn('[KieLogs] taskId', tid, e.message);
     }
-  });
-  localStorage.setItem('kms_history',JSON.stringify(h.slice(0,200)));
-  status.innerHTML=`<span style="color:var(--grn);">✅ ${list.length}개 확인 / ${added}개 신규 추가 (${foundEndpoint.split('?')[0]})</span>`;
-  adminToast('✅ kie.ai 로그 '+added+'개 추가됨');
+    await new Promise(r => setTimeout(r, 120)); /* 120ms 간격 (rate limit 방어) */
+  }
+
+  localStorage.setItem('kms_history', JSON.stringify(h.slice(0, 200)));
+
+  status.innerHTML = `<span style="color:var(--grn);">✅ ${taskIds.length}개 조회 완료 (갱신: ${refreshed}개${failed?', 실패: '+failed+'개':''})
+    ${credit!==null?'<br>💳 잔여 크레딧: <b>'+Number(credit).toLocaleString()+'</b> cr':''}
+    <br><a href="https://kie.ai/logs" target="_blank" style="color:var(--acc3);font-size:11px;">🔗 kie.ai 전체 로그 확인 ↗</a>
+  </span>`;
+  adminToast(`✅ kie.ai ${refreshed}개 트랙 갱신됨`);
   renderCommunityAdmin(); loadData();
 }
 
@@ -1302,26 +1351,16 @@ async function fetchKieUsage(){
   if(!apiKey){ adminToast('⚠️ 커뮤니티 탭에서 kie.ai API Key 입력 후 이용하세요'); return; }
   adminToast('🔍 잔여 크레딧 조회 중...');
 
-  /* kie.ai 크레딧 조회 — 공식 엔드포인트 (docs.kie.ai 기준) */
-  const credEndpoints = [
-    { ep: '/api/v1/user/balance',   bKey: d => d?.data?.balance ?? d?.balance },
-    { ep: '/api/v1/user/info',      bKey: d => d?.data?.credits ?? d?.data?.remainCredits },
-    { ep: '/api/v1/account',        bKey: d => d?.data?.credits ?? d?.data?.balance },
-  ];
+  /* kie.ai 크레딧 조회 — 공식: GET /api/v1/chat/credit (docs.kie.ai/common-api/get-account-credits) */
   let balance = null, used = null;
-  let lastErr = '';
-
-  for(const {ep, bKey} of credEndpoints){
-    try{
-      const d = await kieProxyRequest(apiKey, ep);
-      const b = bKey(d);
-      if(b != null){ balance = Number(b); used = d?.data?.usedCredits ?? d?.usedCredits ?? 0; break; }
-    }catch(e){
-      lastErr = e.message;
-      /* HTML 응답 = 엔드포인트 없음 → 조용히 스킵 */
-      if(!e.message.includes('엔드포인트 없음') && !e.message.includes('HTML'))
-        console.warn('[KieCred]', ep, e.message);
-    }
+  try {
+    const d = await kieProxyRequest(apiKey, '/api/v1/chat/credit');
+    /* 응답: { code:200, data:{ totalCredits, usedCredits, availableCredits } } */
+    balance = d?.data?.availableCredits ?? d?.data?.totalCredits ?? d?.data?.balance ?? d?.balance ?? null;
+    used    = d?.data?.usedCredits ?? d?.data?.used ?? 0;
+    if(balance !== null) balance = Number(balance);
+  } catch(e) {
+    console.warn('[KieCred] /api/v1/chat/credit:', e.message);
   }
 
   const row = document.getElementById('kie-balance-row');
@@ -1427,10 +1466,26 @@ function switchUserTab(tab){
   document.getElementById('utab-creator').className = tab==='creator' ? 'btn btn-acc' : 'btn';
 }
 
-function renderUsersAdmin(showToast=false){
+async function renderUsersAdmin(showToast=false){
   const h = getHistory();
-  /* localStorage에서 최신 로그인 사용자 목록 재조회 */
-  const loginUsers = getLoginUsers();
+  /* 서버 우선 조회 → fallback: localStorage */
+  let loginUsers = getLoginUsers();
+  try{
+    const adminPw = sessionStorage.getItem('kms_admin_session') || document.getElementById('admin-pw')?.value || 'kenny2024!';
+    const r = await fetch('/api/users', { headers:{ 'Authorization':'Bearer '+adminPw } });
+    if(r.ok){
+      const d = await r.json();
+      if(d.users && d.users.length > 0){
+        /* 서버 데이터와 localStorage 머지 (서버 우선) */
+        const merged = [...d.users];
+        loginUsers.forEach(u => {
+          const exists = merged.find(s => s.name===u.name && s.provider===u.provider);
+          if(!exists) merged.push(u);
+        });
+        loginUsers = merged.sort((a,b) => (b.lastLogin||0) - (a.lastLogin||0));
+      }
+    }
+  }catch(e){ console.warn('[Admin] 서버 사용자 조회 실패, localStorage만 사용:', e.message); }
   const today = new Date(); today.setHours(0,0,0,0);
   const now = Date.now();
   const ONLINE_THRESHOLD = 5 * 60 * 1000; // 5분
@@ -2167,30 +2222,22 @@ async function fetchKieUsageForStats(apiKey){
   const balK = document.getElementById('u-kie-krw');
   if(bal) bal.textContent = '조회 중...';
 
-  const endpoints = [
-    { ep: '/api/v1/user/balance', bKey: d => d?.data?.balance ?? d?.balance },
-    { ep: '/api/v1/user/info',    bKey: d => d?.data?.credits ?? d?.data?.remainCredits },
-  ];
-  for(const {ep, bKey} of endpoints){
-    try{
-      const d = await kieProxyRequest(apiKey, ep);
-      const b = bKey(d);
-      if(b != null){
-        const num = Number(b);
-        if(bal)  bal.textContent  = num.toLocaleString() + ' cr';
-        if(balK) balK.textContent = '≈ ₩' + Math.round(num*13.5).toLocaleString();
-        const kb = document.getElementById('kie-balance');
-        if(kb) kb.textContent = num + ' 크레딧 (≈ ₩' + Math.round(num*13.5).toLocaleString() + ')';
-        const kbrow = document.getElementById('kie-balance-row');
-        if(kbrow) kbrow.style.display = 'block';
-        return;
-      }
-    }catch(e){
-      if(!e.message.includes('엔드포인트 없음') && !e.message.includes('HTML'))
-        console.warn('[KieStats]', ep, e.message);
+  try {
+    const d = await kieProxyRequest(apiKey, '/api/v1/chat/credit');
+    const num = Number(d?.data?.availableCredits ?? d?.data?.totalCredits ?? d?.data?.balance ?? d?.balance ?? 0);
+    if(num >= 0) {
+      if(bal)  bal.textContent  = num.toLocaleString() + ' cr';
+      if(balK) balK.textContent = '≈ ₩' + Math.round(num*13.5).toLocaleString();
+      const kb = document.getElementById('kie-balance');
+      if(kb) kb.textContent = num.toLocaleString() + ' 크레딧 (≈ ₩' + Math.round(num*13.5).toLocaleString() + ')';
+      const kbrow = document.getElementById('kie-balance-row');
+      if(kbrow) kbrow.style.display = 'block';
+      return;
     }
+  } catch(e) {
+    console.warn('[KieStats]', e.message);
   }
-  if(bal) bal.innerHTML = '<a href="https://kie.ai/ko/logs" target="_blank" style="color:var(--acc3);font-size:11px;">대시보드 확인 →</a>';
+  if(bal) bal.innerHTML = '<a href="https://kie.ai/api-key" target="_blank" style="color:var(--acc3);font-size:11px;">API Key 확인 ↗</a>';
 }
 
 function exportUsageCsv(){
@@ -2402,7 +2449,31 @@ loadData = function(){
   const pendingReports = getReports().filter(r=>r.status==='pending').length;
   const reportStat = document.getElementById('stat-reports');
   if(reportStat) reportStat.textContent = pendingReports;
+  // 마지막 갱신 시각 표시
+  const lastSync = document.getElementById('dash-last-sync');
+  if(lastSync) lastSync.textContent = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 };
+
+/* ── 대시보드 10초 자동 갱신 ── */
+let _dashAutoTimer = null;
+function startDashAutoRefresh(){
+  if(_dashAutoTimer) return;
+  _dashAutoTimer = setInterval(()=>{
+    /* 대시보드 섹션이 표시 중일 때만 갱신 */
+    const sec = document.getElementById('sec-dashboard');
+    if(sec && sec.classList.contains('on')){
+      loadData();
+      /* API 키 있으면 크레딧도 갱신 */
+      const key = localStorage.getItem('kms_kie_key') || document.getElementById('kie-api-input')?.value.trim();
+      if(key) fetchKieUsageForStats(key).catch(()=>{});
+    }
+  }, 10000);
+}
+function stopDashAutoRefresh(){
+  if(_dashAutoTimer){ clearInterval(_dashAutoTimer); _dashAutoTimer = null; }
+}
+/* 페이지 로드 시 자동 시작 */
+document.addEventListener('DOMContentLoaded', ()=>{ startDashAutoRefresh(); });
 
 
 // ══════════════════════════════════════════════
@@ -2592,6 +2663,22 @@ function tryManagerLogin(id, pw){
 /* 페이지 로드 시 세션 초기화 */
 document.addEventListener('DOMContentLoaded', ()=>{
   setTimeout(initAccountSession, 100);
+  
+  /* ── 10초마다 전체 데이터 자동 갱신 ── */
+  setInterval(()=>{
+    loadData();
+    renderUsersAdmin();
+    /* kie.ai 크레딧 갱신 (저장된 키 있으면) */
+    const _k = localStorage.getItem('kms_kie_key') || document.getElementById('kie-api-input')?.value.trim();
+    if(_k) fetchKieUsageForStats(_k);
+  }, 10000);
+  /* 카운트다운 표시 */
+  let _autoRefreshTick = 10;
+  const _autoLabel = document.getElementById('auto-refresh-label');
+  setInterval(()=>{
+    _autoRefreshTick = _autoRefreshTick <= 1 ? 10 : _autoRefreshTick - 1;
+    if(_autoLabel) _autoLabel.textContent = _autoRefreshTick + '초 후 갱신';
+  }, 1000);
   
   /* 게이트 힌트 업데이트 */
   const hint = document.querySelector('.gate-hint, #gate-hint');

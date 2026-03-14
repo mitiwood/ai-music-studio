@@ -3630,27 +3630,54 @@ $('simple-gen-btn').addEventListener('click',async()=>{
 });
 
 /* ── YouTube 생성 버튼 ── */
-/* ── YouTube 생성 버튼 ── */
-$('yt-gen-btn').addEventListener('click',()=>{
-  /* URL 없이 생성 버튼 누르면 URL 입력 안내 */
-  const ytUrl = $('yt-url')?.value.trim();
+$('yt-gen-btn').onclick = null;
+$('yt-gen-btn').addEventListener('click', async function(){
+  /* 1. URL 확인 */
+  const ytUrl = ($('yt-url')?.value||'').trim();
   if(!ytUrl){
-    const urlInput = $('yt-url');
-    if(urlInput){ urlInput.focus(); urlInput.style.borderColor='rgba(239,68,68,.6)'; setTimeout(()=>{urlInput.style.borderColor='';},2000); }
-    toast('⚠️ YouTube URL을 먼저 입력하고 분석해주세요','err',2500);
+    const inp = $('yt-url');
+    if(inp){ inp.focus(); inp.style.outline='2px solid rgba(239,68,68,.7)'; setTimeout(()=>{inp.style.outline='';},2000); }
+    toast('⚠️ YouTube URL을 먼저 입력해주세요','err',2500);
     return;
   }
-  /* 분석이 안 됐으면 먼저 분석 실행 */
+  /* 2. 분석 미완료 → 자동 분석 후 생성 */
   if(!_lastYtAnalysis){
-    toast('🔍 YouTube 분석 후 생성할게요...','',2000);
+    toast('🔍 YouTube 분석 중... 완료 후 자동 생성됩니다','',3000);
+    window._ytAutoGenerateAfterAnalysis = true;
     $('yt-analyze-btn').click();
     return;
   }
-  currentMode='youtube';
-  const origInst=instOn;instOn=ytInstOn;
-  generate();
-  setTimeout(()=>{instOn=origInst;},100);
+  /* 3. 생성 중이면 차단 */
+  if(_globalGenerating){ _showGeneratingPopup(); return; }
+
+  /* 4. 분석 결과에서 직접 prompt/style 수집 */
+  const _ytTa = document.getElementById('yt-lyrics-ta');
+  const ytLyrics = (_ytTa?.value||'').trim() || $('prompt').value.trim();
+  const ytStyle  = [
+    _lastYtAnalysis?.genre||'',
+    $('yt-mood')?.value||_lastYtAnalysis?.mood||'',
+    _lastYtAnalysis?.style_prompt||''
+  ].filter(Boolean).join(', ');
+
+  /* 5. currentMode 설정 후 generate 직접 호출 */
+  currentMode = 'youtube';
+  const origInst = instOn;
+  instOn = ytInstOn;
+  try{
+    await generate({
+      prompt: ytLyrics || ytStyle,
+      styleStr: ytStyle,
+      _ytMode: true
+    });
+  }finally{
+    instOn = origInst;
+  }
 });
+
+function _ytDoGenerate(){
+  /* 레거시 호환 — _ytAutoGenerateAfterAnalysis 플래그로 호출됨 */
+  $('yt-gen-btn').click();
+}
 
 /* ── /api/config 에서 API 키 로드 ── */
 async function fetchApiKey(){
@@ -3698,6 +3725,12 @@ function _saveLoginUser(user){
     };
     if(idx>=0) list[idx]=entry; else list.unshift(entry);
     localStorage.setItem(KEY, JSON.stringify(list.slice(0,200)));
+    /* 서버에도 저장 — 다른 기기/브라우저 admin에서 조회 가능 */
+    fetch('/api/users',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(entry)
+    }).catch(()=>{});
   }catch(e){}
 }
 
@@ -4297,6 +4330,8 @@ $('yt-analyze-btn').addEventListener('click',async()=>{
       toast('✅ 분석 + 가사 생성 완료!','ok',3000);
       const ytGenBtn=$('yt-gen-btn');
       if(ytGenBtn){ytGenBtn.disabled=false;ytGenBtn.style.opacity='1';$('yt-gen-txt').textContent='▶ YouTube 스타일로 생성';}
+      /* 자동 생성 플래그가 있으면 분석 직후 생성 */
+      if(window._ytAutoGenerateAfterAnalysis){ window._ytAutoGenerateAfterAnalysis=false; setTimeout(_ytDoGenerate,400); }
     }else{
       const safePrompt=title.replace(/[\(\[].*/,'').trim();
       $('prompt').value=`${safePrompt} style music`;
@@ -4305,6 +4340,7 @@ $('yt-analyze-btn').addEventListener('click',async()=>{
       toast('⚠️ 제목 기반 프롬프트 입력됨','',3000);
       const ytGenBtn=$('yt-gen-btn');
       if(ytGenBtn){ytGenBtn.disabled=false;ytGenBtn.style.opacity='1';$('yt-gen-txt').textContent='▶ YouTube 스타일로 생성';}
+      if(window._ytAutoGenerateAfterAnalysis){ window._ytAutoGenerateAfterAnalysis=false; setTimeout(_ytDoGenerate,400); }
     }
   }catch(e){
     toast('❌ 분석 실패: '+e.message,'err',5000);
@@ -4571,8 +4607,8 @@ async function generate(overrideParams){
   _globalGenerating = true;
   /* 모드별 입력값 수집 */
   const isSimple=currentMode==='simple';
-  const isYT=currentMode==='youtube';
-  const isCustom=currentMode==='custom';
+  const isYT=currentMode==='youtube' || !!overrideParams?._ytMode;
+  const isCustom=currentMode==='custom' && !overrideParams?._ytMode;
 
   let lyricsText, moodVal, subGenre;
   if(isSimple){
@@ -4580,8 +4616,10 @@ async function generate(overrideParams){
     moodVal=overrideParams?.mood||$('simple-mood').value;
     subGenre='';
   } else if(isYT){
-    lyricsText=overrideParams?.prompt||$('yt-lyrics-ta')?.value.trim()||$('prompt').value.trim();
-    moodVal=overrideParams?.mood||$('yt-mood').value||$('mood').value;
+    /* overrideParams.prompt 우선 → yt-lyrics-ta → prompt 텍스트에어리어 순 */
+    const _ytTa = document.getElementById('yt-lyrics-ta');
+    lyricsText=overrideParams?.prompt||(_ytTa?.value||'').trim()||$('prompt').value.trim();
+    moodVal=overrideParams?.mood||($('yt-mood')?.value||'')||$('mood').value;
     subGenre='';
   } else {
     lyricsText=overrideParams?.prompt||$('prompt').value.trim();
@@ -4595,9 +4633,12 @@ async function generate(overrideParams){
   const model=$('model-sel').value;
   const sw=parseFloat($('style-weight').value);
   const wc=parseFloat($('weird-constraint').value);
-  /* 가사 없으면 AI 자동 작사 후 생성 (커스텀 모드) */
+  /* 가사 없으면 모드별 처리 */
   if(!lyricsText && !overrideParams?._afterLyrics){
-    if(isCustom){
+    if(isYT){
+      /* YT 모드: 분석 스타일만으로 생성 (가사 없어도 OK) */
+      lyricsText = overrideParams?.styleStr || $('prompt').value.trim() || 'YouTube cover music';
+    } else if(isCustom){
       toast('✍️ 가사가 없어요. AI가 자동으로 작사 후 음악을 생성할게요!','',2500);
       _globalGenerating = false;
       await _autoLyricsAndGenerate();
@@ -4663,8 +4704,11 @@ async function generate(overrideParams){
   $('ld-sub').innerHTML='kie.ai에 작곡 요청 중...<br>잠시만 기다려주세요 ☕';
 
   try{
-    const body={prompt,customMode:isCustom,instrumental:instOn,model,callBackUrl:CALLBACK,styleWeight:sw,weirdnessConstraint:wc};
-    if(isCustom&&subGenre)body.style=styleStr;
+    /* YT 모드도 커스텀 모드처럼 가사+스타일 전달 */
+    const _ytStyleStr = overrideParams?.styleStr || styleStr;
+    const body={prompt,customMode:isCustom||isYT,instrumental:instOn,model,callBackUrl:CALLBACK,styleWeight:sw,weirdnessConstraint:wc};
+    if(isYT && _ytStyleStr){ body.style = _ytStyleStr; }
+    else if(isCustom && (subGenre||moodVal)){ body.style = styleStr||moodVal; }
     if(negTags)body.negativeTags=negTags;
     if(!instOn&&vocalGender)body.vocalGender=vocalGender;
     const songTitle=overrideParams?.title||$('song-title').value.trim();
